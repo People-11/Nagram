@@ -231,32 +231,3 @@ jobs:
         with:
           name: Release
           path: ${{ env.APK }}
-  upload:
-    name: Upload release
-    if: github.event.inputs.upload != 'y'
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Donwload Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: artifacts
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-      - name: Send to Telegram
-        run: |
-          # send release via telegram bot api
-          export mini64=$(find artifacts -name "*arm64-v8a.apk")
-          export mini32=$(find artifacts -name "*armeabi-v7a.apk")
-
-          echo $mini64
-          echo $mini32
-
-          python -m pip install -r bin/scripts/requirements.txt
-          git log -1 --pretty=format:"%s%n%n%b" > artifacts/caption.txt
-          python bin/scripts/upload.py ${{ secrets.HELPER_BOT_TOKEN }} ${{ secrets.HELPER_BOT_TARGET }} release
