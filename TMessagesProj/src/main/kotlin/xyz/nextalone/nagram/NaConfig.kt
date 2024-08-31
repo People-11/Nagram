@@ -590,12 +590,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val sentryAnalytics =
-        addConfig(
-            "SentryAnalytics",
-            ConfigItem.configTypeBool,
-            true
-        )
     val regexFiltersEnabled =
         addConfig(
             "RegexFilters",
