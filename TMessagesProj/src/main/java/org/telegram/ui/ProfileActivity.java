@@ -4222,7 +4222,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     return Unit.INSTANCE;
                 });
 
-                if (NaConfig.INSTANCE.getShowHiddenFeature().Bool()) {
+                if (true) {
                     builder.addItem(LocaleController.getString("DeveloperSettings", R.string.DeveloperSettings), R.drawable.baseline_developer_mode_24, (it) -> {
                         BottomBuilder devBuilder = new BottomBuilder(ProfileActivity.this.getParentActivity());
                         devBuilder.addTitle(LocaleController.getString("DevModeTitle", R.string.DevModeTitle), LocaleController.getString("DevModeNotice", R.string.DevModeNotice));
@@ -4288,7 +4288,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             public boolean onItemClick(View view, int position) {
                 if (position == versionRow) {
                     pressCount++;
-                    if (true) {
+                    if (pressCount >= 5) {
                         NaConfig.INSTANCE.getShowHiddenFeature().toggleConfigBool();
                         Toast.makeText(getParentActivity(), LocaleController.getString("ErrorOccurred", R.string.ErrorOccurred), Toast.LENGTH_SHORT).show();
                     }
