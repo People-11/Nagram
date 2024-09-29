@@ -73,7 +73,7 @@ public class NekoXConfig {
     public static boolean disableStatusUpdate = preferences.getBoolean("disable_status_update", false);
     public static boolean keepOnlineStatus = preferences.getBoolean("keepOnlineStatus", false);
 
-    public static int autoUpdateReleaseChannel = preferences.getInt("autoUpdateReleaseChannel", 2);
+    public static int autoUpdateReleaseChannel = preferences.getInt("autoUpdateReleaseChannel", 0);
 //    public static String ignoredUpdateTag = preferences.getString("ignoredUpdateTag", "");
 //    public static long nextUpdateCheck = preferences.getLong("nextUpdateCheckTimestamp", 0);
 

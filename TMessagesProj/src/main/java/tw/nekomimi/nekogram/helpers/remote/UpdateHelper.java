@@ -98,7 +98,7 @@ public class UpdateHelper extends BaseRemoteHelper {
             update.url = json.url;
             update.flags |= 4;
         }
-        if (NekoXConfig.autoUpdateReleaseChannel == 0 && !update.can_not_skip) {
+        if (NekoXConfig.autoUpdateReleaseChannel == 0) {
             delegate.onTLResponse(null, null);
             return;
         }

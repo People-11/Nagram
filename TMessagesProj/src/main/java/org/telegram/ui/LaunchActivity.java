@@ -5860,7 +5860,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 if (res != null) {
                     SharedConfig.setNewAppVersionAvailable(res);
                     if (res.can_not_skip) {
-                        showUpdateActivity(accountNum, res, false);
+                        // showUpdateActivity(accountNum, res, false);
                     } else {
                         drawerLayoutAdapter.notifyDataSetChanged();
                         ApplicationLoader.applicationLoaderInstance.showUpdateAppPopup(LaunchActivity.this, res, accountNum);
@@ -6674,7 +6674,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         if (UserConfig.getInstance(UserConfig.selectedAccount).unacceptedTermsOfService != null) {
             showTosActivity(UserConfig.selectedAccount, UserConfig.getInstance(UserConfig.selectedAccount).unacceptedTermsOfService);
         } else if (SharedConfig.pendingAppUpdate != null && SharedConfig.pendingAppUpdate.can_not_skip) {
-            showUpdateActivity(UserConfig.selectedAccount, SharedConfig.pendingAppUpdate, true);
+            // showUpdateActivity(UserConfig.selectedAccount, SharedConfig.pendingAppUpdate, true);
         }
         checkAppUpdate(false, null);
 
