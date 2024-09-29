@@ -4225,7 +4225,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     return Unit.INSTANCE;
                 });
 
-                if (NaConfig.INSTANCE.getShowHiddenFeature().Bool()) {
+                if (true) {
                     builder.addItem(LocaleController.getString("DeveloperSettings", R.string.DeveloperSettings), R.drawable.baseline_developer_mode_24, (it) -> {
                         BottomBuilder devBuilder = new BottomBuilder(ProfileActivity.this.getParentActivity());
                         devBuilder.addTitle(LocaleController.getString("DevModeTitle", R.string.DevModeTitle), LocaleController.getString("DevModeNotice", R.string.DevModeNotice));
