@@ -16192,7 +16192,8 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 return false;
             }
         }
-        return messageObject.needDrawShareButton();
+        //return messageObject.needDrawShareButton();
+        return false;
     }
 
     public boolean isInsideBackground(float x, float y) {
