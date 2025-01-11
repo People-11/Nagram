@@ -50,7 +50,7 @@ public class NekoXSettingActivity extends BaseFragment {
     private int developerSettingsRow;
 
     private int enableRow;
-    private int disableFlagSecureRow;
+    //private int disableFlagSecureRow;
     private int disableScreenshotDetectionRow;
     private int disableStatusUpdateRow;
 
@@ -108,12 +108,12 @@ public class NekoXSettingActivity extends BaseFragment {
             if (position == enableRow) {
                 NekoXConfig.toggleDeveloperMode();
                 updateRows();
-            } else if (position == disableFlagSecureRow) {
+            } /*else if (position == disableFlagSecureRow) {
                 NekoXConfig.toggleDisableFlagSecure();
                 if (view instanceof TextCheckCell) {
                     ((TextCheckCell) view).setChecked(NekoXConfig.disableFlagSecure);
                 }
-            } else if (position == disableScreenshotDetectionRow) {
+            }*/ else if (position == disableScreenshotDetectionRow) {
                 NekoXConfig.toggleDisableScreenshotDetection();
                 if (view instanceof TextCheckCell) {
                     ((TextCheckCell) view).setChecked(NekoXConfig.disableScreenshotDetection);
@@ -145,7 +145,7 @@ public class NekoXSettingActivity extends BaseFragment {
 
         enableRow = rowCount++;
 
-        disableFlagSecureRow = rowCount++;
+        //disableFlagSecureRow = rowCount++;
         disableScreenshotDetectionRow = rowCount++;
         disableStatusUpdateRow = rowCount++;
 
@@ -282,9 +282,9 @@ public class NekoXSettingActivity extends BaseFragment {
                         if (!NekoXConfig.developerMode) {
                             textCell.setEnabled(false);
                         }
-                        if (position == disableFlagSecureRow) {
+                        /*if (position == disableFlagSecureRow) {
                             textCell.setTextAndCheck("Disable Flag Secure", NekoXConfig.disableFlagSecure, true);
-                        } else if (position == disableScreenshotDetectionRow) {
+                        } else */if (position == disableScreenshotDetectionRow) {
                             textCell.setTextAndCheck("Disable Screenshot Detection", NekoXConfig.disableScreenshotDetection, false);
                         } else if (position == disableStatusUpdateRow) {
                             textCell.setTextAndCheck("Disable Status Update", NekoXConfig.disableStatusUpdate, false);
