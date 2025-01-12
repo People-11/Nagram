@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - v11.2.3-1198
     paths-ignore:
       - '**.md'
       - '.github/**'
