@@ -1053,6 +1053,7 @@ public class StoriesController {
     }
 
     public boolean hasSelfStories() {
+        if (NaConfig.INSTANCE.getDisableStories().Bool()) return false;
         long clientUserId = UserConfig.getInstance(currentAccount).clientUserId;
         TL_stories.PeerStories storyItem = allStoriesMap.get(clientUserId);
         if (storyItem != null && !storyItem.stories.isEmpty()) {
