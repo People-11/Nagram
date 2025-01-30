@@ -326,8 +326,6 @@ public class ApplicationLoader extends Application {
             throw new RuntimeException("can't load native libraries " +  Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder());
         }
 
-        AnalyticsHelper.start(this);
-
         new ForegroundDetector(this) {
             @Override
             public void onActivityStarted(Activity activity) {
