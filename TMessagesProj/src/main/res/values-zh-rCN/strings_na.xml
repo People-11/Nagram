@@ -164,4 +164,16 @@
     <string name="PanguInfo">使文字更具可读性。在 CJK（中文、日文、韩文）、半宽英文、数字和符号字符之间间隔中自动插入空格</string>
     <string name="SendWithPangu">使用 Pangu 发送</string>
     <string name="SendWithoutPangu">不使用 Pangu 发送</string>
+    <string name="DisableStarsSubscription">禁用Stars余额不足通知</string>
+    <string name="DisablePremiumExpiring">禁用Premium到期通知</string>
+    <string name="DisablePremiumUpgrade">禁用Premium升级通知</string>
+    <string name="DisablePremiumChristmas">禁用Premium圣诞通知</string>
+    <string name="DisablePremiumRestore">禁用Premium过期恢复通知</string>
+    <string name="DisableBirthdayContact">禁用联系人生日通知</string>
+    <string name="DisableFavoriteSearchEmojiTags">禁用收藏夹标签搜索栏Emoji列表</string>
+    <string name="DisableFeatuerdEmojis">禁用热门Premium Emoji</string>
+    <string name="DisableFeaturedStickers">禁用热门Premium Stickers</string>
+    <string name="DisableFeaturedGifs">禁用热门GIF图</string>
+    <string name="DisablePremiumFavoriteEmojiTags">禁用Premium收藏夹Emoji标签</string>
+    <string name="DisableNonPremiumChannelChatShow">禁用非Premium频道马甲显示</string>
 </resources>
