@@ -11,6 +11,7 @@ import tw.nekomimi.nekogram.config.ConfigItem
 import tw.nekomimi.nekogram.config.ConfigItemKeyLinked
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
+import androidx.core.net.toUri
 
 
 object NaConfig {
@@ -511,7 +512,7 @@ object NaConfig {
             ""
         )
     var externalStickerCacheUri: Uri?
-        get() = externalStickerCache.String().let { if (it.isBlank()) return null else return Uri.parse(it) }
+        get() = externalStickerCache.String().let { if (it.isBlank()) return null else return it.toUri() }
         set(value) = externalStickerCache.setConfigString(value.toString())
     val externalStickerCacheAutoRefresh =
         addConfig(
@@ -681,7 +682,7 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val disableTrendingFlags =
+    private val disableTrendingFlags =
         addConfig(
             "DisableTrendingFlags",
             ConfigItem.configTypeInt,
@@ -769,6 +770,47 @@ object NaConfig {
             "DisableNonPremiumChannelChatShow",
             disableTrendingFlags,
             11,
+            false
+        )
+    val disableActionBarButton =
+        addConfig(
+            "DisableActionBarButton",
+            ConfigItem.configTypeInt,
+            0
+        )
+    val disableActionBarButtonReply =
+        addConfig(
+            "Reply",
+            disableActionBarButton,
+            0,
+            false
+        )
+    val disableActionBarButtonEdit =
+        addConfig(
+            "Edit",
+            disableActionBarButton,
+            1,
+            false
+        )
+    val disableActionBarButtonSelectBetween =
+        addConfig(
+            "SelectBetween",
+            disableActionBarButton,
+            2,
+            false
+        )
+    val disableActionBarButtonCopy =
+        addConfig(
+            "Copy",
+            disableActionBarButton,
+            3,
+            false
+        )
+    val disableActionBarButtonForward =
+        addConfig(
+            "Forward",
+            disableActionBarButton,
+            4,
             false
         )
 

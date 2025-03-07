@@ -178,4 +178,5 @@
     <string name="DisableFeaturedGifs">Disable popular GIFs</string>
     <string name="DisablePremiumFavoriteEmojiTags">Disable Premium favorite emoji tags</string>
     <string name="DisableNonPremiumChannelChatShow">Disable non-Premium channel alias display</string>
+    <string name="DisableActionBarButton">Disable Action Bar Button</string>
 </resources>

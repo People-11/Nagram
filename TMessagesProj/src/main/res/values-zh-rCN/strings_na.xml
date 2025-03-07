@@ -176,4 +176,5 @@
     <string name="DisableFeaturedGifs">禁用热门GIF图</string>
     <string name="DisablePremiumFavoriteEmojiTags">禁用Premium收藏夹Emoji标签</string>
     <string name="DisableNonPremiumChannelChatShow">禁用非Premium频道马甲显示</string>
+    <string name="DisableActionBarButton">禁用对话导航栏按钮</string>
 </resources>
