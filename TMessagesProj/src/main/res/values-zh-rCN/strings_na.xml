@@ -50,7 +50,7 @@
     <string name="DisableGlobalSearch">禁用全局搜索</string>
     <string name="InputMessageId">输入消息 ID</string>
     <string name="ToTheMessage">回到消息</string>
-    <string name="HideOriginAfterTranslation">翻译隐藏后原文</string>
+    <string name="HideOriginAfterTranslation">翻译后隐藏原文</string>
     <string name="ZalgoFilter">过滤 \"Zalgo\" 符号</string>
     <string name="ZalgoFilterNotice">昵称和消息中的 \"Z̷͍͌ā̸̜l̸̞̂g̷̝͘o̶̩̓\" 符号将被过滤</string>
     <string name="CustomChannelLabel">自定义频道默认别名</string>
@@ -168,4 +168,20 @@
     <string name="DisableBotOpenButton">禁用 Bot 的打开小程序按钮</string>
     <string name="CustomTitleUserName">使用用户昵称作为标题</string>
     <string name="EnhancedVideoBitrate">改善上传视频画质</string>
+    <string name="DisableStarsSubscription">禁用Stars余额不足通知</string>
+    <string name="DisablePremiumExpiring">禁用Premium到期通知</string>
+    <string name="DisablePremiumUpgrade">禁用Premium升级通知</string>
+    <string name="DisablePremiumChristmas">禁用Premium圣诞通知</string>
+    <string name="DisablePremiumRestore">禁用Premium过期恢复通知</string>
+    <string name="DisableBirthdayContact">禁用联系人生日通知</string>
+    <string name="DisableFavoriteSearchEmojiTags">禁用收藏夹标签搜索栏Emoji列表</string>
+    <string name="DisableFeatuerdEmojis">禁用热门Premium Emoji</string>
+    <string name="DisableFeaturedStickers">禁用热门Premium Stickers</string>
+    <string name="DisableFeaturedGifs">禁用热门GIF图</string>
+    <string name="DisablePremiumFavoriteEmojiTags">禁用Premium收藏夹Emoji标签</string>
+    <string name="DisableNonPremiumChannelChatShow">禁用非Premium频道马甲显示</string>
+    <string name="DisableRepeatInChannel">在频道中禁用复读</string>
+    <string name="DisableRepeatInChannelError">已禁止在频道中使用复读</string>
+    <string name="DisableDoubleTapWhenSelecting">已禁止在选择模式中使用双击</string>
+    <string name="DisableActionBarButton">禁用对话导航栏按钮</string>
 </resources>

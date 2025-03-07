@@ -15,6 +15,8 @@ import android.util.SparseArray;
 import android.util.LongSparseArray;
 import android.util.SparseIntArray;
 
+import androidx.annotation.Keep;
+
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.gms.tasks.Task;
 //import com.google.android.play.core.integrity.IntegrityManager;
@@ -401,6 +403,9 @@ SharedPreferences mainPreferences;
                         error.text = errorText;
                         if (BuildVars.LOGS_ENABLED && error.code != -2000) {
                             FileLog.e(object + " got error " + error.code + " " + error.text);
+                        }
+                        if (NaConfig.INSTANCE.getShowRPCError().Bool()) {
+                            ErrorDatabase.showErrorToast(object, errorText);
                         }
                     }
                     if ((connectionType & ConnectionTypeDownload) != 0 && VideoPlayer.activePlayers.isEmpty()) {
@@ -1026,7 +1031,6 @@ SharedPreferences mainPreferences;
     public static native void native_discardConnection(int currentAccount, int datacenterId, int connectionType);
     public static native void native_failNotRunningRequest(int currentAccount, int token);
     public static native void native_receivedIntegrityCheckClassic(int currentAccount, int requestToken, String nonce, String token);
-
     public static native boolean native_isGoodPrime(byte[] prime, int g);
 
     public static int generateClassGuid() {
@@ -1240,6 +1244,7 @@ SharedPreferences mainPreferences;
     }
 
     public static long lastPremiumFloodWaitShown = 0;
+    @Keep
     public static void onPremiumFloodWait(final int currentAccount, final int requestToken, boolean isUpload) {
         AndroidUtilities.runOnUIThread(() -> {
             if (UserConfig.selectedAccount != currentAccount) {
@@ -1268,6 +1273,7 @@ SharedPreferences mainPreferences;
         });
     }
 
+    @Keep
     public static void onIntegrityCheckClassic(final int currentAccount, final int requestToken, final String project, final String nonce) {
         /*AndroidUtilities.runOnUIThread(() -> {
             long start = System.currentTimeMillis();

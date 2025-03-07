@@ -8,8 +8,10 @@ import org.telegram.messenger.ApplicationLoader
 import org.telegram.messenger.LocaleController
 import org.telegram.messenger.R
 import tw.nekomimi.nekogram.config.ConfigItem
+import tw.nekomimi.nekogram.config.ConfigItemKeyLinked
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
+import androidx.core.net.toUri
 
 
 object NaConfig {
@@ -415,6 +417,34 @@ object NaConfig {
             ConfigItem.configTypeInt,
             0
         )
+    val defaultDeleteMenuBanUsers =
+        addConfig(
+            "DeleteBanUsers",
+            defaultDeleteMenu,
+            3,
+            false
+        )
+    val defaultDeleteMenReportSpam =
+        addConfig(
+            "DeleteReportSpam",
+            defaultDeleteMenu,
+            2,
+            false
+        )
+    val defaultDeleteMenuDeleteAll =
+        addConfig(
+            "DeleteAll",
+            defaultDeleteMenu,
+            1,
+            false
+        )
+    val defaultDeleteMenuDoActionsInCommonGroups =
+        addConfig(
+            "DoActionsInCommonGroups",
+            defaultDeleteMenu,
+            0,
+            false
+        )
     val disableSuggestionView =
         addConfig(
             "DisableSuggestionView",
@@ -482,7 +512,7 @@ object NaConfig {
             ""
         )
     var externalStickerCacheUri: Uri?
-        get() = externalStickerCache.String().let { if (it.isBlank()) return null else return Uri.parse(it) }
+        get() = externalStickerCache.String().let { if (it.isBlank()) return null else return it.toUri() }
         set(value) = externalStickerCache.setConfigString(value.toString())
     val externalStickerCacheAutoRefresh =
         addConfig(
@@ -676,6 +706,143 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
+    private val disableTrendingFlags =
+        addConfig(
+            "DisableTrendingFlags",
+            ConfigItem.configTypeInt,
+            0
+        )
+    val disableStarsSubscription =
+        addConfig(
+            "DisableStarsSubscription",
+            disableTrendingFlags,
+            0,
+            false
+        )
+    val disablePremiumExpiring =
+        addConfig(
+            "DisablePremiumExpiring",
+            disableTrendingFlags,
+            1,
+            false
+        )
+    val disablePremiumUpgrade =
+        addConfig(
+            "DisablePremiumUpgrade",
+            disableTrendingFlags,
+            2,
+            false
+        )
+    val disablePremiumChristmas =
+        addConfig(
+            "DisablePremiumChristmas",
+            disableTrendingFlags,
+            3,
+            false
+        )
+    val disableBirthdayContact =
+        addConfig(
+            "DisableBirthdayContact",
+            disableTrendingFlags,
+            4,
+            false
+        )
+    val disablePremiumRestore =
+        addConfig(
+            "DisablePremiumRestore",
+            disableTrendingFlags,
+            5,
+            false
+        )
+    val disableFeatuerdEmojis =
+        addConfig(
+            "DisableFeatuerdEmojis",
+            disableTrendingFlags,
+            6,
+            false
+        )
+    val disableFeaturedStickers =
+        addConfig(
+            "DisableFeaturedStickers",
+            disableTrendingFlags,
+            7,
+            false
+        )
+    val disableFeaturedGifs =
+        addConfig(
+            "DisableFeaturedGifs",
+            disableTrendingFlags,
+            8,
+            false
+        )
+    val disablePremiumFavoriteEmojiTags =
+        addConfig(
+            "DisablePremiumFavoriteEmojiTags",
+            disableTrendingFlags,
+            9,
+            false
+        )
+    val disableFavoriteSearchEmojiTags =
+        addConfig(
+            "DisableFavoriteSearchEmojiTags",
+            disableTrendingFlags,
+            10,
+            false
+        )
+    val disableNonPremiumChannelChatShow =
+        addConfig(
+            "DisableNonPremiumChannelChatShow",
+            disableTrendingFlags,
+            11,
+            false
+        )
+    val disableRepeatInChannel =
+        addConfig(
+            "DisableRepeatInChannel",
+            ConfigItem.configTypeBool,
+            false
+        )
+    val disableActionBarButton =
+        addConfig(
+            "DisableActionBarButton",
+            ConfigItem.configTypeInt,
+            0
+        )
+    val disableActionBarButtonReply =
+        addConfig(
+            "Reply",
+            disableActionBarButton,
+            0,
+            false
+        )
+    val disableActionBarButtonEdit =
+        addConfig(
+            "Edit",
+            disableActionBarButton,
+            1,
+            false
+        )
+    val disableActionBarButtonSelectBetween =
+        addConfig(
+            "SelectBetween",
+            disableActionBarButton,
+            2,
+            false
+        )
+    val disableActionBarButtonCopy =
+        addConfig(
+            "Copy",
+            disableActionBarButton,
+            3,
+            false
+        )
+    val disableActionBarButtonForward =
+        addConfig(
+            "Forward",
+            disableActionBarButton,
+            4,
+            false
+        )
 
     private fun addConfig(
         k: String,
@@ -687,6 +854,25 @@ object NaConfig {
                 k,
                 t,
                 d
+            )
+        configs.add(
+            a
+        )
+        return a
+    }
+
+    private fun addConfig(
+        k: String,
+        t: ConfigItem,
+        d: Int,
+        e: Any?
+    ): ConfigItem {
+        val a =
+            ConfigItemKeyLinked(
+                k,
+                t,
+                d,
+                e,
             )
         configs.add(
             a
@@ -792,6 +978,10 @@ object NaConfig {
                                 HashMap<Int, Int>()
                         }
                     }
+                }
+                if (o.type == ConfigItem.configTypeBoolLinkInt) {
+                    o as ConfigItemKeyLinked
+                    o.changedFromKeyLinked(preferences.getInt(o.keyLinked.key, 0))
                 }
             }
             configLoaded =
