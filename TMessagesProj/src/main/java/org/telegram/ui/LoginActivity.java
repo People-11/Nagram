@@ -8672,7 +8672,7 @@ R.string.CustomBackend))
             }
             String token = editText.getText().toString();
 
-            if (token.isEmpty()) {
+            if (token.length() == 0) {
                 needShowAlert(LocaleController.getString("NekoX", R.string.NekoX), LocaleController.getString("InvalidAccessToken", R.string.InvalidAccessToken));
                 return;
             }
@@ -8690,7 +8690,7 @@ R.string.CustomBackend))
                     onAuthSuccess(res);
                 } else {
                     if (error.code == 401) {
-                        ConnectionsManager.getInstance(currentAccount).cleanup(true);
+                        ConnectionsManager.native_cleanUp(currentAccount, true);
                     }
                     if (error.text != null) {
                         if (error.text.contains("ACCESS_TOKEN_INVALID")) {
