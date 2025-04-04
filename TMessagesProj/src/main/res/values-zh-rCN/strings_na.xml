@@ -69,7 +69,7 @@
     <string name="CustomPoor">自定义长按快捷回复词</string>
     <string name="CustomPoorHint">默认破烂</string>
     <string name="CustomEditedMessage">自定义已编辑消息提示词</string>
-    <string name="FakeHighPerformanceDevice">伪装高性能设备</string>
+    <string name="FakeLowPerformanceDevice">伪装低性能设备</string>
     <string name="DisableEmojiDrawLimit">解除 emoji 渲染上限</string>
     <string name="IconDecoration">图标装饰</string>
     <string name="NotificationIcon">通知图标样式</string>

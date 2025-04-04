@@ -69,7 +69,6 @@
     <string name="CustomPoor">Mot de réponse par clic long personnalisé</string>
     <string name="CustomPoorHint">Groupement par défaut</string>
     <string name="CustomEditedMessage">Mot de message modifié personnalisé</string>
-    <string name="FakeHighPerformanceDevice">Faux appareil à haute performance</string>
     <string name="DisableEmojiDrawLimit">Désactiver la limite de dessins d\'Émojis</string>
     <string name="IconDecoration">Décoration de l\'icône</string>
     <string name="NotificationIcon">Icône de notification</string>

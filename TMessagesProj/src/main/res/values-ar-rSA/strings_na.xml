@@ -69,7 +69,6 @@
     <string name="CustomPoor">تخصيص النقر مطولاً على كلمة الرد</string>
     <string name="CustomPoorHint">المخزن الافتراضي</string>
     <string name="CustomEditedMessage">تعديل كلمة الرسالة المخصصة</string>
-    <string name="FakeHighPerformanceDevice">جهاز الأداء العالي الوهمي</string>
     <string name="DisableEmojiDrawLimit">تعطيل حد رسم الرموز التعبيرية</string>
     <string name="IconDecoration">زخرفة الأيقونة</string>
     <string name="NotificationIcon">أيقونة الإشعار</string>

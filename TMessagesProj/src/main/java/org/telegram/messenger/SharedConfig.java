@@ -1803,8 +1803,8 @@ public class SharedConfig {
         int cpuCount = ConnectionsManager.CPU_COUNT;
         int memoryClass = ((ActivityManager) ApplicationLoader.applicationContext.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
 
-        if (NaConfig.INSTANCE.getFakeHighPerformanceDevice().Bool()) {
-            return PERFORMANCE_CLASS_HIGH;
+        if (NaConfig.INSTANCE.getFakeLowPerformanceDevice().Bool()) {
+            return PERFORMANCE_CLASS_LOW;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Build.SOC_MODEL != null) {

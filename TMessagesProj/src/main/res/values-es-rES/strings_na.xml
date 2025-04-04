@@ -69,7 +69,6 @@
     <string name="CustomPoor">Palabra de respuesta personalizada en clic largo</string>
     <string name="CustomPoorHint">Piscina por defecto</string>
     <string name="CustomEditedMessage">Palabra personalizada del mensaje editado</string>
-    <string name="FakeHighPerformanceDevice">Falsear como dispositivo de alto rendimiento</string>
     <string name="DisableEmojiDrawLimit">Deshabilitar límite de dibujado de emojis</string>
     <string name="IconDecoration">Decoración de los iconos</string>
     <string name="NotificationIcon">Icono de la notificación</string>

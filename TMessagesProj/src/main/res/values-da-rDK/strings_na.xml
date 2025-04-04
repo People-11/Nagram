@@ -69,7 +69,6 @@
     <string name="CustomPoor">Brugerdefineret langt klik svar ord</string>
     <string name="CustomPoorHint">Standard pool</string>
     <string name="CustomEditedMessage">Brugerdefineret redigeret besked ord</string>
-    <string name="FakeHighPerformanceDevice">Falske Højtydende Enhed</string>
     <string name="DisableEmojiDrawLimit">Deaktiver Emoji Tegn Grænse</string>
     <string name="IconDecoration">Ikon Dekoration</string>
     <string name="NotificationIcon">Notifikations Ikon</string>

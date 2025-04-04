@@ -69,7 +69,6 @@
     <string name="CustomPoor">Προσαρμοσμένη λέξη απάντησης παρατεταμένου κλικ</string>
     <string name="CustomPoorHint">Προεπιλεγμένη πισίνα</string>
     <string name="CustomEditedMessage">Προσαρμοσμένη λέξη επεξεργασμένου μηνύματος</string>
-    <string name="FakeHighPerformanceDevice">Ψεύτικη Συσκευή Υψηλής Απόδοσης</string>
     <string name="DisableEmojiDrawLimit">Απενεργοποίηση Ορίου Ισοπαλία Emoji</string>
     <string name="IconDecoration">Διακόσμηση Εικονιδίων</string>
     <string name="NotificationIcon">Εικονίδιο Ειδοποιήσεων</string>
