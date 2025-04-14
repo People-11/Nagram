@@ -79,9 +79,9 @@ public class DatacenterActivity extends BaseNekoSettingsActivity implements Noti
     protected void onItemClick(View view, int position, float x, float y) {
         if (position > datacentersRow && position < datacenters2Row) {
             var datacenterInfo = NekoConfig.datacenterInfos.get(position - datacentersRow - 1);
-            if (datacenterInfo.checking) {
-                return;
-            }
+            //if (datacenterInfo.checking) {
+            //    return;
+            //}
             checkDatacenter(datacenterInfo, true);
         }
     }
@@ -108,9 +108,9 @@ public class DatacenterActivity extends BaseNekoSettingsActivity implements Noti
     }
 
     private void checkDatacenter(NekoConfig.DatacenterInfo datacenterInfo, boolean force) {
-        if (datacenterInfo.checking) {
-            return;
-        }
+        //if (datacenterInfo.checking) {
+        //    return;
+        //}
         if (!force && SystemClock.elapsedRealtime() - datacenterInfo.availableCheckTime < 2 * 60 * 1000) {
             return;
         }
@@ -205,7 +205,8 @@ public class DatacenterActivity extends BaseNekoSettingsActivity implements Noti
             var position = holder.getAdapterPosition();
             if (position > datacentersRow && position < datacenters2Row) {
                 var datacenterInfo = NekoConfig.datacenterInfos.get(position - datacentersRow - 1);
-                return !datacenterInfo.checking;
+                //return !datacenterInfo.checking;
+                return true;
             } else {
                 return super.isEnabled(holder);
             }
