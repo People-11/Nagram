@@ -33,13 +33,11 @@ import com.google.zxing.qrcode.decoder.Decoder;
 import com.google.zxing.qrcode.decoder.QRCodeDecoderMetaData;
 import com.google.zxing.qrcode.detector.Detector;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * This implementation can detect and decode QR Codes in an image.
- * Enhanced to better handle unclear or distorted QR codes.
  *
  * @author Sean Owen
  */
@@ -69,45 +67,8 @@ public class QRCodeReader implements Reader {
   @Override
   public final Result decode(BinaryBitmap image, Map<DecodeHintType,?> hints)
       throws NotFoundException, ChecksumException, FormatException {
-    
-    // Create enhanced hints map
-    Map<DecodeHintType, Object> enhancedHints = new HashMap<>();
-    if (hints != null) {
-      enhancedHints.putAll(hints);
-    }
-    
-    // Always use TRY_HARDER for better results with unclear images
-    if (!enhancedHints.containsKey(DecodeHintType.TRY_HARDER)) {
-      enhancedHints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-    }
-    
-    // First attempt with enhanced hints
-    try {
-      return decodeInternal(image, enhancedHints);
-    } catch (NotFoundException | ChecksumException | FormatException e) {
-      // Second attempt with pure barcode mode if not already tried
-      if (!enhancedHints.containsKey(DecodeHintType.PURE_BARCODE)) {
-        enhancedHints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
-        try {
-          return decodeInternal(image, enhancedHints);
-        } catch (Exception e2) {
-          // Fall through to next attempt
-        }
-      }
-      
-      // Try again with the original error
-      throw e;
-    }
-  }
-  
-  /**
-   * Internal decode method with enhanced bit extraction
-   */
-  private Result decodeInternal(BinaryBitmap image, Map<DecodeHintType, ?> hints)
-      throws NotFoundException, ChecksumException, FormatException {
     DecoderResult decoderResult;
     ResultPoint[] points;
-    
     if (hints != null && hints.containsKey(DecodeHintType.PURE_BARCODE)) {
       BitMatrix bits = extractPureBits(image.getBlackMatrix());
       decoderResult = decoder.decode(bits, hints);
@@ -147,59 +108,49 @@ public class QRCodeReader implements Reader {
   }
 
   /**
-   * Enhanced version of extractPureBits that is more tolerant of imperfections
+   * This method detects a code in a "pure" image -- that is, pure monochrome image
+   * which contains only an unrotated, unskewed, image of a code, with some white border
+   * around it. This is a specialized method that works exceptionally fast in this special
+   * case.
    */
   private static BitMatrix extractPureBits(BitMatrix image) throws NotFoundException {
+
     int[] leftTopBlack = image.getTopLeftOnBit();
     int[] rightBottomBlack = image.getBottomRightOnBit();
     if (leftTopBlack == null || rightBottomBlack == null) {
       throw NotFoundException.getNotFoundInstance();
     }
 
-    float moduleSize = estimateModuleSize(leftTopBlack, image);
+    float moduleSize = moduleSize(leftTopBlack, image);
 
     int top = leftTopBlack[1];
     int bottom = rightBottomBlack[1];
     int left = leftTopBlack[0];
     int right = rightBottomBlack[0];
 
-    // Sanity check with more tolerance
+    // Sanity check!
     if (left >= right || top >= bottom) {
-      // Try to adjust slightly for some tolerance
-      int width = image.getWidth();
-      int height = image.getHeight();
-      
-      if (left >= right) {
-        // Try to find a better right boundary
-        right = Math.min(width - 1, left + (int)(moduleSize * 21)); // QR code is at least 21 modules wide
-      }
-      
-      if (top >= bottom) {
-        // Try to find a better bottom boundary
-        bottom = Math.min(height - 1, top + (int)(moduleSize * 21)); // QR code is at least 21 modules high
-      }
-      
-      // If still invalid, throw exception
-      if (left >= right || top >= bottom) {
+      throw NotFoundException.getNotFoundInstance();
+    }
+
+    if (bottom - top != right - left) {
+      // Special case, where bottom-right module wasn't black so we found something else in the last row
+      // Assume it's a square, so use height as the width
+      right = left + (bottom - top);
+      if (right >= image.getWidth()) {
+        // Abort if that would not make sense -- off image
         throw NotFoundException.getNotFoundInstance();
       }
     }
 
-    // In some cases, the bottom/right is too far. Use the module size to make a better guess
     int matrixWidth = Math.round((right - left + 1) / moduleSize);
     int matrixHeight = Math.round((bottom - top + 1) / moduleSize);
-    
-    // Module size might be off, so make sure we have at least the minimum size
     if (matrixWidth <= 0 || matrixHeight <= 0) {
       throw NotFoundException.getNotFoundInstance();
     }
-    
-    // QR codes are square, but we'll allow some tolerance
-    // If they're very different, use the smaller dimension
-    if (Math.abs(matrixWidth - matrixHeight) > Math.min(matrixWidth, matrixHeight) / 5) {
-      int dimension = Math.min(matrixWidth, matrixHeight);
-      matrixWidth = dimension;
-      matrixHeight = dimension;
+    if (matrixHeight != matrixWidth) {
+      // Only possibly decode square regions
+      throw NotFoundException.getNotFoundInstance();
     }
 
     // Push in the "border" by half the module width so that we start
@@ -210,6 +161,8 @@ public class QRCodeReader implements Reader {
     left += nudge;
 
     // But careful that this does not sample off the edge
+    // "right" is the farthest-right valid pixel location -- right+1 is not necessarily
+    // This is positive by how much the inner x loop below would be too large
     int nudgedTooFarRight = left + (int) ((matrixWidth - 1) * moduleSize) - right;
     if (nudgedTooFarRight > 0) {
       if (nudgedTooFarRight > nudge) {
@@ -218,7 +171,7 @@ public class QRCodeReader implements Reader {
       }
       left -= nudgedTooFarRight;
     }
-    
+    // See logic above
     int nudgedTooFarDown = top + (int) ((matrixHeight - 1) * moduleSize) - bottom;
     if (nudgedTooFarDown > 0) {
       if (nudgedTooFarDown > nudge) {
@@ -228,13 +181,12 @@ public class QRCodeReader implements Reader {
       top -= nudgedTooFarDown;
     }
 
-    // Now just read off the bits with adaptive sampling
+    // Now just read off the bits
     BitMatrix bits = new BitMatrix(matrixWidth, matrixHeight, 1);
     for (int y = 0; y < matrixHeight; y++) {
       int iOffset = top + (int) (y * moduleSize);
       for (int x = 0; x < matrixWidth; x++) {
-        // Use adaptive sampling (check neighboring pixels)
-        if (sampleGrid(image, left + (int) (x * moduleSize), iOffset, (int) moduleSize)) {
+        if (image.get(left + (int) (x * moduleSize), iOffset)) {
           bits.set(x, y);
         }
       }
@@ -242,49 +194,13 @@ public class QRCodeReader implements Reader {
     return bits;
   }
 
-  /**
-   * Enhanced module size estimation that is more robust for unclear images
-   */
-  private static float estimateModuleSize(int[] leftTopBlack, BitMatrix image) throws NotFoundException {
+  private static float moduleSize(int[] leftTopBlack, BitMatrix image) throws NotFoundException {
     int height = image.getHeight();
     int width = image.getWidth();
     int x = leftTopBlack[0];
     int y = leftTopBlack[1];
-    
-    // Try to find module size by counting transitions along diagonal
-    float diagonalSize = calculateModuleSizeFromDiagonal(x, y, width, height, image);
-    
-    // Try horizontal and vertical as well for better accuracy
-    float horizontalSize = calculateModuleSizeOneWay(x, y, width, true, image);
-    float verticalSize = calculateModuleSizeOneWay(x, y, height, false, image);
-    
-    // Use the most reasonable size
-    float bestSize = diagonalSize;
-    int validSizes = 1;
-    
-    if (horizontalSize > 0) {
-      bestSize += horizontalSize;
-      validSizes++;
-    }
-    
-    if (verticalSize > 0) {
-      bestSize += verticalSize;
-      validSizes++;
-    }
-    
-    return bestSize / validSizes;
-  }
-  
-  /**
-   * Calculate module size from diagonal (original method)
-   */
-  private static float calculateModuleSizeFromDiagonal(int startX, int startY, int width, int height, BitMatrix image) 
-      throws NotFoundException {
-    int x = startX;
-    int y = startY;
     boolean inBlack = true;
     int transitions = 0;
-    
     while (x < width && y < height) {
       if (inBlack != image.get(x, y)) {
         if (++transitions == 5) {
@@ -295,86 +211,10 @@ public class QRCodeReader implements Reader {
       x++;
       y++;
     }
-    
-    if (x == width || y == height || transitions < 5) {
-      // Ensure we go at least 5 transitions (black-white-black-white-black)
+    if (x == width || y == height) {
       throw NotFoundException.getNotFoundInstance();
     }
-    
-    return (x - startX) / 7.0f; // First 7 transitions are 1 module
+    return (x - leftTopBlack[0]) / 7.0f;
   }
-  
-  /**
-   * Calculate module size by going in one direction (horizontal or vertical)
-   */
-  private static float calculateModuleSizeOneWay(int startX, int startY, int maxDistance, 
-                                                boolean horizontal, BitMatrix image) {
-    int x = startX;
-    int y = startY;
-    boolean inBlack = true;
-    int transitions = 0;
-    
-    while ((horizontal ? x : y) < maxDistance) {
-      boolean isBlack = horizontal ? image.get(x, y) : image.get(y, x);
-      
-      if (inBlack != isBlack) {
-        if (++transitions == 5) {
-          break;
-        }
-        inBlack = !inBlack;
-      }
-      
-      if (horizontal) {
-        x++;
-      } else {
-        y++;
-      }
-    }
-    
-    if ((horizontal ? x : y) == maxDistance || transitions < 5) {
-      // Couldn't find enough transitions
-      return -1;
-    }
-    
-    return (horizontal ? x - startX : y - startY) / 7.0f;
-  }
-  
-  /**
-   * Sample a grid point with some robustness to noise
-   */
-  private static boolean sampleGrid(BitMatrix image, int centerX, int centerY, int size) {
-    // For very small modules, just use the center
-    if (size <= 1) {
-      return image.get(centerX, centerY);
-    }
-    
-    // For larger modules, use a voting approach
-    int blackPixels = 0;
-    int totalPixels = 0;
-    
-    int sampleSize = Math.min(2, size / 2); // Don't sample too far from center
-    
-    for (int y = -sampleSize; y <= sampleSize; y++) {
-      int sampleY = centerY + y;
-      if (sampleY < 0 || sampleY >= image.getHeight()) {
-        continue;
-      }
-      
-      for (int x = -sampleSize; x <= sampleSize; x++) {
-        int sampleX = centerX + x;
-        if (sampleX < 0 || sampleX >= image.getWidth()) {
-          continue;
-        }
-        
-        if (image.get(sampleX, sampleY)) {
-          blackPixels++;
-        }
-        totalPixels++;
-      }
-    }
-    
-    // Majority vote - if more than 40% are black, consider it black
-    // This threshold is more aggressive than 50% to deal with faded QR codes
-    return blackPixels * 100 >= totalPixels * 40;
-  }
+
 }
