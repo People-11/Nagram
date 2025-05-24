@@ -98,6 +98,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import xyz.nextalone.nagram.NaConfig;
+
 @SuppressLint("NewApi")
 public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsListener, NotificationCenter.NotificationCenterDelegate {
 
@@ -205,6 +207,18 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
             }
         }
     }
+    
+    private int getPlayerExtensionRendererMode() {
+        switch (NaConfig.INSTANCE.getPlayerDecoder().Int()) {
+            case 1:
+                return DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
+            case 2:
+                return DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON;
+            case 0:
+            default:
+                return DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER;
+        }
+    }
 
     private void ensurePlayerCreated() {
         DefaultLoadControl loadControl;
@@ -238,7 +252,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
             } else {
                 factory = new DefaultRenderersFactory(ApplicationLoader.applicationContext);
             }
-            factory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+            factory.setExtensionRendererMode(getPlayerExtensionRendererMode());
             player = new ExoPlayer.Builder(ApplicationLoader.applicationContext).setRenderersFactory(factory)
                     .setTrackSelector(trackSelector)
                     .setLoadControl(loadControl).build();
@@ -259,6 +273,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
         if (mixedAudio) {
             if (audioPlayer == null) {
                 audioPlayer = new ExoPlayer.Builder(ApplicationLoader.applicationContext)
+                        .setRenderersFactory(new DefaultRenderersFactory(ApplicationLoader.applicationContext).setExtensionRendererMode(getPlayerExtensionRendererMode()))
                         .setTrackSelector(trackSelector)
                         .setLoadControl(loadControl).buildSimpleExoPlayer();
                 audioPlayer.addListener(new Player.Listener() {

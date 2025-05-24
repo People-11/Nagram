@@ -188,4 +188,8 @@
     <string name="DontSendUploadProgress">Disable Typing Indicator</string>
     <string name="SendOfflinePacketAfterOnline">Go Offline After Going Online</string>
     <string name="MarkReadAfterAction">Mark as Read After Reply</string>
+    <string name="PlayerDecoder">Player Decoder</string>
+    <string name="PlayerDecoderPerferSW">Prefer software decoders</string>
+    <string name="PlayerDecoderHardware">Only hardware decoders</string>
+    <string name="PlayerDecoderPerferHW">Prefer hardware decoders</string>
 </resources>

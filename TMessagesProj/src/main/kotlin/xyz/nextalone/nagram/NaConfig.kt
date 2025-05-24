@@ -813,6 +813,12 @@ object NaConfig {
             4,
             false
         )
+    val playerDecoder =
+        addConfig(
+            "PlayerDecoder",
+            ConfigItem.configTypeInt,
+            0
+        )
 
     private fun addConfig(
         k: String,
