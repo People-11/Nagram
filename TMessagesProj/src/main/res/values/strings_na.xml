@@ -192,4 +192,5 @@
     <string name="PlayerDecoderPerferSW">Prefer software decoders</string>
     <string name="PlayerDecoderHardware">Only hardware decoders</string>
     <string name="PlayerDecoderPerferHW">Prefer hardware decoders</string>
+    <string name="DisableGifts">Disable Gifts Tab in Profile</string>
 </resources>

@@ -41,6 +41,7 @@ import java.util.List;
 
 import cn.hutool.core.util.ArrayUtil;
 import tw.nekomimi.nekogram.NekoXConfig;
+import xyz.nextalone.nagram.NaConfig;
 
 @SuppressWarnings("unchecked")
 public class TLRPC {
@@ -54411,7 +54412,7 @@ public class TLRPC {
                 personal_channel_message = stream.readInt32(exception);
             }
             if ((flags2 & 256) != 0) {
-                stargifts_count = stream.readInt32(exception);
+                stargifts_count = NaConfig.INSTANCE.getDisableGifts().Bool() ? 0 : stream.readInt32(exception);
             }
         }
 

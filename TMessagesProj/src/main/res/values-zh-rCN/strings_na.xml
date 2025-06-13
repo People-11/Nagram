@@ -190,4 +190,5 @@
     <string name="PlayerDecoderPerferSW">优先软解</string>
     <string name="PlayerDecoderHardware">仅限硬解</string>
     <string name="PlayerDecoderPerferHW">优先硬解</string>
+    <string name="DisableGifts">禁用个人页面中的礼物</string>
 </resources>

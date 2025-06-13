@@ -772,6 +772,13 @@ object NaConfig {
             11,
             false
         )
+    val disableGifts =
+        addConfig(
+            "DisableGifts",
+            disableTrendingFlags,
+            12,
+            false
+        )
     val disableActionBarButton =
         addConfig(
             "DisableActionBarButton",
