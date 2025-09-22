@@ -69,7 +69,6 @@
     <string name="CustomPoor">Benutzerdefiniertes Antwortwort</string>
     <string name="CustomPoorHint">Standardpool</string>
     <string name="CustomEditedMessage">Benutzerdefiniertes Nachrichtenwort</string>
-    <string name="FakeHighPerformanceDevice">Hochleistungsgerät vortäuschen</string>
     <string name="DisableEmojiDrawLimit">Emoji Draw Limit deaktivieren</string>
     <string name="IconDecoration">Icon-Dekoration</string>
     <string name="NotificationIcon">Benachrichtigungssymbol</string>

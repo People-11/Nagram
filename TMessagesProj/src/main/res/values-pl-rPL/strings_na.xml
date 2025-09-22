@@ -69,7 +69,6 @@
     <string name="CustomPoor">Niestandardowe słowo odpowiedzi długiego kliknięcia</string>
     <string name="CustomPoorHint">Domyślna pula</string>
     <string name="CustomEditedMessage">Niestandardowe słowo edytowane wiadomości</string>
-    <string name="FakeHighPerformanceDevice">Fałszywe urządzenie o wysokiej wydajności</string>
     <string name="DisableEmojiDrawLimit">Wyłącz limit Emoji Draw</string>
     <string name="IconDecoration">Dekoracja ikony</string>
     <string name="NotificationIcon">Ikona powiadomień</string>

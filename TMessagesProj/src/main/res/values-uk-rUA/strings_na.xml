@@ -69,7 +69,6 @@
     <string name="CustomPoor">Власне слово для відповіді на довгому натисканні</string>
     <string name="CustomPoorHint">Стандартна басейн</string>
     <string name="CustomEditedMessage">Відредаговане слово повідомлення</string>
-    <string name="FakeHighPerformanceDevice">Підроблений пристрій високої продуктивності</string>
     <string name="DisableEmojiDrawLimit">Вимкнути межа відображення емодзі</string>
     <string name="IconDecoration">Оформлення іконки</string>
     <string name="NotificationIcon">Іконка сповіщення</string>
