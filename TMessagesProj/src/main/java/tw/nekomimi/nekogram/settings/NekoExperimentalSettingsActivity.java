@@ -160,7 +160,7 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
     private static final int INTENT_PICK_EXTERNAL_STICKER_DIRECTORY = 514;
 
     public NekoExperimentalSettingsActivity() {
-        if (!NaConfig.INSTANCE.getShowHiddenFeature().Bool()) {
+        if (false) {
             cellGroup.rows.remove(localPremiumRow);
             cellGroup.rows.remove(localQuoteColorRow);
             cellGroup.rows.remove(externalGhostModeRow);
