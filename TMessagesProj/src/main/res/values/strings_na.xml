@@ -70,7 +70,7 @@
     <string name="CustomPoor">Custom long click reply word</string>
     <string name="CustomPoorHint">Default pool</string>
     <string name="CustomEditedMessage">Custom Edited Message word</string>
-    <string name="FakeHighPerformanceDevice">Fake High Performance Device</string>
+    <string name="FakeLowPerformanceDevice">Fake Low Performance Device</string>
     <string name="DisableEmojiDrawLimit">Disable Emoji Draw Limit</string>
     <string name="IconDecoration">Icon Decoration</string>
     <string name="NotificationIcon">Notification Icon</string>

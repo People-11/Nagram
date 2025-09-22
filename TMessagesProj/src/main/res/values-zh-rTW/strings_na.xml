@@ -70,7 +70,7 @@
     <string name="CustomPoor">自訂長按快捷回覆詞</string>
     <string name="CustomPoorHint">預設破爛</string>
     <string name="CustomEditedMessage">自訂已編輯訊息提示詞</string>
-    <string name="FakeHighPerformanceDevice">偽裝高效能裝置</string>
+    <string name="FakeLowPerformanceDevice">偽裝低效能裝置</string>
     <string name="DisableEmojiDrawLimit">解除 Emoji 渲染上限</string>
     <string name="IconDecoration">圖示裝飾</string>
     <string name="NotificationIcon">通知圖標樣式</string>
