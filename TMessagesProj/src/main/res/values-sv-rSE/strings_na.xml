@@ -69,7 +69,6 @@
     <string name="CustomPoor">Anpassad långklicka på svarsord</string>
     <string name="CustomPoorHint">Förvald frågebank</string>
     <string name="CustomEditedMessage">Anpassat redigerat ord</string>
-    <string name="FakeHighPerformanceDevice">Falska högpresterande enhet</string>
     <string name="DisableEmojiDrawLimit">Inaktivera gränsen för Emoji Draw</string>
     <string name="IconDecoration">Ikon dekoration</string>
     <string name="NotificationIcon">Ikon för avisering</string>

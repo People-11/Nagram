@@ -69,7 +69,6 @@
     <string name="CustomPoor">Tùy chỉnh nhấn và giữ từ trả lời nhanh</string>
     <string name="CustomPoorHint">Mặc định chung</string>
     <string name="CustomEditedMessage">Tùy chỉnh chỉnh sửa lời nhắc tin nhắn</string>
-    <string name="FakeHighPerformanceDevice">Ngụy trang thành thiết bị cao cấp</string>
     <string name="DisableEmojiDrawLimit">Nâng giới hạn kết xuất biểu tượng cảm xúc</string>
     <string name="IconDecoration">Trang trí biểu tượng</string>
     <string name="NotificationIcon">Kiểu biểu tượng thông báo</string>
