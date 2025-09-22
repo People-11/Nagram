@@ -69,7 +69,6 @@
     <string name="CustomPoor">Özel uzun tıklama yanıt sözcüğü</string>
     <string name="CustomPoorHint">Varsayılan havuz</string>
     <string name="CustomEditedMessage">Özel Düzenlenmiş Mesaj kelimesi</string>
-    <string name="FakeHighPerformanceDevice">Sahte Yüksek Performanslı Cihaz</string>
     <string name="DisableEmojiDrawLimit">Emoji Çizim Sınırını Devre Dışı Bırak</string>
     <string name="IconDecoration">Simge Dekorasyonu</string>
     <string name="NotificationIcon">Bildirim Simgesi</string>

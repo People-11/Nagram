@@ -69,7 +69,6 @@
     <string name="CustomPoor">Standard svar langt trykk</string>
     <string name="CustomPoorHint">Standard samling</string>
     <string name="CustomEditedMessage">Tilpasset redigerte meldings-ord</string>
-    <string name="FakeHighPerformanceDevice">Falsk enhet for høy ytelse</string>
     <string name="DisableEmojiDrawLimit">Deaktiver Emoji remis grense</string>
     <string name="IconDecoration">Ikon dekorasjon</string>
     <string name="NotificationIcon">Notifikasjons ikon</string>
