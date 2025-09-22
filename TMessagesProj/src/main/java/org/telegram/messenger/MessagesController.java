@@ -20457,7 +20457,7 @@ public class MessagesController extends BaseController implements NotificationCe
 
     public SponsoredMessagesInfo getSponsoredMessages(long dialogId) {
         // na: disable ad
-        if (true) {
+        if (NekoConfig.hideSponsoredMessage.Bool()) {
             return null;
         }
         SponsoredMessagesInfo info = sponsoredMessages.get(dialogId);
@@ -20512,8 +20512,9 @@ public class MessagesController extends BaseController implements NotificationCe
                             message.entities = sponsoredMessage.entities;
                             message.flags |= 128;
                         }
-                        if (NekoConfig.hideSponsoredMessage.Bool())
+                        if (NekoConfig.hideSponsoredMessage.Bool()) {
                             message.hide = true;
+                        }
                         message.peer_id = getPeer(dialogId);
                         message.flags |= 256;
                         message.date = getConnectionsManager().getCurrentTime();
