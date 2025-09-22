@@ -69,7 +69,6 @@
     <string name="CustomPoor">Vlastní slovo odpovědi dlouhým kliknutím</string>
     <string name="CustomPoorHint">Výchozí bazén</string>
     <string name="CustomEditedMessage">Vlastní editované slovo</string>
-    <string name="FakeHighPerformanceDevice">Falešné vysoce výkonné zařízení</string>
     <string name="DisableEmojiDrawLimit">Zakázat limit kreslení Emoji</string>
     <string name="IconDecoration">Dekorace ikon</string>
     <string name="NotificationIcon">Ikona oznámení</string>

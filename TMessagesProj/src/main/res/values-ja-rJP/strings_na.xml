@@ -69,7 +69,7 @@
     <string name="CustomPoor">カスタムロングクリックの返信単語</string>
     <string name="CustomPoorHint">既定のプール</string>
     <string name="CustomEditedMessage">メッセージの編集</string>
-    <string name="FakeHighPerformanceDevice">偽の高性能デバイス</string>
+    <string name="FakeLowPerformanceDevice">偽の低性能デバイス</string>
     <string name="DisableEmojiDrawLimit">絵文字の描画制限を無効にする</string>
     <string name="IconDecoration">アイコン装飾</string>
     <string name="NotificationIcon">通知アイコン</string>

@@ -69,7 +69,6 @@
     <string name="CustomPoor">Слово для быстрого ответа при долгом нажатии</string>
     <string name="CustomPoorHint">По умолчанию «Плохо»</string>
     <string name="CustomEditedMessage">Подпись для изменённых сообщений</string>
-    <string name="FakeHighPerformanceDevice">Поддельное высокопроизводительное устройство</string>
     <string name="DisableEmojiDrawLimit">Отключить ограничение на отрисовку эмодзи</string>
     <string name="IconDecoration">Оформление значков</string>
     <string name="NotificationIcon">Иконка уведомления</string>

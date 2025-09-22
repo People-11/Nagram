@@ -69,7 +69,6 @@
     <string name="CustomPoor">Προσαρμ. λέξη απάντ. παρατ/μένου κλικ</string>
     <string name="CustomPoorHint">Προεπιλεγμένη πισίνα</string>
     <string name="CustomEditedMessage">Προσαρμ. λέξη επεξεργασμένου μηνύματος</string>
-    <string name="FakeHighPerformanceDevice">Ψευδής Συσκευή Υψηλής Απόδοσης</string>
     <string name="DisableEmojiDrawLimit">Απενεργ/ση Ορίου Σχεδίου Emoji</string>
     <string name="IconDecoration">Διακόσμηση Εικονιδίων</string>
     <string name="NotificationIcon">Εικονίδιο Ειδοποιήσεων</string>
