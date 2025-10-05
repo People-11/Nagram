@@ -9170,9 +9170,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         return insets.left;
     }
 
-	private int getRightInset() {
-		return insets.right;
-	}
+    private int getRightInset() {
+        return insets.right;
+    }
 
     private void dismissInternal() {
         try {
@@ -20713,12 +20713,12 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         if (videoPlayer != null && scale <= 1.35f) {
             long current = videoPlayer.getCurrentPosition();
             long total = videoPlayer.getDuration();
-            if (current == C.TIME_UNSET || total < 8 * 1000) {
+            if (current == C.TIME_UNSET) {
                 return;
             }
             float x = longPressX;
             int width = getContainerViewWidth();
-            if (total > 180 * 1000) {
+            if (total > 86400 * 1000) {
                 boolean forward;
                 if (x >= width / 3 * 2) {
                     forward = true;
