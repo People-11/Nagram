@@ -229,7 +229,7 @@ public class Input {
                     if (distance < AndroidUtilities.dp(5.0f) / scale) {
                         return;
                     }
-                    if (canFill && (distance > AndroidUtilities.dp(6) / scale || pointsCount > 4)) {
+                    if (canFill && (distance > AndroidUtilities.dp(1) / scale || pointsCount > 4)) {
                         canFill = false;
                         AndroidUtilities.cancelRunOnUIThread(fillWithCurrentBrush);
                     }
