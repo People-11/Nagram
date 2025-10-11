@@ -67,7 +67,6 @@ import java.util.LinkedList;
 
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.helpers.AnalyticsHelper;
 import tw.nekomimi.nekogram.parts.SignturesKt;
 import tw.nekomimi.nekogram.utils.FileUtil;
 import xyz.nextalone.nagram.NaConfig;
@@ -116,7 +115,6 @@ public class ApplicationLoader extends Application {
         }
         Thread.currentThread().setUncaughtExceptionHandler((thread, error) -> {
             Log.e("nekox", "from " + thread.toString(), error);
-            AnalyticsHelper.captureException(error);
         });
     }
 
@@ -369,8 +367,6 @@ public class ApplicationLoader extends Application {
         } catch (UnsatisfiedLinkError error) {
             throw new RuntimeException("can't load native libraries " +  Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder());
         }
-
-        AnalyticsHelper.start(this);
 
         new ForegroundDetector(this) {
             @Override
