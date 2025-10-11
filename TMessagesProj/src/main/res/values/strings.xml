@@ -5988,7 +5988,6 @@
     <string name="TranslationBarHiddenForGroup">Translation bar is now hidden for this group.</string>
     <string name="TranslationBarHiddenForChat">Translation bar is now hidden for this chat.</string>
     <string name="NoEmojiOrStickersFound">No emoji or stickers found</string>
-    <string name="SafetyNetErrorOccurred">An internal error occurred. Please try again later.</string>
     <string name="UpgradePremiumTitle">Upgrade to Premium with a discount of **%1$d%%**</string>
     <string name="UpgradePremiumMessage">Upgrade to the annual payment plan of Telegram Premium now to enjoy the discount.</string>
     <string name="SaveOnAnnualPremiumTitle">Save on your subscription up to **%1$d%%**</string>
