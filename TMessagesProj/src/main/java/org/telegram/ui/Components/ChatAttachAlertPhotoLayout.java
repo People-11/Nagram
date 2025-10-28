@@ -656,7 +656,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
             if (view instanceof PhotoAttachPhotoCell) {
                 PhotoAttachPhotoCell cell = (PhotoAttachPhotoCell) view;
                 int position = gridView.getChildAdapterPosition(view);
-                if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+                if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                     position--;
                 }
                 MediaController.PhotoEntry photoEntry = getPhotoEntryAtPosition(position);
@@ -675,7 +675,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
             if (view instanceof PhotoAttachPhotoCell) {
                 PhotoAttachPhotoCell cell = (PhotoAttachPhotoCell) view;
                 int position = cameraPhotoRecyclerView.getChildAdapterPosition(view);
-                if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+                if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                     position--;
                 }
                 MediaController.PhotoEntry photoEntry = getPhotoEntryAtPosition(position);
@@ -905,7 +905,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 return;
             }
             if (Build.VERSION.SDK_INT >= 23) {
-                if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry && position == 0 && noCameraPermissions) {
+                if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry && position == 0 && noCameraPermissions && !NekoConfig.hideInstantCamera.Bool()) {
                     try {
                         fragment.getParentActivity().requestPermissions(new String[]{Manifest.permission.CAMERA}, 18);
                     } catch (Exception ignore) {
@@ -929,8 +929,8 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                     return;
                 }
             }
-            if (position != 0 || !needCamera || selectedAlbumEntry != galleryAlbumEntry) {
-                if (selectedAlbumEntry == galleryAlbumEntry && needCamera) {
+            if (position != 0 || !needCamera || selectedAlbumEntry != galleryAlbumEntry || NekoConfig.hideInstantCamera.Bool()) {
+                if (selectedAlbumEntry == galleryAlbumEntry && needCamera && !NekoConfig.hideInstantCamera.Bool()) {
                     position--;
                 }
                 if (showAvatarConstructor) {
@@ -2388,7 +2388,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
         if ((old != deviceHasGoodCamera || old2 != noCameraPermissions) && adapter != null) {
             adapter.notifyDataSetChanged();
         }
-        if (!parentAlert.destroyed && parentAlert.isShowing() && deviceHasGoodCamera && parentAlert.getBackDrawable().getAlpha() != 0 && !cameraOpened && !NekoConfig.disableInstantCamera.Bool()) {
+        if (!parentAlert.destroyed && parentAlert.isShowing() && deviceHasGoodCamera && parentAlert.getBackDrawable().getAlpha() != 0 && !cameraOpened && !NekoConfig.disableInstantCamera.Bool() && !NekoConfig.hideInstantCamera.Bool()) {
             showCamera();
         }
     }
@@ -3079,7 +3079,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
             if (holder != null) {
                 holder.itemView.invalidateOutline();
             }
-            if (!adapter.needCamera || !deviceHasGoodCamera || selectedAlbumEntry != galleryAlbumEntry) {
+            if (!adapter.needCamera || !deviceHasGoodCamera || selectedAlbumEntry != galleryAlbumEntry || NekoConfig.hideInstantCamera.Bool()) {
                 holder = gridView.findViewHolderForAdapterPosition(0);
                 if (holder != null) {
                     holder.itemView.invalidateOutline();
@@ -3248,7 +3248,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 View child = gridView.getChildAt(i);
                 if (child instanceof PhotoAttachPhotoCell) {
                     int position = gridView.getChildAdapterPosition(child);
-                    if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+                    if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                         position--;
                     }
 
@@ -3258,7 +3258,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                     }
                     MediaController.PhotoEntry photoEntry = getPhotoEntryAtPosition(position);
                     if (photoEntry != null) {
-                        cell.setPhotoEntry(photoEntry, selectedPhotos.size() > 1, adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry, position == adapter.getItemCount() - 1);
+                        cell.setPhotoEntry(photoEntry, selectedPhotos.size() > 1, adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool(), position == adapter.getItemCount() - 1);
                         if (parentAlert.baseFragment instanceof ChatActivity && parentAlert.allowOrder) {
                             cell.setChecked(selectedPhotosOrder.indexOf(photoEntry.imageId), selectedPhotos.containsKey(photoEntry.imageId), false);
                         } else {
@@ -4049,7 +4049,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
 //                    afterCameraInitRunnable = null;
 //                    isCameraFrontfaceBeforeEnteringEditMode = null;
 //                };
-                if (!NekoConfig.disableInstantCamera.Bool()) {
+                if (!NekoConfig.disableInstantCamera.Bool() && !NekoConfig.hideInstantCamera.Bool()) {
                     showCamera();
                 }
             }
@@ -4397,7 +4397,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                             return;
                         }
                         int position = (Integer) photoCell.getTag();
-                        if (needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+                        if (needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                             position++;
                         }
                         if (showAvatarConstructor) {
@@ -4454,7 +4454,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 addToSelectedPhotos(photoEntry, index);
                 int updateIndex = index;
                 if (PhotoAttachAdapter.this == cameraAttachAdapter) {
-                    if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+                    if (adapter.needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                         updateIndex++;
                     }
                     adapter.notifyItemChanged(updateIndex);
@@ -4470,7 +4470,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
         }
 
         private MediaController.PhotoEntry getPhoto(int position) {
-            if (needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+            if (needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                 position--;
             }
             return getPhotoEntryAtPosition(position);
@@ -4480,7 +4480,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             switch (holder.getItemViewType()) {
                 case 0: {
-                    if (needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+                    if (needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                         position--;
                     }
                     if (showAvatarConstructor) {
@@ -4502,7 +4502,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                     if (photoEntry == null) {
                         return;
                     }
-                    cell.setPhotoEntry(photoEntry, selectedPhotos.size() > 1, needCamera && selectedAlbumEntry == galleryAlbumEntry, position == getItemCount() - 1);
+                    cell.setPhotoEntry(photoEntry, selectedPhotos.size() > 1, needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool(), position == getItemCount() - 1);
                     if (parentAlert.baseFragment instanceof ChatActivity && parentAlert.allowOrder) {
                         cell.setChecked(selectedPhotosOrder.indexOf(photoEntry.imageId), selectedPhotos.containsKey(photoEntry.imageId), false);
                     } else {
@@ -4610,7 +4610,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 return 1;
             }
             int count = 0;
-            if (needCamera && selectedAlbumEntry == galleryAlbumEntry) {
+            if (needCamera && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                 count++;
             }
             if (showAvatarConstructor) {
@@ -4640,14 +4640,14 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 return 2;
             }
             int localPosition = position;
-            if (needCamera && position == 0 && selectedAlbumEntry == galleryAlbumEntry) {
+            if (needCamera && position == 0 && selectedAlbumEntry == galleryAlbumEntry && !NekoConfig.hideInstantCamera.Bool()) {
                 if (noCameraPermissions) {
                     return 3;
                 } else {
                     return 1;
                 }
             }
-            if (needCamera) {
+            if (needCamera && !NekoConfig.hideInstantCamera.Bool()) {
                 localPosition--;
             }
             if (showAvatarConstructor && localPosition == 0) {

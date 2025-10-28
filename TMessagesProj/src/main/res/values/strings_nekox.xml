@@ -263,6 +263,7 @@
     <string name="hideSponsoredMessage">Hide sponsored messages</string>
     <string name="rememberAllBackMessages">Remember all clicked replies</string>
     <string name="DisableInstantCamera">Disable instant camera</string>
+    <string name="HideInstantCamera">Hide instant camera</string>
     <string name="showSeconds">Show timestamp in seconds</string>
     <string name="AppUpdateNekoX">Update Nagram</string>
     <string name="NekoXUpdateTranslationHint">Press to translate the change log</string>

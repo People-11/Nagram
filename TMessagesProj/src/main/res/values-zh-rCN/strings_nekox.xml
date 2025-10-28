@@ -266,6 +266,7 @@
 \n使用大只头像作为背景</string>
     <string name="hideSponsoredMessage">隐藏赞助消息</string>
     <string name="DisableInstantCamera">禁用相机即时预览</string>
+    <string name="HideInstantCamera">隐藏相机即时预览</string>
     <string name="showSeconds">以秒为单位显示时间戳</string>
     <string name="rememberAllBackMessages">记住已点击的回复</string>
     <string name="ShareMessages">分享</string>
