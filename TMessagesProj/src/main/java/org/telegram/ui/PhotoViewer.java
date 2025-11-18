@@ -2026,6 +2026,11 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     private float currentCropX = 0.0f, currentCropY = 0.0f;
     private float rotate = 0;
     private float mirror = 0;
+    // 记录贴纸编辑的初始变换状态
+    private float initialStickerScale = 1;
+    private float initialStickerTranslationX = 0;
+    private float initialStickerTranslationY = 0;
+    private float initialStickerRotate = 0;
     private float animateToX;
     private float animateToY;
     private float animateToScale;
@@ -8238,117 +8243,159 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     if (object instanceof MediaController.PhotoEntry) {
                         int stickerMaxSize = 512;
                         MediaController.PhotoEntry photoEntry = ((MediaController.PhotoEntry) object);
-                        Bitmap canvasBitmap = Bitmap.createBitmap(stickerMaxSize, stickerMaxSize, Bitmap.Config.ARGB_8888);
 
-                        Canvas canvas = new Canvas(canvasBitmap);
+                        // 检测用户是否对图片进行了变换（与初始值比较）
+                        boolean hasTransform = Math.abs(scale - initialStickerScale) > 0.001f ||
+                                               Math.abs(translationX - initialStickerTranslationX) > 0.001f ||
+                                               Math.abs(translationY - initialStickerTranslationY) > 0.001f ||
+                                               Math.abs(rotate - initialStickerRotate) > 0.001f;
 
-                        Path clipPath = new Path();
-                        RectF clipRect = new RectF();
-                        clipRect.set(0, 0, canvasBitmap.getWidth(), canvasBitmap.getHeight());
-                        int r = canvasBitmap.getWidth() / 8;
-                        clipPath.addRoundRect(clipRect, r, r, Path.Direction.CW);
-                        canvas.clipPath(clipPath);
-
-                        int containerWidth = getContainerViewWidth();
-                        int containerHeight = getContainerViewHeight();
-                        float borderSize = containerWidth - dp(20);
-
-                        if (stickerMakerView != null && stickerMakerView.outlineVisible && stickerMakerView.getSourceBitmap() != null) {
-
-                            canvas.save();
-                            canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
-                            canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
-                            applyTransformToOutline(canvas);
-                            stickerMakerView.drawOutline(canvas, false, null, false);
-                            canvas.restore();
-
-                            canvas.save();
-                            canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
-                            canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
-                            applyTransformToOutline(canvas);
-                            centerImage.draw(canvas);
-                            canvas.restore();
-
-                            canvas.save();
-                            canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
-                            canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
-                            applyTransformToOutline(canvas);
-                            stickerMakerView.drawOutline(canvas, true, null, false);
-                            canvas.restore();
-                        } else {
-                            canvas.save();
-                            canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
-                            canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
-                            applyTransformToOutline(canvas);
-                            centerImage.draw(canvas);
-                            canvas.restore();
-                        }
-
-                        if (paintingOverlay != null) {
-                            canvas.save();
-                            canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
-                            canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
-                            applyTransformToOutline(canvas);
-                            canvas.translate(-centerImage.getImageWidth() / 2f, -centerImage.getImageHeight() / 2f);
-                            canvas.scale(centerImage.getImageWidth() / paintingOverlay.getMeasuredWidth(), centerImage.getImageHeight() / paintingOverlay.getMeasuredHeight());
-                            paintingOverlay.drawChildren = !hasAnimatedMediaEntities();
-                            paintingOverlay.draw(canvas);
-                            paintingOverlay.drawChildren = true;
-                            canvas.restore();
-                        }
-
+                        String fullStickerPath;
+                        int canvasWidth, canvasHeight;
                         String stickerEmoji = null;
                         VideoEditedInfo videoEditedInfo1 = null;
-                        if (hasAnimatedMediaEntities()) {
-                            Matrix matrix = new Matrix();
-                            matrix.reset();
-                            matrix.preTranslate(borderSize / 2f, borderSize / 2f);
-                            applyTransformToMatrix(matrix);
-                            matrix.preTranslate(-centerImage.getImageWidth() / 2f, -centerImage.getImageHeight() / 2f);
-                            matrix.preScale(centerImage.getImageWidth(), centerImage.getImageHeight());
 
-                            ArrayList<VideoEditedInfo.MediaEntity> entities = new ArrayList<>();
-                            for (VideoEditedInfo.MediaEntity entity : photoEntry.mediaEntities) {
-                                VideoEditedInfo.MediaEntity e = entity.copy();
-                                float x = e.x;
-                                float y = e.y;
-                                float w = e.width;
-                                float h = e.height;
-                                float pos[] = new float[] {
-                                    x, y,
-                                    x + w, y,
-                                    x + w, y + h,
-                                    x, y + h
-                                };
-                                matrix.mapPoints(pos);
-                                e.width = (float) Math.sqrt(Math.pow(pos[0] - pos[2], 2) + Math.pow(pos[1] - pos[3], 2)) / borderSize;
-                                e.height = (float) Math.sqrt(Math.pow(pos[0] - pos[6], 2) + Math.pow(pos[1] - pos[7], 2)) / borderSize;
-                                e.x = ((pos[0] + pos[4]) / 2f) / borderSize - e.width / 2f;
-                                e.y = ((pos[1] + pos[5]) / 2f) / borderSize - e.height / 2f;
-                                e.scale = 1f;
-                                e.customTextView = true;
-                                if (photoEntry.isCropped && photoEntry.cropState != null) {
-                                    e.rotation -= photoEntry.cropState.transformRotation / 180f * Math.PI;
-                                }
-                                e.rotation -= rotate / 180f * Math.PI;
-                                entities.add(e);
-                                if (e.document != null && stickerEmoji == null) {
-                                    stickerEmoji = MessageObject.findAnimatedEmojiEmoticon(e.document, null);
-                                }
+                        if (hasTransform || photoEntry.path == null && photoEntry.imagePath == null) {
+                            // 有变换，使用512x512正方形画布
+                            canvasWidth = canvasHeight = stickerMaxSize;
+                            Bitmap canvasBitmap = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888);
+
+                            Canvas canvas = new Canvas(canvasBitmap);
+
+                            Path clipPath = new Path();
+                            RectF clipRect = new RectF();
+                            clipRect.set(0, 0, canvasBitmap.getWidth(), canvasBitmap.getHeight());
+                            int r = canvasBitmap.getWidth() / 8;
+                            clipPath.addRoundRect(clipRect, r, r, Path.Direction.CW);
+                            canvas.clipPath(clipPath);
+
+                            int containerWidth = getContainerViewWidth();
+                            int containerHeight = getContainerViewHeight();
+                            float borderSize = containerWidth - dp(20);
+
+                            if (stickerMakerView != null && stickerMakerView.outlineVisible && stickerMakerView.getSourceBitmap() != null) {
+
+                                canvas.save();
+                                canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
+                                canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
+                                applyTransformToOutline(canvas);
+                                stickerMakerView.drawOutline(canvas, false, null, false);
+                                canvas.restore();
+
+                                canvas.save();
+                                canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
+                                canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
+                                applyTransformToOutline(canvas);
+                                centerImage.draw(canvas);
+                                canvas.restore();
+
+                                canvas.save();
+                                canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
+                                canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
+                                applyTransformToOutline(canvas);
+                                stickerMakerView.drawOutline(canvas, true, null, false);
+                                canvas.restore();
+                            } else {
+                                canvas.save();
+                                canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
+                                canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
+                                applyTransformToOutline(canvas);
+                                centerImage.draw(canvas);
+                                canvas.restore();
                             }
-                            videoEditedInfo1 = new VideoEditedInfo();
-                            videoEditedInfo1.isPhoto = true;
-                            videoEditedInfo1.originalWidth = videoEditedInfo1.resultWidth = stickerMaxSize;
-                            videoEditedInfo1.originalHeight = videoEditedInfo1.resultHeight = stickerMaxSize;
-                            videoEditedInfo1.mediaEntities = entities;
-                            videoEditedInfo1.originalDuration = videoEditedInfo1.estimatedDuration = Utilities.clamp(photoEntry.averageDuration, 2999L, 800L);
-                            videoEditedInfo1.bitrate = 200_000;
-                            videoEditedInfo1.framerate = 30;
-                            videoEditedInfo1.isSticker = true;
-                            videoEditedInfo1.estimatedSize = 256 * 1024;
+
+                            if (paintingOverlay != null) {
+                                canvas.save();
+                                canvas.translate(canvasBitmap.getWidth() / 2f, canvasBitmap.getHeight() / 2f);
+                                canvas.scale(canvasBitmap.getWidth() / borderSize, canvasBitmap.getHeight() / borderSize);
+                                applyTransformToOutline(canvas);
+                                canvas.translate(-centerImage.getImageWidth() / 2f, -centerImage.getImageHeight() / 2f);
+                                canvas.scale(centerImage.getImageWidth() / paintingOverlay.getMeasuredWidth(), centerImage.getImageHeight() / paintingOverlay.getMeasuredHeight());
+                                paintingOverlay.drawChildren = !hasAnimatedMediaEntities();
+                                paintingOverlay.draw(canvas);
+                                paintingOverlay.drawChildren = true;
+                                canvas.restore();
+                            }
+
+                            if (hasAnimatedMediaEntities()) {
+                                Matrix matrix = new Matrix();
+                                matrix.reset();
+                                matrix.preTranslate(borderSize / 2f, borderSize / 2f);
+                                applyTransformToMatrix(matrix);
+                                matrix.preTranslate(-centerImage.getImageWidth() / 2f, -centerImage.getImageHeight() / 2f);
+                                matrix.preScale(centerImage.getImageWidth(), centerImage.getImageHeight());
+
+                                ArrayList<VideoEditedInfo.MediaEntity> entities = new ArrayList<>();
+                                for (VideoEditedInfo.MediaEntity entity : photoEntry.mediaEntities) {
+                                    VideoEditedInfo.MediaEntity e = entity.copy();
+                                    float x = e.x;
+                                    float y = e.y;
+                                    float w = e.width;
+                                    float h = e.height;
+                                    float pos[] = new float[] {
+                                        x, y,
+                                        x + w, y,
+                                        x + w, y + h,
+                                        x, y + h
+                                    };
+                                    matrix.mapPoints(pos);
+                                    e.width = (float) Math.sqrt(Math.pow(pos[0] - pos[2], 2) + Math.pow(pos[1] - pos[3], 2)) / borderSize;
+                                    e.height = (float) Math.sqrt(Math.pow(pos[0] - pos[6], 2) + Math.pow(pos[1] - pos[7], 2)) / borderSize;
+                                    e.x = ((pos[0] + pos[4]) / 2f) / borderSize - e.width / 2f;
+                                    e.y = ((pos[1] + pos[5]) / 2f) / borderSize - e.height / 2f;
+                                    e.scale = 1f;
+                                    e.customTextView = true;
+                                    if (photoEntry.isCropped && photoEntry.cropState != null) {
+                                        e.rotation -= photoEntry.cropState.transformRotation / 180f * Math.PI;
+                                    }
+                                    e.rotation -= rotate / 180f * Math.PI;
+                                    entities.add(e);
+                                    if (e.document != null && stickerEmoji == null) {
+                                        stickerEmoji = MessageObject.findAnimatedEmojiEmoticon(e.document, null);
+                                    }
+                                }
+                                videoEditedInfo1 = new VideoEditedInfo();
+                                videoEditedInfo1.isPhoto = true;
+                                videoEditedInfo1.originalWidth = videoEditedInfo1.resultWidth = canvasWidth;
+                                videoEditedInfo1.originalHeight = videoEditedInfo1.resultHeight = canvasHeight;
+                                videoEditedInfo1.mediaEntities = entities;
+                                videoEditedInfo1.originalDuration = videoEditedInfo1.estimatedDuration = Utilities.clamp(photoEntry.averageDuration, 2999L, 800L);
+                                videoEditedInfo1.bitrate = 200_000;
+                                videoEditedInfo1.framerate = 30;
+                                videoEditedInfo1.isSticker = true;
+                                videoEditedInfo1.estimatedSize = 256 * 1024;
+                            }
+                            TLRPC.PhotoSize size = ImageLoader.scaleAndSaveImage(canvasBitmap, Bitmap.CompressFormat.WEBP, canvasWidth, canvasHeight, 100, false, 101, 101);
+                            fullStickerPath = FileLoader.getInstance(UserConfig.selectedAccount).getPathToAttach(size, "webp", true).toString();
+                        } else {
+                            // 没有变换，保持原始比例，必要时缩放到最长边512
+                            if (centerImage != null) {
+                                float w = centerImage.getImageWidth();
+                                float h = centerImage.getImageHeight();
+                                float s = Math.min(stickerMaxSize / Math.max(w, h), 1.0f);
+                                canvasWidth = (int) (w * s);
+                                canvasHeight = (int) (h * s);
+
+                                if (s < 1.0f) {
+                                    // 需要缩放，创建缩放后的图片（不加圆角）
+                                    Bitmap originalBitmap = centerImage.getBitmap();
+                                    if (originalBitmap != null) {
+                                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, canvasWidth, canvasHeight, true);
+                                        TLRPC.PhotoSize size = ImageLoader.scaleAndSaveImage(scaledBitmap, Bitmap.CompressFormat.WEBP, canvasWidth, canvasHeight, 100, false, 101, 101);
+                                        fullStickerPath = FileLoader.getInstance(UserConfig.selectedAccount).getPathToAttach(size, "webp", true).toString();
+                                        scaledBitmap.recycle();
+                                    } else {
+                                        fullStickerPath = photoEntry.path != null ? photoEntry.path : photoEntry.imagePath;
+                                    }
+                                } else {
+                                    // 不需要缩放，直接使用原图
+                                    fullStickerPath = photoEntry.path != null ? photoEntry.path : photoEntry.imagePath;
+                                }
+                            } else {
+                                canvasWidth = canvasHeight = stickerMaxSize;
+                                fullStickerPath = photoEntry.path != null ? photoEntry.path : photoEntry.imagePath;
+                            }
                         }
-                        TLRPC.PhotoSize size = ImageLoader.scaleAndSaveImage(canvasBitmap, Bitmap.CompressFormat.WEBP, stickerMaxSize, stickerMaxSize, 100, false, 101, 101);
-                        final String fullStickerPath = FileLoader.getInstance(UserConfig.selectedAccount).getPathToAttach(size, "webp", true).toString();
                         if (videoEditedInfo1 != null) {
                             videoEditedInfo1.originalPath = fullStickerPath;
                         }
@@ -9434,9 +9481,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         }
                     }
                 }
-                if (w > 1 && h > 1 && w > h) {
-                    scale *= (float) w / h;
-                }
+                // 移除放大逻辑，让图片按原始比例适应容器
+                // 不再放大横向图片填充正方形框
             }
             return scale;
         }
@@ -15437,18 +15483,32 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
     }
 
+    private void showStickerFrameAndBackground() {
+        if (sendPhotoType == SELECT_TYPE_STICKER && stickerMakerView != null) {
+            stickerMakerView.showFrameBorder = true;
+            stickerMakerView.invalidate();
+            if (stickerMakerBackgroundView != null && stickerMakerBackgroundView.getVisibility() != View.VISIBLE) {
+                stickerMakerBackgroundView.setVisibility(View.VISIBLE);
+                stickerMakerBackgroundView.setAlpha(1f);
+            }
+        }
+    }
+
     private void showStickerMode(boolean show, boolean animated) {
         showStickerMode(show, show, animated);
     }
 
     private void showStickerMode(boolean show, boolean buttonsShow, boolean animated) {
+        // 背景视图只在显示边框时才显示
+        boolean showBackground = show && stickerMakerView.showFrameBorder;
+
         if (!animated) {
             stickerMakerView.animate().setListener(null).cancel();
             stickerMakerView.setVisibility(show ? View.VISIBLE : View.GONE);
             stickerMakerView.setAlpha(pickerView.getAlpha());
             stickerMakerBackgroundView.animate().setListener(null).cancel();
-            stickerMakerBackgroundView.setVisibility(show ? View.VISIBLE : View.GONE);
-            stickerMakerBackgroundView.setAlpha(show ? 1f : 0f);
+            stickerMakerBackgroundView.setVisibility(showBackground ? View.VISIBLE : View.GONE);
+            stickerMakerBackgroundView.setAlpha(showBackground ? 1f : 0f);
         } else {
             if (show && stickerMakerView.getTag() == null) {
                 stickerMakerView.animate().setListener(null).cancel();
@@ -15456,8 +15516,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 if (stickerMakerView.getVisibility() != View.VISIBLE) {
                     stickerMakerView.setVisibility(View.VISIBLE);
                     stickerMakerView.animate().alpha(1f).start();
-                    stickerMakerBackgroundView.setVisibility(View.VISIBLE);
-                    stickerMakerBackgroundView.animate().alpha(1f).start();
+                    if (showBackground) {
+                        stickerMakerBackgroundView.setVisibility(View.VISIBLE);
+                        stickerMakerBackgroundView.animate().alpha(1f).start();
+                    }
                 }
             } else if (!show && stickerMakerView.getTag() != null) {
                 stickerMakerView.animate().setListener(null).cancel();
@@ -15944,6 +16006,17 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             animateToY = 0;
             scale = animateToScale = scale1();
             animateToRotate = 0;
+
+            // 初始化贴纸编辑状态
+            if (sendPhotoType == SELECT_TYPE_STICKER) {
+                initialStickerScale = scale;
+                initialStickerTranslationX = translationX;
+                initialStickerTranslationY = translationY;
+                initialStickerRotate = rotate;
+                if (stickerMakerView != null) {
+                    stickerMakerView.showFrameBorder = false; // 默认不显示边框
+                }
+            }
             animationStartTime = 0;
             zoomAnimation = false;
             imageMoveAnimation = null;
@@ -18944,6 +19017,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         moveStartY = pinchCenterY;
                         draggingDown = false;
                         canDragDown = false;
+                        // 用户开始缩放，显示边框和背景
+                        showStickerFrameAndBackground();
                     }
                     hidePressedDrawables();
                     if (velocityTracker != null) {
@@ -19080,6 +19155,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             moving = true;
                             canDragDown = false;
                             hidePressedDrawables();
+                            // 用户开始拖拽，显示边框和背景
+                            showStickerFrameAndBackground();
                         }
 
                         moveStartX = ev.getX();
