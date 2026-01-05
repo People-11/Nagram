@@ -694,6 +694,12 @@ object NaConfig {
             ConfigItem.configTypeInt,
             0
         )
+    val improveDc5Connection =
+        addConfig(
+            "ImproveDc5Connection",
+            ConfigItem.configTypeBool,
+            false
+        )
     val disableBotOpenButton =
         addConfig(
             "DisableBotOpenButton",

@@ -133,6 +133,7 @@ private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCel
                 LocaleController.getString(R.string.Quality720),
                 LocaleController.getString(R.string.Quality144),
         }, null));
+    private final AbstractConfigCell improveDc5ConnectionRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getImproveDc5Connection()));
     private final AbstractConfigCell dividerConnection = cellGroup.appendCell(new ConfigCellDivider());
 
     private final AbstractConfigCell headerFolder = cellGroup.appendCell(new ConfigCellHeader(LocaleController.getString("Folder")));
@@ -409,6 +410,8 @@ private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCel
                         ConnectionsManager.native_setIpStrategy(a, ConnectionsManager.getIpStrategy());
                     }
                 }
+            } else if (key.equals(NaConfig.INSTANCE.getImproveDc5Connection().getKey())) {
+                ConnectionsManager.setImproveDc5Connection((boolean) newValue);
             } else if (key.equals(NekoConfig.inappCamera.getKey())) {
                 SharedConfig.setInappCamera((boolean) newValue);
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESATRT, null, null);

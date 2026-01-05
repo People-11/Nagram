@@ -297,8 +297,17 @@ void setPushConnectionEnabled(JNIEnv *env, jclass c, jint instanceNum, jboolean 
     ConnectionsManager::getInstance(instanceNum).setPushConnectionEnabled(value);
 }
 
-void
-applyDnsConfig(JNIEnv *env, jclass c, jint instanceNum, jlong address, jstring phone, jint date) {
+
+
+void setImproveDc5Connection(JNIEnv *env, jclass c, jboolean value) {
+
+    ConnectionsManager::setImproveDc5Connection(value);
+
+}
+
+
+
+void applyDnsConfig(JNIEnv *env, jclass c, jint instanceNum, jlong address, jstring phone, jint date) {
     const char *phoneStr = env->GetStringUTFChars(phone, 0);
 
     ConnectionsManager::getInstance(instanceNum).applyDnsConfig(
@@ -619,6 +628,7 @@ static JNINativeMethod ConnectionsManagerMethods[] = {
         {"native_setIpStrategy", "(IB)V", (void *) setIpStrategy},
         {"native_setNetworkAvailable", "(IZIZ)V", (void *) setNetworkAvailable},
         {"native_setPushConnectionEnabled", "(IZ)V", (void *) setPushConnectionEnabled},
+        {"native_setImproveDc5Connection", "(Z)V", (void *) setImproveDc5Connection},
         {"native_setJava", "(Z)V", (void *) setJava},
         {"native_setJava",                  "(I)V",                                                                                                                                                                                             (void *) setJava1},
         {"native_applyDnsConfig", "(IJLjava/lang/String;I)V", (void *) applyDnsConfig},
