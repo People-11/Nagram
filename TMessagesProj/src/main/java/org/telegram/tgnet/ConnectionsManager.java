@@ -719,6 +719,10 @@ public class ConnectionsManager extends BaseController {
         native_setPushConnectionEnabled(currentAccount, value);
     }
 
+    public static void setImproveDc5Connection(boolean value) {
+        native_setImproveDc5Connection(value);
+    }
+
     public void init(int version, int layer, int apiId, String deviceModel, String systemVersion, String appVersion, String langCode, String systemLangCode, String configPath, String logPath, String regId, String cFingerprint, int timezoneOffset, long userId, boolean userPremium, boolean enablePushConnection) {
 
         String installer = "";
@@ -751,6 +755,7 @@ public class ConnectionsManager extends BaseController {
             packageId = "";
         }
 
+        native_setImproveDc5Connection(NaConfig.INSTANCE.getImproveDc5Connection().Bool());
         native_init(currentAccount, version, layer, apiId, deviceModel, systemVersion, appVersion, langCode, systemLangCode, configPath, logPath, regId, cFingerprint, installer, packageId, timezoneOffset, userId, userPremium, enablePushConnection, ApplicationLoader.isNetworkOnline(), ApplicationLoader.getCurrentNetworkType(), SharedConfig.measureDevicePerformanceClass());
 
         Utilities.stageQueue.postRunnable(() -> {
@@ -1144,6 +1149,7 @@ public class ConnectionsManager extends BaseController {
     public static native void native_setJava(int instanceNum);
 
     public static native void native_setPushConnectionEnabled(int currentAccount, boolean value);
+    public static native void native_setImproveDc5Connection(boolean value);
 
     public static native void native_applyDnsConfig(int currentAccount, long address, String phone, int date);
 

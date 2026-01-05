@@ -74,6 +74,10 @@ public:
     void setSystemLangCode(std::string langCode);
     void updateDcSettings(uint32_t datacenterId, bool workaround, bool ifLoadingTryAgain);
     void setPushConnectionEnabled(bool value);
+
+    static void setImproveDc5Connection(bool value);
+    static bool improveDc5Connection;
+
     void applyDnsConfig(NativeByteBuffer *buffer, std::string phone, int32_t date);
 
     int64_t checkProxy(std::string address, uint16_t port, std::string username, std::string password, std::string secret, onRequestTimeFunc requestTimeFunc, jobject ptr1);

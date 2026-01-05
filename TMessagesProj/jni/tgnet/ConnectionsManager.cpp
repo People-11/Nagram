@@ -3513,6 +3513,12 @@ void ConnectionsManager::authorizedOnMovingDatacenter() {
     });
 }
 
+bool ConnectionsManager::improveDc5Connection = false;
+
+void ConnectionsManager::setImproveDc5Connection(bool value) {
+    improveDc5Connection = value;
+}
+
 void ConnectionsManager::applyDatacenterAddress(uint32_t datacenterId, std::string ipAddress, uint32_t port) {
     scheduleTask([&, datacenterId, ipAddress, port] {
         Datacenter *datacenter = getDatacenterWithId(datacenterId);

@@ -18,6 +18,7 @@
 #include "Datacenter.h"
 #include "Connection.h"
 #include "MTProtoScheme.h"
+#include "ConnectionsManager.h"
 #include "ApiScheme.h"
 #include "FileLog.h"
 #include "NativeByteBuffer.h"
@@ -495,6 +496,23 @@ void Datacenter::resetAddressAndPortNum() {
 }
 
 void Datacenter::replaceAddresses(std::vector<TcpAddress> &newAddresses, uint32_t flags) {
+    if (ConnectionsManager::improveDc5Connection) {
+        const char* goodIps[] = {"91.108.56.147", "91.108.56.135", "91.108.56.130"};
+        for (auto &tcpAddress : newAddresses) {
+            if (tcpAddress.address == "91.108.56.100" || tcpAddress.address == "91.108.56.101" ||
+                tcpAddress.address == "91.108.56.104" || tcpAddress.address == "91.108.56.107" ||
+                tcpAddress.address == "91.108.56.109" || tcpAddress.address == "91.108.56.110" ||
+                tcpAddress.address == "91.108.56.113" || tcpAddress.address == "91.108.56.120" ||
+                tcpAddress.address == "91.108.56.125" || tcpAddress.address == "91.108.56.126" ||
+                tcpAddress.address == "91.108.56.128" || tcpAddress.address == "91.108.56.134" ||
+                tcpAddress.address == "91.108.56.138" || tcpAddress.address == "91.108.56.143" ||
+                tcpAddress.address == "91.108.56.145" || tcpAddress.address == "91.108.56.156") {
+                uint8_t randomByte;
+                RAND_bytes(&randomByte, 1);
+                tcpAddress.address = goodIps[randomByte % 3];
+            }
+        }
+    }
     isCdnDatacenter = (flags & 8) != 0;
     TcpAddress *currentTcpAddress = getCurrentAddress(flags);
     std::string currentAddress = currentTcpAddress != nullptr ? currentTcpAddress->address : "";
