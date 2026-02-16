@@ -9650,6 +9650,7 @@
     <string name="ShortHighQuality">HD</string>
     <string name="PhotoWillBeSentInSD">The photo will be sent in standard quality.</string>
     <string name="PhotoWillBeSentInHD">The photo will be sent in high quality.</string>
+    <string name="PhotoWillBeSentAsFile">The photo will be sent as original file.</string>
     <string name="DebugMenuUseSystemBoldFont">Use Bold Font from System</string>
     <string name="DebugMenuDontUseSystemBoldFont">Don\'t use Bold Font from System</string>
     <string name="AllChatsShort">All</string>

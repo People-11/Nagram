@@ -131,7 +131,7 @@ import java.util.concurrent.CountDownLatch;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.NekoXConfig;
 import tw.nekomimi.nekogram.SaveToDownloadReceiver;
-import xyz.nextalone.nagram.NaConfig;
+
 import xyz.nextalone.nagram.helper.AudioEnhance;
 
 public class MediaController implements AudioManager.OnAudioFocusChangeListener, NotificationCenter.NotificationCenterDelegate, SensorEventListener {
@@ -6361,17 +6361,15 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             compressFactor = 0.6f;
             minCompressFactor = 0.7f;
         }
-        if (NaConfig.INSTANCE.getEnhancedVideoBitrate().Bool()) {
-            int size = Math.min(height, width);
-            if (size >= 2160) {
-                maxBitrate = VIDEO_BITRATE_2160;
-            } else if (size >= 1440) {
-                maxBitrate = VIDEO_BITRATE_1440;
-            } else if (size >= 1080) {
-                maxBitrate = VIDEO_BITRATE_1440;
-            } else if (size >= 720) {
-                maxBitrate = VIDEO_BITRATE_1080;
-            }
+        int size = Math.min(height, width);
+        if (size >= 2160) {
+            maxBitrate = VIDEO_BITRATE_2160;
+        } else if (size >= 1440) {
+            maxBitrate = VIDEO_BITRATE_1440;
+        } else if (size >= 1080) {
+            maxBitrate = VIDEO_BITRATE_1440;
+        } else if (size >= 720) {
+            maxBitrate = VIDEO_BITRATE_1080;
         }
         int remeasuredBitrate = (int) (originalBitrate / (Math.min(originalHeight / (float) (height), originalWidth / (float) (width))));
         remeasuredBitrate *= compressFactor;
