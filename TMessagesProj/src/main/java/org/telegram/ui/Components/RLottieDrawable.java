@@ -227,7 +227,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
     int generateCacheFramePointer;
 
     public static void createCacheGenQueue() {
-        lottieCacheGenerateQueue = new DispatchQueue("cache generator queue");
+        lottieCacheGenerateQueue = new DispatchQueue("cache generator queue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
     }
 
     protected void checkRunningTasks() {

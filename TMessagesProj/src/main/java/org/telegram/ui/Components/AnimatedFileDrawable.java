@@ -176,7 +176,11 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
     BitmapsCache bitmapsCache;
     BitmapsCache.Metadata cacheMetadata;
 
-    private static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(8, new ThreadPoolExecutor.DiscardPolicy());
+    private static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(6, r -> {
+        Thread t = new Thread(r);
+        t.setPriority(Thread.MIN_PRIORITY);
+        return t;
+    }, new ThreadPoolExecutor.DiscardPolicy());
 
     private Runnable uiRunnableNoFrame = new Runnable() {
         @Override

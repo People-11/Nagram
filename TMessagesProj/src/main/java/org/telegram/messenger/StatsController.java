@@ -44,7 +44,7 @@ public class StatsController extends BaseController {
     private long[] resetStatsDate = new long[3];
     private int[] callsTotalTime = new int[3];
     private RandomAccessFile statsFile;
-    private static DispatchQueue statsSaveQueue = new DispatchQueue("statsSaveQueue");
+    private static DispatchQueue statsSaveQueue = new DispatchQueue("statsSaveQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
     private static final ThreadLocal<Long> lastStatsSaveTime = new ThreadLocal<Long>() {
         @Override

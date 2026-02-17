@@ -34,7 +34,7 @@ import org.telegram.ui.ProfileActivity;
 
 public class ProfileMetaballView extends View {
 
-    public static final DispatchQueue profileBlurQueue = new DispatchQueue("profileBlurQueue");
+    public static final DispatchQueue profileBlurQueue = new DispatchQueue("profileBlurQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
     private ProfileMetaballView.BlurBitmapHolder originalFrame = null;
     private ProfileMetaballView.BlurBitmapHolder nextFrame = null;

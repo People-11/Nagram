@@ -314,7 +314,7 @@ public class FileLog {
             e.printStackTrace();
         }
         try {
-            logQueue = new DispatchQueue("logQueue");
+            logQueue = new DispatchQueue("logQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
             currentFile.createNewFile();
             FileOutputStream stream = new FileOutputStream(currentFile);
             streamWriter = new OutputStreamWriter(stream);

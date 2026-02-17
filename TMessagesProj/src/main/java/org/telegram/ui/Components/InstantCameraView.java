@@ -2332,7 +2332,7 @@ public class InstantCameraView extends FrameLayout implements NotificationCenter
                 }
                 running = true;
                 Thread thread = new Thread(this, "TextureMovieEncoder");
-                thread.setPriority(Thread.MAX_PRIORITY);
+                // thread.setPriority(Thread.MAX_PRIORITY);
                 thread.start();
                 while (!ready) {
                     try {
@@ -2344,8 +2344,8 @@ public class InstantCameraView extends FrameLayout implements NotificationCenter
             }
 
             if (WRITE_TO_FILE_IN_BACKGROUND) {
-                fileWriteQueue = new DispatchQueue("IVR_FileWriteQueue");
-                fileWriteQueue.setPriority(Thread.MAX_PRIORITY);
+                fileWriteQueue = new DispatchQueue("IVR_FileWriteQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                // fileWriteQueue.setPriority(Thread.MAX_PRIORITY);
             }
 
             keyframeThumbs.clear();
@@ -2354,7 +2354,7 @@ public class InstantCameraView extends FrameLayout implements NotificationCenter
                 generateKeyframeThumbsQueue.cleanupQueue();
                 generateKeyframeThumbsQueue.recycle();
             }
-            generateKeyframeThumbsQueue = new DispatchQueue("keyframes_thumb_queue");
+            generateKeyframeThumbsQueue = new DispatchQueue("keyframes_thumb_queue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
             handler.sendMessage(handler.obtainMessage(MSG_START_RECORDING));
         }
 
@@ -3193,7 +3193,7 @@ public class InstantCameraView extends FrameLayout implements NotificationCenter
                 }
                 pauseRecorder = false;
                 Thread thread = new Thread(recorderRunnable);
-                thread.setPriority(Thread.MAX_PRIORITY);
+                // thread.setPriority(Thread.MAX_PRIORITY);
                 thread.start();
 
                 audioBufferInfo = new MediaCodec.BufferInfo();

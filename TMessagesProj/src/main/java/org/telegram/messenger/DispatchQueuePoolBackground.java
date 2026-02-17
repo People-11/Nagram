@@ -66,7 +66,7 @@ public class DispatchQueuePoolBackground {
                 queue = busyQueues.remove(0);
             } else if (queues.isEmpty()) {
                 queue = new DispatchQueue(THREAD_PREFIX + guid + "_" + Utilities.random.nextInt());
-                queue.setPriority(Thread.MAX_PRIORITY);
+                queue.setPriority(Thread.MIN_PRIORITY);
                 createdCount++;
             } else {
                 queue = queues.remove(0);
@@ -79,11 +79,7 @@ public class DispatchQueuePoolBackground {
             busyQueues.add(queue);
             int count = busyQueuesMap.get(queue.index, 0);
             busyQueuesMap.put(queue.index, count + 1);
-            if(HwEmojis.isHwEnabled()) {
-                queue.setPriority(Thread.MIN_PRIORITY);
-            } else if (queue.getPriority() != Thread.MAX_PRIORITY) {
-                queue.setPriority(Thread.MAX_PRIORITY);
-            }
+            queue.setPriority(Thread.MIN_PRIORITY);
             queue.postRunnable(() -> {
                 runnable.run();
                 Utilities.globalQueue.postRunnable(() -> {

@@ -2547,7 +2547,7 @@ public class CameraView extends FrameLayout implements TextureView.SurfaceTextur
                 }
                 running = true;
                 Thread thread = new Thread(this, "TextureMovieEncoder");
-                thread.setPriority(Thread.MAX_PRIORITY);
+                // thread.setPriority(Thread.MAX_PRIORITY);
                 thread.start();
                 while (!ready) {
                     try {
@@ -2557,8 +2557,8 @@ public class CameraView extends FrameLayout implements TextureView.SurfaceTextur
                     }
                 }
             }
-            fileWriteQueue = new DispatchQueue("VR_FileWriteQueue");
-            fileWriteQueue.setPriority(Thread.MAX_PRIORITY);
+            fileWriteQueue = new DispatchQueue("VR_FileWriteQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
+            // fileWriteQueue.setPriority(Thread.MAX_PRIORITY);
 
             keyframeThumbs.clear();
             handler.sendMessage(handler.obtainMessage(MSG_START_RECORDING));
@@ -2986,7 +2986,7 @@ public class CameraView extends FrameLayout implements TextureView.SurfaceTextur
                     FileLog.d("CameraView " + "initied audio record with channels " + audioRecorder.getChannelCount() + " sample rate = " + audioRecorder.getSampleRate() + " bufferSize = " + bufferSize);
                 }
                 Thread thread = new Thread(recorderRunnable);
-                thread.setPriority(Thread.MAX_PRIORITY);
+                // thread.setPriority(Thread.MAX_PRIORITY);
                 thread.start();
 
                 audioBufferInfo = new MediaCodec.BufferInfo();

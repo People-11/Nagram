@@ -44,7 +44,7 @@ public class FileLoadOperation {
     boolean streamPriority;
     long streamOffset;
 
-    public static volatile DispatchQueue filesQueue = new DispatchQueue("writeFileQueue");
+    public static volatile DispatchQueue filesQueue = new DispatchQueue("writeFileQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
     public static ImmutableByteArrayOutputStream filesQueueByteBuffer;
     private boolean forceSmallChunk;
     private Runnable fileWriteRunnable;

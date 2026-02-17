@@ -128,9 +128,9 @@ public class ImageLoader {
     private LinkedList<HttpImageTask> httpTasks = new LinkedList<>();
     private LinkedList<ArtworkLoadTask> artworkTasks = new LinkedList<>();
     private DispatchQueuePriority cacheOutQueue = new DispatchQueuePriority("cacheOutQueue");
-    private DispatchQueue cacheThumbOutQueue = new DispatchQueue("cacheThumbOutQueue");
-    private DispatchQueue thumbGeneratingQueue = new DispatchQueue("thumbGeneratingQueue");
-    private DispatchQueue imageLoadQueue = new DispatchQueue("imageLoadQueue");
+    private DispatchQueue cacheThumbOutQueue = new DispatchQueue("cacheThumbOutQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
+    private DispatchQueue thumbGeneratingQueue = new DispatchQueue("thumbGeneratingQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
+    private DispatchQueue imageLoadQueue = new DispatchQueue("imageLoadQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
     private HashMap<String, String> replacedBitmaps = new HashMap<>();
     private ConcurrentHashMap<String, long[]> fileProgresses = new ConcurrentHashMap<>();
     private HashMap<String, ThumbGenerateTask> thumbGenerateTasks = new HashMap<>();
@@ -2056,7 +2056,7 @@ public class ImageLoader {
     }
 
     public ImageLoader() {
-        thumbGeneratingQueue.setPriority(Thread.MIN_PRIORITY);
+        // thumbGeneratingQueue.setPriority(Thread.MIN_PRIORITY);
 
         int memoryClass = ((ActivityManager) ApplicationLoader.applicationContext.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
         int maxSize;

@@ -1346,9 +1346,9 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
 
     public MediaController() {
         recordQueue = new DispatchQueue("recordQueue");
-        recordQueue.setPriority(Thread.MAX_PRIORITY);
+        // recordQueue.setPriority(Thread.MAX_PRIORITY);
         fileEncodingQueue = new DispatchQueue("fileEncodingQueue");
-        fileEncodingQueue.setPriority(Thread.MAX_PRIORITY);
+        // fileEncodingQueue.setPriority(Thread.MAX_PRIORITY);
 
         recordQueue.postRunnable(() -> {
             try {
@@ -5935,7 +5935,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             }
             broadcastNewPhotos(guid, mediaAlbumsSorted, photoAlbumsSorted, mediaCameraAlbumId, allMediaAlbum, allPhotosAlbum, allVideosAlbum, 0);
         });
-        thread.setPriority(Thread.MIN_PRIORITY);
+        // thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
     }
 

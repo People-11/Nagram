@@ -519,8 +519,8 @@ public class FilePathDatabase {
         if (dispatchQueue == null) {
             synchronized (this) {
                 if (dispatchQueue == null) {
-                    dispatchQueue = new DispatchQueue("files_database_queue_" + currentAccount);
-                    dispatchQueue.setPriority(Thread.MAX_PRIORITY);
+                    dispatchQueue = new DispatchQueue("files_database_queue_" + currentAccount, true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                    // dispatchQueue.setPriority(Thread.MAX_PRIORITY);
                 }
             }
         }
