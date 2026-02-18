@@ -940,11 +940,17 @@ public class ActionBarPopupWindow extends PopupWindow {
                 int maxItems = height / item;
                 if (count > maxItems) count = maxItems;
             }
+            // 先对所有 item 设置 alpha=0，防止超出 count 的 item 在动画前提前显示
+            for (int a = 0; a < content.getItemsCount(); a++) {
+                View child = content.getItemAt(a);
+                if (!(child instanceof GapView)) {
+                    child.setAlpha(0.0f);
+                }
+            }
             content.positions.clear();
             int visibleCount = 0;
             for (int a = 0; a < count; a++) {
                 View child = content.getItemAt(a);
-                child.setAlpha(0.0f);
                 if (child.getVisibility() != View.VISIBLE) {
                     continue;
                 }

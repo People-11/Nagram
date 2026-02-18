@@ -10308,6 +10308,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         }
 
         listView.setAlpha(progress);
+        if (playProfileAnimation != 2 && NekoConfig.showIdAndDc.Bool()) {
+            idTextView.setAlpha(progress);
+        }
 
         listView.setTranslationX(dp(48) - dp(48) * progress);
 
@@ -10720,6 +10723,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         avatarsViewPager.setAlpha(1f);
                         avatarsViewPager.resetCurrentItem();
                         avatarsViewPager.setVisibility(View.VISIBLE);
+                    }
+                    if (NekoConfig.showIdAndDc.Bool()) {
                         idTextView.setAlpha(1.0f);
                     }
                     transitionOnlineText = null;
