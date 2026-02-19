@@ -225,8 +225,7 @@ public class MessagesStorage extends BaseController {
 
     public MessagesStorage(int instance) {
         super(instance);
-        storageQueue = new DispatchQueue("storageQueue_" + instance);
-        storageQueue.setPriority(8);
+        storageQueue = new DispatchQueue("storageQueue_" + instance, true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
         storageQueue.postRunnable(() -> openDatabase(1));
     }
 
@@ -318,7 +317,7 @@ public class MessagesStorage extends BaseController {
         }
         try {
             database = new SQLiteDatabase(cacheFile.getPath());
-            database.executeFast("PRAGMA secure_delete = ON").stepThis().dispose();
+            database.executeFast("PRAGMA secure_delete = OFF").stepThis().dispose();
             database.executeFast("PRAGMA temp_store = MEMORY").stepThis().dispose();
             database.executeFast("PRAGMA journal_mode = WAL").stepThis().dispose();
             database.executeFast("PRAGMA journal_size_limit = 10485760").stepThis().dispose();
@@ -431,7 +430,7 @@ public class MessagesStorage extends BaseController {
         if (restored) {
             try {
                 database = new SQLiteDatabase(cacheFile.getPath());
-                database.executeFast("PRAGMA secure_delete = ON").stepThis().dispose();
+                database.executeFast("PRAGMA secure_delete = OFF").stepThis().dispose();
                 database.executeFast("PRAGMA temp_store = MEMORY").stepThis().dispose();
                 database.executeFast("PRAGMA journal_mode = WAL").stepThis().dispose();
                 database.executeFast("PRAGMA journal_size_limit = 10485760").stepThis().dispose();

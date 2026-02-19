@@ -926,6 +926,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
             }
         });
         recyclerListView.setAnimateEmptyView(true, RecyclerListView.EMPTY_VIEW_ANIMATION_TYPE_ALPHA);
+        recyclerListView.setAllowStopHeaveOperations(true);
         itemsEnterAnimator = new RecyclerItemsEnterAnimator(recyclerListView, true);
         recyclerListView.setItemsEnterAnimator(itemsEnterAnimator);
         recyclerListView.setOnItemClickListener((view, position) -> {

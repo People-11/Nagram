@@ -45,8 +45,12 @@ public class FrameTickScheduler {
             }
         }
 
-        if (running) {
+        // 每帧结束后检查：WeakHashMap 中的 key 可能已被 GC 回收导致 subs 变空，
+        // 此时必须停止注册下一帧，否则 Choreographer 回调链永远不会终止。
+        if (running && !subs.isEmpty()) {
             Choreographer.getInstance().postFrameCallback(callback);
+        } else {
+            running = false;
         }
     }
 

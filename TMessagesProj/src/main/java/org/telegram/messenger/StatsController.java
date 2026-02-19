@@ -86,7 +86,7 @@ public class StatsController extends BaseController {
         @Override
         public void run() {
             long newTime = System.currentTimeMillis();
-            if (Math.abs(newTime - lastInternalStatsSaveTime) < 2000) {
+            if (Math.abs(newTime - lastInternalStatsSaveTime) < 10 * 1000) {
                 return;
             }
             lastInternalStatsSaveTime = newTime;
@@ -112,7 +112,7 @@ public class StatsController extends BaseController {
                 }
                 statsFile.seek(0);
                 statsFile.write(byteArrayOutputStream.buf, 0, byteArrayOutputStream.count());
-                statsFile.getFD().sync();
+                // statsFile.getFD().sync(); // FOSS: 减少磁盘 I/O，交给 OS 处理 flush
             } catch (Exception ignore) {
 
             }
@@ -284,7 +284,7 @@ public class StatsController extends BaseController {
 
     private void saveStats() {
         long newTime = System.currentTimeMillis();
-        if (Math.abs(newTime - lastStatsSaveTime.get()) >= 2000) {
+        if (Math.abs(newTime - lastStatsSaveTime.get()) >= 10 * 1000) {
             lastStatsSaveTime.set(newTime);
             statsSaveQueue.cancelRunnable(saveRunnable);
             statsSaveQueue.postRunnable(saveRunnable);

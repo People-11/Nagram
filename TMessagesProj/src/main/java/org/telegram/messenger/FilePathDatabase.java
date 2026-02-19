@@ -60,8 +60,9 @@ public class FilePathDatabase {
         }
         try {
             database = new SQLiteDatabase(cacheFile.getPath());
-            database.executeFast("PRAGMA secure_delete = ON").stepThis().dispose();
+            database.executeFast("PRAGMA secure_delete = OFF").stepThis().dispose();
             database.executeFast("PRAGMA temp_store = MEMORY").stepThis().dispose();
+            database.executeFast("PRAGMA journal_mode = WAL").stepThis().dispose();
 
             if (createTable) {
                 database.executeFast("CREATE TABLE paths(document_id INTEGER, dc_id INTEGER, type INTEGER, path TEXT, flags INTEGER, PRIMARY KEY(document_id, dc_id, type));").stepThis().dispose();

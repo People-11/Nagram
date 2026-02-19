@@ -1634,7 +1634,7 @@ public class DatabaseMigrationHelper {
            time = System.currentTimeMillis();
 
             newDatabase = new SQLiteDatabase(cacheFile.getPath());
-            newDatabase.executeFast("PRAGMA secure_delete = ON").stepThis().dispose();
+            newDatabase.executeFast("PRAGMA secure_delete = OFF").stepThis().dispose();
             newDatabase.executeFast("PRAGMA temp_store = MEMORY").stepThis().dispose();
             newDatabase.executeFast("PRAGMA journal_mode = WAL").stepThis().dispose();
             newDatabase.executeFast("PRAGMA journal_size_limit = 10485760").stepThis().dispose();

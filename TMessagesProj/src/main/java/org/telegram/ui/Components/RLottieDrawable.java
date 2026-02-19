@@ -159,6 +159,9 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
         @Override
         public void run() {
             loadFrameTask = null;
+            if (bitmapsCache != null && bitmapsCache.needGenCache() && !allowDrawFramesWhileCacheGenerating) {
+                return;
+            }
             decodeFrameFinishedInternal();
             if (onFrameReadyRunnable != null) {
                 onFrameReadyRunnable.run();

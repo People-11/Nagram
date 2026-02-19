@@ -121,7 +121,7 @@ public class FileLog {
                     FileLog.getInstance().tlStreamWriter.write("\n");
                     FileLog.getInstance().tlStreamWriter.write(finalRes);
                     FileLog.getInstance().tlStreamWriter.write("\n\n");
-                    FileLog.getInstance().tlStreamWriter.flush();
+                    // FileLog.getInstance().tlStreamWriter.flush();
 
                     if (error != null) {
                         Log.e(mtproto_tag, metadata);
@@ -161,7 +161,7 @@ public class FileLog {
                     FileLog.getInstance().tlStreamWriter.write("\n");
                     FileLog.getInstance().tlStreamWriter.write(messageStr);
                     FileLog.getInstance().tlStreamWriter.write("\n\n");
-                    FileLog.getInstance().tlStreamWriter.flush();
+                    // FileLog.getInstance().tlStreamWriter.flush();
 
                     Log.d(mtproto_tag, "msgId=" + messageId + " account=" + account);
                     Log.d(mtproto_tag, messageStr);
@@ -388,7 +388,7 @@ public class FileLog {
                     for (int a = 0; a < stack.length; a++) {
                         getInstance().streamWriter.write(getInstance().dateFormat.format(System.currentTimeMillis()) + " E/tmessages: \tat " + stack[a] + "\n");
                     }
-                    getInstance().streamWriter.flush();
+                    // getInstance().streamWriter.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -407,7 +407,7 @@ public class FileLog {
             getInstance().logQueue.postRunnable(() -> {
                 try {
                     getInstance().streamWriter.write(getInstance().dateFormat.format(System.currentTimeMillis()) + " E/" + tag + ": " + message + "\n");
-                    getInstance().streamWriter.flush();
+                    // getInstance().streamWriter.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -461,7 +461,7 @@ public class FileLog {
                             getInstance().streamWriter.write(getInstance().dateFormat.format(System.currentTimeMillis()) + " E/tmessages: \tat " + stack[a] + "\n");
                         }
                     }
-                    getInstance().streamWriter.flush();
+                    // getInstance().streamWriter.flush();
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -581,7 +581,7 @@ public class FileLog {
             getInstance().logQueue.postRunnable(() -> {
                 try {
                     getInstance().streamWriter.write(getInstance().dateFormat.format(System.currentTimeMillis()) + " D/" + tag + ": " + message + "\n");
-                    getInstance().streamWriter.flush();
+                    // getInstance().streamWriter.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
                     if (AndroidUtilities.isENOSPC(e)) {
@@ -603,7 +603,7 @@ public class FileLog {
             getInstance().logQueue.postRunnable(() -> {
                 try {
                     getInstance().streamWriter.write(getInstance().dateFormat.format(System.currentTimeMillis()) + " W/" + tag + ": " + message + "\n");
-                    getInstance().streamWriter.flush();
+                    // getInstance().streamWriter.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -646,27 +646,34 @@ public class FileLog {
     public class ANRDetector {
         private final long TIMEOUT_MS = 5000; // ANR threshold (5 seconds)
         private final Handler mainHandler = new Handler(Looper.getMainLooper());
-        private boolean isUIThreadResponsive = true;
+        private volatile boolean isUIThreadResponsive = true;
+        private Thread watchThread;
 
         public ANRDetector(Runnable anrDetected) {
-            new Thread(() -> {
-                while (true) {
+            watchThread = new Thread(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
                     isUIThreadResponsive = false;
-
-                    // Post a task to the main thread
                     mainHandler.post(() -> isUIThreadResponsive = true);
-
                     try {
                         Thread.sleep(TIMEOUT_MS);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        break; // 收到中断信号，正常退出
                     }
-
                     if (!isUIThreadResponsive) {
                         anrDetected.run();
                     }
                 }
-            }).start();
+            });
+            watchThread.setDaemon(true); // App 退出时自动终止，不阻止 JVM 退出
+            watchThread.setName("ANRDetector");
+            watchThread.start();
+        }
+
+        public void stop() {
+            if (watchThread != null) {
+                watchThread.interrupt();
+                watchThread = null;
+            }
         }
     }
 }

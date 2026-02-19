@@ -1032,7 +1032,7 @@ public class FileLoadOperation {
             if (encryptFile) {
                 File keyFile = new File(FileLoader.getInternalCacheDir(), fileNameFinal + ".key");
                 try {
-                    RandomAccessFile file = new RandomAccessFile(keyFile, "rws");
+                    RandomAccessFile file = new RandomAccessFile(keyFile, "rw");
                     long len = keyFile.length();
                     encryptKey = new byte[32];
                     encryptIv = new byte[16];
@@ -1070,7 +1070,7 @@ public class FileLoadOperation {
                 cacheFilePreload = new File(tempPath, fileNamePreload);
                 boolean closeStream = false;
                 try {
-                    preloadStream = new RandomAccessFile(cacheFilePreload, "rws");
+                    preloadStream = new RandomAccessFile(cacheFilePreload, "rw");
                     long len = preloadStream.length();
                     long readOffset = 0;
                     preloadStreamFileOffset = 1;
@@ -1147,7 +1147,7 @@ public class FileLoadOperation {
                     cacheFileParts.delete();
                 }
                 try {
-                    filePartsStream = new RandomAccessFile(cacheFileParts, "rws");
+                    filePartsStream = new RandomAccessFile(cacheFileParts, "rw");
                     long len = filePartsStream.length();
                     if (len % 8 == 4) {
                         len -= 4;
@@ -1213,7 +1213,7 @@ public class FileLoadOperation {
             if (fileNameIv != null) {
                 cacheIvTemp = new File(tempPath, fileNameIv);
                 try {
-                    fiv = new RandomAccessFile(cacheIvTemp, "rws");
+                    fiv = new RandomAccessFile(cacheIvTemp, "rw");
                     if (downloadedBytes != 0 && !newKeyGenerated) {
                         long len = cacheIvTemp.length();
                         if (len > 0 && len % 64 == 0) {
@@ -1240,7 +1240,7 @@ public class FileLoadOperation {
             }
             updateProgress();
             try {
-                fileOutputStream = new RandomAccessFile(cacheFileTemp, "rws");
+                fileOutputStream = new RandomAccessFile(cacheFileTemp, "rw");
                 if (downloadedBytes != 0) {
                     fileOutputStream.seek(downloadedBytes);
                 }
