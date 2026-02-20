@@ -86,7 +86,7 @@ public class StatsController extends BaseController {
         @Override
         public void run() {
             long newTime = System.currentTimeMillis();
-            if (Math.abs(newTime - lastInternalStatsSaveTime) < 10 * 1000) {
+            if (Math.abs(newTime - lastInternalStatsSaveTime) < 30 * 1000) {
                 return;
             }
             lastInternalStatsSaveTime = newTime;
@@ -284,7 +284,7 @@ public class StatsController extends BaseController {
 
     private void saveStats() {
         long newTime = System.currentTimeMillis();
-        if (Math.abs(newTime - lastStatsSaveTime.get()) >= 10 * 1000) {
+        if (Math.abs(newTime - lastStatsSaveTime.get()) >= 30 * 1000) {
             lastStatsSaveTime.set(newTime);
             statsSaveQueue.cancelRunnable(saveRunnable);
             statsSaveQueue.postRunnable(saveRunnable);

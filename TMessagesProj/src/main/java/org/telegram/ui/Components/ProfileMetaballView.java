@@ -125,8 +125,15 @@ public class ProfileMetaballView extends View {
     }
 
     private void updateContent() {
-        needsNewFrame = true;
-        postInvalidateOnAnimation();
+        if (!imageView.isMetaballWorking || getVisibility() != View.VISIBLE) {
+            return;
+        }
+
+        float vr = view.getWidth() * view.getScaleX() * 0.5f;
+        if (vr <= dp(40)) {
+            needsNewFrame = true;
+            postInvalidateOnAnimation();
+        }
     }
 
     private void doBlur() {
