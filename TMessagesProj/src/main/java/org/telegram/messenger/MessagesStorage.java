@@ -11615,7 +11615,9 @@ public class MessagesStorage extends BaseController {
                     MessageObject.getDialogId(message);
                     long topicId = MessageObject.getTopicId(currentAccount, message, getForumTypeFlags(message.dialog_id));
 
-                    if (message.mentioned && message.media_unread) {
+                    if (message.mentioned && message.media_unread
+                            && !(NekoConfig.ignoreBlocked.Bool() && message.from_id != null
+                                 && getMessagesController().blockePeers.indexOfKey(message.from_id.user_id) >= 0)) {
                         ArrayList<Integer> ids = dialogMentionsIdsMap.get(message.dialog_id);
                         if (ids == null) {
                             ids = new ArrayList<>();
@@ -11649,22 +11651,28 @@ public class MessagesStorage extends BaseController {
                         }
                         FileLog.d("update messageRead currentMaxId = " + currentMaxId + " dialogId = " + message.dialog_id);
                         if (message.id < 0 || currentMaxId < message.id) {
-                            StringBuilder messageIds = messageIdsMap.get(message.dialog_id);
-                            if (messageIds == null) {
-                                messageIds = new StringBuilder();
-                                messageIdsMap.put(message.dialog_id, messageIds);
-                            }
-                            if (messageIds.length() > 0) {
-                                messageIds.append(",");
-                            }
-                            messageIds.append(messageId);
+                            // NekoX: ignoreBlocked — skip unread count for blocked users
+                            if (NekoConfig.ignoreBlocked.Bool() && message.from_id != null
+                                    && getMessagesController().blockePeers.indexOfKey(message.from_id.user_id) >= 0) {
+                                // Message stored in DB but not counted as unread
+                            } else {
+                                StringBuilder messageIds = messageIdsMap.get(message.dialog_id);
+                                if (messageIds == null) {
+                                    messageIds = new StringBuilder();
+                                    messageIdsMap.put(message.dialog_id, messageIds);
+                                }
+                                if (messageIds.length() > 0) {
+                                    messageIds.append(",");
+                                }
+                                messageIds.append(messageId);
 
-                            ArrayList<Integer> ids = dialogMessagesIdsMap.get(message.dialog_id);
-                            if (ids == null) {
-                                ids = new ArrayList<>();
-                                dialogMessagesIdsMap.put(message.dialog_id, ids);
+                                ArrayList<Integer> ids = dialogMessagesIdsMap.get(message.dialog_id);
+                                if (ids == null) {
+                                    ids = new ArrayList<>();
+                                    dialogMessagesIdsMap.put(message.dialog_id, ids);
+                                }
+                                ids.add(messageId);
                             }
-                            ids.add(messageId);
                         }
                         if (topicId != 0) {
                             TopicKey topicKey = TopicKey.of(message.dialog_id, topicId);
