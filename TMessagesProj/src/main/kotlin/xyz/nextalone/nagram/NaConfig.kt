@@ -690,12 +690,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             true
         )
-    val showHiddenFeature =
-        addConfig(
-            "ShowHiddenFeature",
-            ConfigItem.configTypeBool,
-            false
-        )
     val searchHashtagDefaultPageChannel =
         addConfig(
             "SearchHashtagDefaultPageChannel",
