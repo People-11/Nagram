@@ -21873,8 +21873,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public SponsoredMessagesInfo getSponsoredMessages(long dialogId) {
-        // na: disable ad
-        if (true) {
+        if (NekoConfig.hideSponsoredMessage.Bool()) {
             return null;
         }
         SponsoredMessagesInfo info = sponsoredMessages.get(dialogId);

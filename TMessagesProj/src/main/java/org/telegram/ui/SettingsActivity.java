@@ -494,10 +494,6 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         });
         versionView.setOnLongClickListener(v -> {
             versionViewPressCount++;
-            if (versionViewPressCount >= 5) {
-                NaConfig.INSTANCE.getShowHiddenFeature().toggleConfigBool();
-                Toast.makeText(getParentActivity(), LocaleController.getString("ErrorOccurred", R.string.ErrorOccurred), Toast.LENGTH_SHORT).show();
-            }
             if (versionViewPressCount < 2 && !BuildVars.DEBUG_PRIVATE_VERSION) {
                 try {
                     Toast.makeText(getParentActivity(), getString(R.string.DebugMenuLongPress), Toast.LENGTH_SHORT).show();

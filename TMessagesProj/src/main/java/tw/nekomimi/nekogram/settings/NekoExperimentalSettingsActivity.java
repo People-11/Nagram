@@ -542,43 +542,6 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
     protected void setCanNotChange() {
         super.setCanNotChange();
 
-        if (!NaConfig.INSTANCE.getShowHiddenFeature().Bool()) {
-            cellGroup.rows.remove(localPremiumRow);
-            cellGroup.rows.remove(localQuoteColorRow);
-            cellGroup.rows.remove(externalGhostModeRow);
-            cellGroup.rows.remove(enhancedFileLoaderRow);
-            cellGroup.rows.remove(disableFilteringRow);
-            cellGroup.rows.remove(unlimitedFavedStickersRow);
-            cellGroup.rows.remove(unlimitedPinnedDialogsRow);
-            cellGroup.rows.remove(enableStickerPinRow);
-
-            cellGroup.rows.remove(forceCopyRow);
-            cellGroup.rows.remove(disableFlagSecureRow);
-            cellGroup.rows.remove(hideSponsoredMessageRow);
-            cellGroup.rows.remove(ignoreBlockedRow);
-            cellGroup.rows.remove(regexFiltersEnabledRow);
-            cellGroup.rows.remove(regexFiltersEnableInChatsRow);
-            cellGroup.rows.remove(disableChatActionRow);
-            cellGroup.rows.remove(disableChoosingStickerRow);
-
-            cellGroup.rows.remove(headerStory);
-            cellGroup.rows.remove(disableStoriesRow);
-            cellGroup.rows.remove(disableSendReadStoriesRow);
-            cellGroup.rows.remove(dividerStory);
-
-            NekoConfig.localPremium.setConfigBool(false);
-            NekoConfig.setGhostMode(false);
-            NaConfig.INSTANCE.getForceCopy().setConfigBool(false);
-            NaConfig.INSTANCE.getDisableFlagSecure().setConfigBool(false);
-            NekoXConfig.disableFlagSecure = false;
-            NekoConfig.hideSponsoredMessage.setConfigBool(false);
-            NekoConfig.ignoreBlocked.setConfigBool(false);
-            NaConfig.INSTANCE.getRegexFiltersEnabled().setConfigBool(false);
-            NekoConfig.disableChatAction.setConfigBool(false);
-            NekoConfig.disableChoosingSticker.setConfigBool(false);
-            NaConfig.INSTANCE.getDisableSendReadStories().setConfigBool(false);
-        }
-
         addRowsToMap();
     }
 }

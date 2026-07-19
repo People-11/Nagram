@@ -378,9 +378,8 @@ public class NekoConfig {
             disablePhotoSideAction.setConfigBool(preferences.getBoolean("disablePhotoSideAction", true));
         if (preferences.contains("openArchiveOnPull"))
             openArchiveOnPull.setConfigBool(preferences.getBoolean("openArchiveOnPull", false));
-        if (preferences.contains("showHiddenFeature"))             //showHiddenFeature.setConfigBool(preferences.getBoolean("showHiddenFeature", false));
-            if (preferences.contains("hideKeyboardOnChatScroll"))
-                hideKeyboardOnChatScroll.setConfigBool(preferences.getBoolean("hideKeyboardOnChatScroll", false));
+        if (preferences.contains("hideKeyboardOnChatScroll"))
+            hideKeyboardOnChatScroll.setConfigBool(preferences.getBoolean("hideKeyboardOnChatScroll", false));
         if (preferences.contains("avatarBackgroundBlur"))
             avatarBackgroundBlur.setConfigBool(preferences.getBoolean("avatarBackgroundBlur", false));
         if (preferences.contains("avatarBackgroundDarken"))
