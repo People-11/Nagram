@@ -18,11 +18,6 @@ import android.util.SparseIntArray;
 import androidx.annotation.Keep;
 
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.gms.tasks.Task;
-import com.google.android.play.core.integrity.IntegrityManager;
-import com.google.android.play.core.integrity.IntegrityManagerFactory;
-import com.google.android.play.core.integrity.IntegrityTokenRequest;
-import com.google.android.play.core.integrity.IntegrityTokenResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,7 +45,6 @@ import org.telegram.messenger.Utilities;
 import org.telegram.tgnet.tl.TL_account;
 import org.telegram.tgnet.tl.TL_stories;
 import org.telegram.ui.Components.VideoPlayer;
-import org.telegram.ui.LoginActivity;
 
 import java.io.File;
 import java.net.Inet4Address;
@@ -1172,7 +1166,6 @@ public class ConnectionsManager extends BaseController {
 
     public static native void native_discardConnection(int currentAccount, int datacenterId, int connectionType);
     public static native void native_failNotRunningRequest(int currentAccount, int token);
-    public static native void native_receivedIntegrityCheckClassic(int currentAccount, int requestToken, String nonce, String token);
     public static native void native_receivedCaptchaResult(int currentAccount, int[] requestTokens, String token);
     public static native boolean native_isGoodPrime(byte[] prime, int g);
 
@@ -1434,45 +1427,6 @@ public class ConnectionsManager extends BaseController {
                     NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.premiumFloodWaitReceived);
                 }
             });
-        });
-    }
-
-    @Keep
-    public static void onIntegrityCheckClassic(final int currentAccount, final int requestToken, final String project, final String nonce) {
-        AndroidUtilities.runOnUIThread(() -> {
-            long start = System.currentTimeMillis();
-            FileLog.d("account"+currentAccount+": server requests integrity classic check with project = "+project+" nonce = " + nonce);
-            IntegrityManager integrityManager = IntegrityManagerFactory.create(ApplicationLoader.applicationContext);
-            final long project_id;
-            try {
-                project_id = Long.parseLong(project);
-            } catch (Exception e) {
-                FileLog.d("account"+currentAccount+": integrity check failes to parse project id");
-                native_receivedIntegrityCheckClassic(currentAccount, requestToken, nonce, "PLAYINTEGRITY_FAILED_EXCEPTION_NOPROJECT");
-                return;
-            }
-            Task<IntegrityTokenResponse> integrityTokenResponse = integrityManager.requestIntegrityToken(IntegrityTokenRequest.builder().setNonce(nonce).setCloudProjectNumber(project_id).build());
-            integrityTokenResponse
-                .addOnSuccessListener(r -> {
-                    final String token = r.token();
-
-                    if (token == null) {
-                        FileLog.e("account"+currentAccount+": integrity check gave null token in " + (System.currentTimeMillis() - start) + "ms");
-                        native_receivedIntegrityCheckClassic(currentAccount, requestToken, nonce, "PLAYINTEGRITY_FAILED_EXCEPTION_NULL");
-                        return;
-                    }
-
-                    FileLog.d("account"+currentAccount+": integrity check successfully gave token: " + token + " in " + (System.currentTimeMillis() - start) + "ms");
-                    try {
-                        native_receivedIntegrityCheckClassic(currentAccount, requestToken, nonce, token);
-                    } catch (Exception e) {
-                        FileLog.e("receivedIntegrityCheckClassic failed", e);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    FileLog.e("account"+currentAccount+": integrity check failed to give a token in " + (System.currentTimeMillis() - start) + "ms", e);
-                    native_receivedIntegrityCheckClassic(currentAccount, requestToken, nonce, "PLAYINTEGRITY_FAILED_EXCEPTION_" + LoginActivity.errorString(e));
-                });
         });
     }
 

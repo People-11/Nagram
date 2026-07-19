@@ -35,7 +35,6 @@ public:
     uint32_t retryCount = 0;
     bool failedBySalt = false;
     int32_t failedByFloodWait = 0;
-    bool awaitingIntegrityCheck = false;
     bool awaitingCaptchaCheck = false;
     bool premiumFloodWait = false;
     ConnectionType connectionType;
