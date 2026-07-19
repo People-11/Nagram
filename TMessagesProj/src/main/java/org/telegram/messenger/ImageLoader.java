@@ -281,7 +281,7 @@ public class ImageLoader {
                 httpConnection.connect();
                 httpConnectionStream = httpConnection.getInputStream();
 
-                fileOutputStream = new RandomAccessFile(tempFile, "rws");
+                fileOutputStream = new RandomAccessFile(tempFile, "rw");
             } catch (Throwable e) {
                 if (e instanceof SocketTimeoutException) {
                     if (ApplicationLoader.isNetworkOnline()) {
@@ -585,7 +585,7 @@ public class ImageLoader {
                     if (!isCancelled()) {
                         httpConnection.connect();
                         httpConnectionStream = httpConnection.getInputStream();
-                        fileOutputStream = new RandomAccessFile(cacheImage.tempFilePath, "rws");
+                        fileOutputStream = new RandomAccessFile(cacheImage.tempFilePath, "rw");
                     }
                 } catch (Throwable e) {
                     boolean sentLogs = true;
@@ -2506,7 +2506,7 @@ public class ImageLoader {
             }
             byte[] buffer = new byte[1024];
             srcFile.createNewFile();
-            file = new RandomAccessFile(srcFile, "rws");
+            file = new RandomAccessFile(srcFile, "rw");
             file.write(buffer);
             file.close();
             file = null;
@@ -4197,7 +4197,7 @@ public class ImageLoader {
                     try {
                         if (isEncrypted) {
                             File keyPath = new File(FileLoader.getInternalCacheDir(), file.getName() + ".key");
-                            RandomAccessFile keyFile = new RandomAccessFile(keyPath, "rws");
+                            RandomAccessFile keyFile = new RandomAccessFile(keyPath, "rw");
                             long len = keyFile.length();
                             byte[] encryptKey = new byte[32];
                             byte[] encryptIv = new byte[16];
@@ -4213,7 +4213,7 @@ public class ImageLoader {
                             keyFile.close();
                             Utilities.aesCtrDecryptionByteArray(photoSize.bytes, encryptKey, encryptIv, 0, photoSize.bytes.length, 0);
                         }
-                        RandomAccessFile writeFile = new RandomAccessFile(file, "rws");
+                        RandomAccessFile writeFile = new RandomAccessFile(file, "rw");
                         writeFile.write(photoSize.bytes);
                         writeFile.close();
                     } catch (Exception e) {
@@ -4288,7 +4288,7 @@ public class ImageLoader {
                     try {
                         if (isEncrypted) {
                             File keyPath = new File(FileLoader.getInternalCacheDir(), file.getName() + ".key");
-                            RandomAccessFile keyFile = new RandomAccessFile(keyPath, "rws");
+                            RandomAccessFile keyFile = new RandomAccessFile(keyPath, "rw");
                             long len = keyFile.length();
                             byte[] encryptKey = new byte[32];
                             byte[] encryptIv = new byte[16];
@@ -4304,7 +4304,7 @@ public class ImageLoader {
                             keyFile.close();
                             Utilities.aesCtrDecryptionByteArray(photoSize.bytes, encryptKey, encryptIv, 0, photoSize.bytes.length, 0);
                         }
-                        RandomAccessFile writeFile = new RandomAccessFile(file, "rws");
+                        RandomAccessFile writeFile = new RandomAccessFile(file, "rw");
                         writeFile.write(photoSize.bytes);
                         writeFile.close();
                     } catch (Exception e) {

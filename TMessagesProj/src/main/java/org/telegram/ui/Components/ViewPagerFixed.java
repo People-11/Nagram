@@ -1578,7 +1578,7 @@ public class ViewPagerFixed extends FrameLayout {
                     animationTime = 1.0f;
                 }
                 if (animationTime < 1.0f) {
-                    AndroidUtilities.runOnUIThread(animationRunnable);
+                    postOnAnimation(animationRunnable);
                 } else {
                     animatingIndicator = false;
                     setEnabled(true);
@@ -2129,7 +2129,7 @@ public class ViewPagerFixed extends FrameLayout {
                 prevLayoutWidth = r - l;
                 scrollingToChild = -1;
                 if (animatingIndicator) {
-                    AndroidUtilities.cancelRunOnUIThread(animationRunnable);
+                    removeCallbacks(animationRunnable);
                     animatingIndicator = false;
                     setEnabled(true);
                     if (delegate != null) {

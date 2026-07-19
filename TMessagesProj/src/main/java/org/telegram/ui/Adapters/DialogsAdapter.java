@@ -33,7 +33,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ContactsController;
 import org.telegram.messenger.DialogObject;
@@ -137,7 +136,6 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
     RecyclerListView recyclerListView;
     private PullForegroundDrawable pullForegroundDrawable;
     ArrayList<ItemInternal> itemInternals = new ArrayList<>();
-    ArrayList<ItemInternal> oldItems = new ArrayList<>();
 
     private Drawable arrowDrawable;
 
@@ -546,7 +544,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
 
     boolean isCalculatingDiff;
     boolean updateListPending;
-    private final static boolean ALLOW_UPDATE_IN_BACKGROUND = BuildVars.DEBUG_PRIVATE_VERSION;
+    private static final boolean ALLOW_UPDATE_IN_BACKGROUND = true;
 
     public void updateList(Runnable saveScrollPosition) {
         if (isCalculatingDiff) {
@@ -554,8 +552,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
             return;
         }
         isCalculatingDiff = true;
-        oldItems = new ArrayList<>();
-        oldItems.addAll(itemInternals);
+        final ArrayList<ItemInternal> oldItems = new ArrayList<>(itemInternals);
         updateItemList();
         ArrayList<ItemInternal> newItems = new ArrayList<>(itemInternals);
         itemInternals = oldItems;

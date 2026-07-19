@@ -139,7 +139,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView implements T
                 animationTime = 1.0f;
             }
             if (animationTime < 1.0f) {
-                AndroidUtilities.runOnUIThread(animationRunnable);
+                postOnAnimation(animationRunnable);
             } else {
                 animatingIndicator = false;
                 setEnabled(true);
@@ -585,7 +585,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView implements T
         selectedTabId = pageId;
 
         if (animatingIndicator) {
-            AndroidUtilities.cancelRunOnUIThread(animationRunnable);
+            removeCallbacks(animationRunnable);
             animatingIndicator = false;
         }
 
@@ -601,7 +601,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView implements T
         }
         setEnabled(false);
 
-        AndroidUtilities.runOnUIThread(animationRunnable, 16);
+        postOnAnimation(animationRunnable);
 
         if (delegate != null) {
             delegate.onPageSelected(pageId, scrollingForward);
@@ -851,7 +851,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView implements T
             prevLayoutWidth = r - l;
             scrollingToChild = -1;
             if (animatingIndicator) {
-                AndroidUtilities.cancelRunOnUIThread(animationRunnable);
+                removeCallbacks(animationRunnable);
                 animatingIndicator = false;
                 setEnabled(true);
                 if (delegate != null) {

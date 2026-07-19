@@ -33,7 +33,7 @@ import org.telegram.ui.ProfileActivity;
 
 public class ProfileMetaballView extends View {
 
-    public static final DispatchQueue profileBlurQueue = new DispatchQueue("profileBlurQueue");
+    public static final DispatchQueue profileBlurQueue = new DispatchQueue("profileBlurQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
     private ProfileMetaballView.BlurBitmapHolder originalFrame = null;
     private ProfileMetaballView.BlurBitmapHolder nextFrame = null;
@@ -124,8 +124,15 @@ public class ProfileMetaballView extends View {
     }
 
     private void updateContent() {
-        needsNewFrame = true;
-        postInvalidateOnAnimation();
+        if (!imageView.isMetaballWorking || getVisibility() != View.VISIBLE) {
+            return;
+        }
+
+        float vr = view.getWidth() * view.getScaleX() * 0.5f;
+        if (vr <= dp(40)) {
+            needsNewFrame = true;
+            postInvalidateOnAnimation();
+        }
     }
 
     private void doBlur() {

@@ -1728,7 +1728,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             currentSpringAnimation = null;
         }
         if (animationRunnable != null) {
-            AndroidUtilities.cancelRunOnUIThread(animationRunnable);
+            removeCallbacks(animationRunnable);
             animationRunnable = null;
         }
         setAlpha(1.0f);
@@ -1909,7 +1909,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             currentSpringAnimation.start();
             return;
         }
-        AndroidUtilities.runOnUIThread(animationRunnable = new Runnable() {
+        postOnAnimation(animationRunnable = new Runnable() {
             @Override
             public void run() {
                 if (animationRunnable != this) {

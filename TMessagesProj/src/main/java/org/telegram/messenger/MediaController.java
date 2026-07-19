@@ -1663,7 +1663,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                                         lastSaveTime = SystemClock.elapsedRealtime();
                                         Utilities.globalQueue.postRunnable(() -> {
                                             SharedPreferences.Editor editor = ApplicationLoader.applicationContext.getSharedPreferences("media_saved_pos", Activity.MODE_PRIVATE).edit();
-                                            editor.putFloat(saveFor, value).commit();
+                                            editor.putFloat(saveFor, value).apply();
                                         });
                                     }
                                     NotificationCenter.getInstance(currentPlayingMessageObject.currentAccount).postNotificationName(NotificationCenter.messagePlayingProgressDidChanged, currentPlayingMessageObject.getId(), value);
@@ -1674,7 +1674,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                         });
                     }
                 }
-            }, 0, 17);
+            }, 0, 33);
         }
     }
 

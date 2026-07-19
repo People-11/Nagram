@@ -21,7 +21,7 @@ import me.vkryl.core.reference.ReferenceList;
  * A thin wrapper around Android {@link Choreographer} that delivers animation
  * callbacks at a stable ~60 fps regardless of the display refresh rate.
  *
- * <p>Callbacks with the same fps share a single accumulator — they always fire
+ * <p>Callbacks with the same fps share a single deadline — they always fire
  * on the same tick, minimising the number of screen invalidations.
  *
  * <p>Must be used on the main thread only.
@@ -35,6 +35,8 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
 
     /** Duration of one target frame in nanoseconds (~16.67 ms). */
     private static final long FRAME_INTERVAL_NS = 1_000_000_000L / TARGET_FPS;
+
+    private static final long FRAME_INTERVAL_30_FPS_NS = 1_000_000_000L / 30;
 
     // ── Singleton ─────────────────────────────────────────────────────────────
 
@@ -57,7 +59,7 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
 
     /**
      * Persistent callback groups keyed by interval in nanoseconds.
-     * All callbacks in the same group share one accumulator and always fire together,
+     * All callbacks in the same group share one deadline and always fire together,
      * so N animations at the same fps produce exactly one invalidate wave per period.
      */
     private final SparseArray<CallbackGroup> mGroups = new SparseArray<>();
@@ -66,14 +68,10 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
     private final ReferenceList<Drawable> mDrawablesToInvalidate30fps = new ReferenceList<>();
     private final ReferenceList<View>     mViewsToInvalidate          = new ReferenceList<>();
 
-    /** Nanoseconds accumulated since the last dispatched 60fps frame. */
-    private long mAccumulatedNs;
-
-    /** Timestamp of the previous VSYNC event; 0 means "not started yet". */
-    private long mLastVsyncNs;
-
-    /** Counts dispatched 60fps frames; used for legacy 30fps drawable support. */
-    private int mCounter;
+    private long mNextFrameNs;
+    private long mNext30FpsFrameNs;
+    private boolean mScheduled;
+    private long mScheduledForNs = Long.MAX_VALUE;
 
     // ── Public interface ──────────────────────────────────────────────────────
 
@@ -94,21 +92,25 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
     public void post(FrameCallback callback) {
         checkMainThread();
         mOneShot.add(callback);
+        schedule();
     }
 
     public void postInvalidateDrawable(Drawable drawable) {
         checkMainThread();
         mDrawablesToInvalidate.add(drawable);
+        schedule();
     }
 
     public void postInvalidateDrawable30fps(Drawable drawable) {
         checkMainThread();
         mDrawablesToInvalidate30fps.add(drawable);
+        scheduleNext();
     }
 
     public void postInvalidateView(View view) {
         checkMainThread();
         mViewsToInvalidate.add(view);
+        schedule();
     }
 
     /**
@@ -137,6 +139,7 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
             group.runnableCallbacksOnce = new ReferenceList<>();
         }
         group.runnableCallbacksOnce.add(callback);
+        scheduleNext();
     }
 
 
@@ -154,12 +157,13 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
         fps = Math.max(1, Math.min(fps, TARGET_FPS));
         removeFrameCallback(callback); // remove from any existing group first
         getOrCreateGroup(fps).runnableCallbacks.add(callback);
+        scheduleNext();
     }
 
     /**
      * Subscribes a persistent callback at the given fps.
      *
-     * <p>Callbacks sharing the same fps value share a single accumulator and
+     * <p>Callbacks sharing the same fps value share a single deadline and
      * are guaranteed to fire on the same tick — this minimises screen invalidations
      * when multiple animations run at the same rate.
      *
@@ -171,6 +175,7 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
         fps = Math.max(1, Math.min(fps, TARGET_FPS));
         removeFrameCallback(callback); // remove from any existing group first
         getOrCreateGroup(fps).callbacks.add(callback);
+        scheduleNext();
     }
 
     /**
@@ -222,46 +227,83 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
 
     // ── Private implementation ────────────────────────────────────────────────
 
-    private Choreographer60FpsContent() {
-        mChoreographer.postFrameCallback(this);
-    }
+    private Choreographer60FpsContent() {}
 
     @Override
     public void doFrame(long frameTimeNanos) {
-        if (mLastVsyncNs == 0) {
-            mLastVsyncNs = frameTimeNanos;
-        } else {
-            mAccumulatedNs += frameTimeNanos - mLastVsyncNs;
-            mLastVsyncNs    = frameTimeNanos;
+        mScheduled = false;
+        mScheduledForNs = Long.MAX_VALUE;
+        dispatchFrame(frameTimeNanos);
 
-            if (mAccumulatedNs >= FRAME_INTERVAL_NS) {
-                mAccumulatedNs %= FRAME_INTERVAL_NS;
-                dispatchFrame(frameTimeNanos);
+        if (hasPendingWork()) {
+            scheduleNext();
+        }
+    }
+
+    private void schedule() {
+        scheduleAt(nextDeadline(mNextFrameNs, System.nanoTime()));
+    }
+
+    private void scheduleNext() {
+        final long now = System.nanoTime();
+        long deadline = Long.MAX_VALUE;
+
+        if (!mOneShot.isEmpty() || !mDrawablesToInvalidate.isEmpty() || !mViewsToInvalidate.isEmpty()) {
+            deadline = nextDeadline(mNextFrameNs, now);
+        }
+        if (!mDrawablesToInvalidate30fps.isEmpty()) {
+            deadline = Math.min(deadline, nextDeadline(mNext30FpsFrameNs, now));
+        }
+        for (int i = 0; i < mGroups.size(); i++) {
+            CallbackGroup group = mGroups.valueAt(i);
+            if (!group.isEmpty()) {
+                deadline = Math.min(deadline, nextDeadline(group.nextFrameNs, now));
             }
         }
 
-        mChoreographer.postFrameCallback(this);
+        if (deadline != Long.MAX_VALUE) {
+            scheduleAt(deadline);
+        }
+    }
+
+    private void scheduleAt(long deadlineNs) {
+        if (mScheduled && deadlineNs >= mScheduledForNs) {
+            return;
+        }
+        if (mScheduled) {
+            mChoreographer.removeFrameCallback(this);
+        }
+
+        final long delayNs = deadlineNs - System.nanoTime();
+        mScheduled = true;
+        mScheduledForNs = deadlineNs;
+        if (delayNs <= 0) {
+            mChoreographer.postFrameCallback(this);
+        } else {
+            mChoreographer.postFrameCallbackDelayed(this, delayNs / 1_000_000L);
+        }
+    }
+
+    private boolean hasPendingWork() {
+        for (int i = mGroups.size() - 1; i >= 0; i--) {
+            CallbackGroup group = mGroups.valueAt(i);
+            if (group.isEmpty()) {
+                mGroups.removeAt(i);
+            }
+        }
+        return mGroups.size() != 0
+                || !mOneShot.isEmpty()
+                || !mDrawablesToInvalidate.isEmpty()
+                || !mDrawablesToInvalidate30fps.isEmpty()
+                || !mViewsToInvalidate.isEmpty();
     }
 
     private void dispatchFrame(long frameTimeNanos) {
-        // Dispatch grouped persistent callbacks.
-        // Stride groups use mCounter % stride — zero per-group state, perfect sync.
-        // Accumulator groups add FRAME_INTERVAL_NS each tick — supports any fps.
+        // Dispatch grouped persistent callbacks that reached their shared deadline.
         for (int i = 0; i < mGroups.size(); i++) {
             CallbackGroup group = mGroups.valueAt(i);
-            final boolean fire;
-            if (group.stride > 0) {
-                fire = mCounter % group.stride == 0;
-            } else {
-                group.accumulatedNs += FRAME_INTERVAL_NS;
-                if (group.accumulatedNs >= group.intervalNs) {
-                    group.accumulatedNs %= group.intervalNs;
-                    fire = true;
-                } else {
-                    fire = false;
-                }
-            }
-            if (fire) {
+            if (isDue(group.nextFrameNs, frameTimeNanos)) {
+                group.nextFrameNs = advanceDeadline(group.nextFrameNs, group.intervalNs, frameTimeNanos);
                 if (group.runnableCallbacksOnce != null) {
                     ReferenceList<Runnable> referenceList = group.runnableCallbacksOnce;
                     group.runnableCallbacksOnce = null;
@@ -279,40 +321,56 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
             }
         }
 
-        // One-shot callbacks.
-        for (FrameCallback cb : mOneShot) {
-            cb.doFrame(frameTimeNanos);
-        }
+        if (isDue(mNextFrameNs, frameTimeNanos)) {
+            mNextFrameNs = advanceDeadline(mNextFrameNs, FRAME_INTERVAL_NS, frameTimeNanos);
 
-        // View / drawable invalidations.
-        for (View view : mViewsToInvalidate) {
-            view.invalidate();
+            // One-shot callbacks.
+            for (FrameCallback cb : mOneShot) {
+                cb.doFrame(frameTimeNanos);
+            }
+
+            // View / drawable invalidations.
+            for (View view : mViewsToInvalidate) {
+                view.invalidate();
+            }
+            for (Drawable drawable : mDrawablesToInvalidate) {
+                drawable.invalidateSelf();
+            }
+            mViewsToInvalidate.clear();
+            mDrawablesToInvalidate.clear();
+            mOneShot.clear();
         }
-        for (Drawable drawable : mDrawablesToInvalidate) {
-            drawable.invalidateSelf();
-        }
-        mViewsToInvalidate.clear();
-        mDrawablesToInvalidate.clear();
-        mOneShot.clear();
 
         // Legacy 30fps drawables.
-        if (mCounter % 2 == 0) {
+        if (isDue(mNext30FpsFrameNs, frameTimeNanos)) {
+            mNext30FpsFrameNs = advanceDeadline(mNext30FpsFrameNs, FRAME_INTERVAL_30_FPS_NS, frameTimeNanos);
             for (Drawable drawable : mDrawablesToInvalidate30fps) {
                 drawable.invalidateSelf();
             }
             mDrawablesToInvalidate30fps.clear();
         }
+    }
 
-        mCounter++;
+    private static boolean isDue(long deadlineNs, long frameTimeNanos) {
+        return deadlineNs == 0 || frameTimeNanos >= deadlineNs;
+    }
+
+    private static long nextDeadline(long deadlineNs, long nowNs) {
+        return deadlineNs == 0 || deadlineNs <= nowNs ? nowNs : deadlineNs;
+    }
+
+    private static long advanceDeadline(long deadlineNs, long intervalNs, long frameTimeNanos) {
+        if (deadlineNs == 0) {
+            return frameTimeNanos + intervalNs;
+        }
+        return deadlineNs + ((frameTimeNanos - deadlineNs) / intervalNs + 1) * intervalNs;
     }
 
     private CallbackGroup getOrCreateGroup(int fps) {
         CallbackGroup group = mGroups.get(fps);
         if (group == null) {
             long intervalNs = 1_000_000_000L / fps;
-            // Use stride when fps divides TARGET_FPS evenly — perfect sync, no accumulator.
-            int stride = (TARGET_FPS % fps == 0) ? TARGET_FPS / fps : 0;
-            group = new CallbackGroup(intervalNs, stride);
+            group = new CallbackGroup(intervalNs);
             mGroups.put(fps, group);
         }
         return group;
@@ -323,31 +381,27 @@ public final class Choreographer60FpsContent implements Choreographer.FrameCallb
     /**
      * A group of callbacks sharing the same tick interval.
      *
-     * <p>If {@code stride > 0} the group fires every {@code stride} ticks using
-     * the global {@code mCounter} — perfectly synchronised with zero per-group state.
-     * This works whenever {@code TARGET_FPS % fps == 0} (e.g. 60, 30, 20, 15, 12, 10).
+     * <p>All members of the same group share a deadline and fire in unison.
      *
-     * <p>Otherwise {@code accumulatedNs} is used — supports any fps (24, 25, …)
-     * at the cost of minor phase drift between groups with different intervals.
-     * All members of the same group still fire in unison.
-     * <p>
      * CopyOnWriteArrayList allows safe removal during iteration (e.g. from doFrame).
      */
     private static final class CallbackGroup {
         final long intervalNs;
-        /** > 0 when TARGET_FPS % fps == 0; uses mCounter % stride for dispatch. */
-        final int  stride;
-        /** Used only when stride == 0. */
-        long accumulatedNs;
+        long nextFrameNs;
 
         final ReferenceList<FrameCallback> callbacks = new ReferenceList<>();
         final ReferenceList<Runnable> runnableCallbacks = new ReferenceList<>();
         @Nullable
         ReferenceList<Runnable> runnableCallbacksOnce;
 
-        CallbackGroup(long intervalNs, int stride) {
+        CallbackGroup(long intervalNs) {
             this.intervalNs = intervalNs;
-            this.stride     = stride;
+        }
+
+        boolean isEmpty() {
+            return callbacks.isEmpty()
+                    && runnableCallbacks.isEmpty()
+                    && (runnableCallbacksOnce == null || runnableCallbacksOnce.isEmpty());
         }
     }
 

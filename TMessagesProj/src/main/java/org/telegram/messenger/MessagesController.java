@@ -2639,7 +2639,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 prevFilter.dialogsForward.clear();
             }
         } else {
-            sortDialogs(null);
+            updateFilterDialogs(filter);
         }
     }
 
@@ -22515,11 +22515,6 @@ public class MessagesController extends BaseController implements NotificationCe
         dialogs.clear();
         dialogsForward.clear();
         sortingDialogFilter = filter;
-        try {
-            Collections.sort(allDialogs, dialogDateComparator);
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
         for (int a = 0, N = allDialogs.size(); a < N; a++) {
             TLRPC.Dialog d = allDialogs.get(a);
             final boolean isCommunity = d instanceof TLRPC.TL_dialogCommunity;
@@ -22546,8 +22541,11 @@ public class MessagesController extends BaseController implements NotificationCe
             }
         }
         try {
-            Collections.sort(allDialogs, dialogComparator);
-        } catch (Exception e) {}
+            Collections.sort(dialogs, dialogDateComparator);
+            Collections.sort(dialogsForward, dialogDateComparator);
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
     }
 
     public boolean canAddToForward(TLRPC.Dialog d) {
@@ -22724,41 +22722,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 if (sortingDialogFilter == null) {
                     continue;
                 }
-                ArrayList<TLRPC.Dialog> dialogs = sortingDialogFilter.dialogs;
-                ArrayList<TLRPC.Dialog> dialogsForward = sortingDialogFilter.dialogsForward;
-                dialogs.clear();
-                dialogsForward.clear();
-                try {
-                    Collections.sort(allDialogs, dialogDateComparator);
-                } catch (Exception e) {
-                    FileLog.e(e);
-                }
-                for (int a = 0, N = allDialogs.size(); a < N; a++) {
-                    final TLRPC.Dialog d = allDialogs.get(a);
-                    final boolean isCommunity = d instanceof TLRPC.TL_dialogCommunity;
-                    if (d instanceof TLRPC.TL_dialog || isCommunity) {
-                        long dialogId = d.id;
-                        if (isCommunity) {
-                            TLRPC.Chat community = getChat(-dialogId);
-                            if (community != null && !community.collapsed_in_dialogs) {
-                                continue;
-                            }
-                        }
-
-                        if (DialogObject.isEncryptedDialog(dialogId)) {
-                            TLRPC.EncryptedChat encryptedChat = getEncryptedChat(DialogObject.getEncryptedChatId(dialogId));
-                            if (encryptedChat != null) {
-                                dialogId = encryptedChat.user_id;
-                            }
-                        }
-                        if (sortingDialogFilter.includesDialog(getAccountInstance(), dialogId, d)) {
-                            if (canAddToForward(d)) {
-                                dialogsForward.add(d);
-                            }
-                            dialogs.add(d);
-                        }
-                    }
-                }
+                updateFilterDialogs(sortingDialogFilter);
             }
         }
 

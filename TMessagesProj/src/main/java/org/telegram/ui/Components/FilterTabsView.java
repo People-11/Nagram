@@ -990,7 +990,7 @@ public class FilterTabsView extends FrameLayout {
                 animationTime = 1.0f;
             }
             if (animationTime < 1.0f) {
-                AndroidUtilities.runOnUIThread(animationRunnable);
+                postOnAnimation(animationRunnable);
             } else {
                 animatingIndicator = false;
                 setEnabled(true);
@@ -1298,7 +1298,7 @@ public class FilterTabsView extends FrameLayout {
         selectedTabId = tab.id;
 
         if (animatingIndicator) {
-            AndroidUtilities.cancelRunOnUIThread(animationRunnable);
+            removeCallbacks(animationRunnable);
             animatingIndicator = false;
         }
 
@@ -1307,7 +1307,7 @@ public class FilterTabsView extends FrameLayout {
         animatingIndicator = true;
         setEnabled(false);
 
-        AndroidUtilities.runOnUIThread(animationRunnable, 16);
+        postOnAnimation(animationRunnable);
 
         if (delegate != null) {
             delegate.onPageSelected(tab, scrollingForward);
@@ -1733,7 +1733,7 @@ public class FilterTabsView extends FrameLayout {
             prevLayoutWidth = r - l;
             scrollingToChild = -1;
             if (animatingIndicator) {
-                AndroidUtilities.cancelRunOnUIThread(animationRunnable);
+                removeCallbacks(animationRunnable);
                 animatingIndicator = false;
                 setEnabled(true);
                 if (delegate != null) {
