@@ -26,14 +26,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -141,9 +139,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.zxing.common.detector.MathUtils;
 
-import org.openintents.openpgp.OpenPgpError;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.sufficientlysecure.keychain.pgp.PgpHelper;
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
@@ -344,7 +339,6 @@ import org.telegram.ui.iv.RichHtml;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -393,7 +387,6 @@ import tw.nekomimi.nekogram.ui.BottomBuilder;
 import tw.nekomimi.nekogram.ui.MessageDetailsActivity;
 import tw.nekomimi.nekogram.utils.AlertUtil;
 import tw.nekomimi.nekogram.utils.EnvUtil;
-import tw.nekomimi.nekogram.utils.PGPUtil;
 import tw.nekomimi.nekogram.utils.ProxyUtil;
 import tw.nekomimi.nekogram.utils.TelegramUtil;
 import xyz.nextalone.nagram.NaConfig;
@@ -435,7 +428,6 @@ public class ChatActivity extends BaseFragment implements
     private final static int nkheaderbtn_show_pinned = 2003;
     private final static int nkheaderbtn_zibi = 2004;
     private final static int nkheaderbtn_linked_chat = 2005;
-    private final static int nkheaderbtn_share_key = 2006;
     private final static int nkheaderbtn_upgrade = 2007;
 
     private final static int nkheaderbtn_to_the_beginning = 2033;
@@ -460,10 +452,6 @@ public class ChatActivity extends BaseFragment implements
     private final static int nkbtn_view_in_chat = 2018;
     public final static int nkbtn_editAdmin = 2019;
     public final static int nkbtn_editPermission = 2020;
-    private final static int nkbtn_PGPVerify = 2021;
-    private final static int nkbtn_PGPDecrypt = 2022;
-    private final static int nkbtn_PGPImportPrivate = 2023;
-    private final static int nkbtn_PGPImport = 2024;
     public final static int nkbtn_copy_link_in_pm = 2025;
     public final static int nkbtn_invertReply = 2026;
     public final static int nkbtn_greatOrPoor = 2027;
@@ -542,7 +530,6 @@ public class ChatActivity extends BaseFragment implements
     private RadialProgressView progressBar;
 
     private ActionBarMenuItem.Item addContactItem;
-    private ActionBarMenuItem.Item shareKeyItem;
     private ActionBarMenuItem.Item clearHistoryItem;
     private ActionBarMenuItem.Item viewAsTopics;
     private ActionBarMenuItem.Item closeTopicItem;
@@ -4797,8 +4784,6 @@ public class ChatActivity extends BaseFragment implements
             if (currentUser != null && currentUser.id != UserObject.VERIFY && currentUser.id != UserObject.REPLY_BOT) {
                 addContactItem = headerItem.lazilyAddSubItem(share_contact, R.drawable.msg_addcontact, LocaleController.getString(R.string.AddToContacts));
             }
-
-            shareKeyItem = headerItem.lazilyAddSubItem(nkheaderbtn_share_key, R.drawable.baseline_vpn_key_24, LocaleController.getString("ShareMyKey", R.string.ShareMyKey));
 
             if (currentEncryptedChat != null) {
                 timeItem2 = headerItem.lazilyAddSubItem(chat_enc_timer, R.drawable.msg_autodelete, LocaleController.getString(R.string.SetTimer));
@@ -13653,91 +13638,6 @@ public class ChatActivity extends BaseFragment implements
         showDialog(builder.create());
     }
 
-    private void selectAndShareMyKey(Intent intent) {
-
-        intent.setAction(OpenPgpApi.ACTION_GET_SIGN_KEY_ID);
-
-        PGPUtil.post(() -> PGPUtil.api.executeApiAsync(intent, null, null, result -> {
-
-            switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
-
-                case OpenPgpApi.RESULT_CODE_SUCCESS: {
-
-                    result.putExtra(OpenPgpApi.EXTRA_KEY_ID, result.getLongExtra(OpenPgpApi.EXTRA_SIGN_KEY_ID, 0L));
-
-                    shareMyKey(result);
-
-                    break;
-
-                }
-                case OpenPgpApi.RESULT_CODE_USER_INTERACTION_REQUIRED: {
-
-                    PendingIntent pi = result.getParcelableExtra(OpenPgpApi.RESULT_INTENT);
-                    try {
-                        Activity act = (Activity) getParentActivity();
-                        act.startIntentSenderFromChild(act, pi.getIntentSender(), 117, null, 0, 0, 0);
-                    } catch (IntentSender.SendIntentException e) {
-                        FileLog.e("SendIntentException", e);
-                    }
-                    break;
-                }
-                case OpenPgpApi.RESULT_CODE_ERROR: {
-                    OpenPgpError error = result.getParcelableExtra(OpenPgpApi.RESULT_ERROR);
-                    AlertUtil.showToast(error.getMessage());
-                    break;
-                }
-            }
-
-        }));
-
-    }
-
-    private void shareMyKey(Intent intent) {
-
-        intent.setAction(OpenPgpApi.ACTION_GET_KEY);
-        intent.putExtra(OpenPgpApi.EXTRA_REQUEST_ASCII_ARMOR, true);
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        PGPUtil.post(() -> PGPUtil.api.executeApiAsync(intent, null, os, result -> {
-
-            switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
-
-                case OpenPgpApi.RESULT_CODE_SUCCESS: {
-
-                    String str = StrUtil.utf8Str(os.toByteArray());
-                    if (StrUtil.isBlank(str)) return;
-                    getSendMessagesHelper().sendMessage(str, dialog_id, null, null, null,
-                            false, null, null, null, true, 0, null, false);
-                    afterMessageSend();
-                    hideFieldPanel(false);
-                    break;
-
-                }
-
-                case OpenPgpApi.RESULT_CODE_USER_INTERACTION_REQUIRED: {
-
-                    PendingIntent pi = result.getParcelableExtra(OpenPgpApi.RESULT_INTENT);
-                    try {
-                        getParentActivity().startIntentSenderFromChild(getParentActivity(), pi.getIntentSender(), 118, null, 0, 0, 0);
-                    } catch (Exception e) {
-                        FileLog.e(e);
-                        AlertUtil.showToast(e);
-                    }
-                    break;
-                }
-                case OpenPgpApi.RESULT_CODE_ERROR: {
-                    OpenPgpError error = result.getParcelableExtra(OpenPgpApi.RESULT_ERROR);
-                    if (error == null) return;
-                    AlertUtil.showToast(error.toString());
-                    break;
-                }
-            }
-
-        }));
-
-    }
-
     private void showVoiceHint(boolean hide, boolean video) {
         if (getParentActivity() == null || fragmentView == null || hide && voiceHintTextView == null || chatMode != 0 || chatActivityEnterView == null  || chatActivityEnterView.getAudioVideoButtonContainer() == null || chatActivityEnterView.getAudioVideoButtonContainer().getVisibility() != View.VISIBLE || isInPreviewMode()) {
             return;
@@ -21318,10 +21218,6 @@ public class ChatActivity extends BaseFragment implements
                 if (chatAttachAlert != null) {
                     chatAttachAlert.onPollAttachFilePicker(data);
                 }
-            } else if (requestCode == 117) {
-                selectAndShareMyKey(data);
-            } else if (requestCode == 118) {
-                shareMyKey(data);
             }
         }
     }
@@ -30438,14 +30334,6 @@ public class ChatActivity extends BaseFragment implements
 
             if (addContactItem != null) {
                 addContactItem.setVisibility(View.GONE);
-            }
-        }
-
-        if (shareKeyItem != null) {
-            if ((currentChat != null && ChatObject.canSendMessages(currentChat) || user != null && !user.self) && StrUtil.isNotBlank(NekoConfig.openPGPApp.String())) {
-                shareKeyItem.setVisibility(View.VISIBLE);
-            } else {
-                shareKeyItem.setVisibility(View.GONE);
             }
         }
 
@@ -45840,8 +45728,6 @@ public class ChatActivity extends BaseFragment implements
             }));
             builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
             showDialog(builder.create());
-        } else if (id == nkheaderbtn_share_key) {
-            selectAndShareMyKey(new Intent());
         } else if (id == nkheaderbtn_show_pinned) {
             SharedPreferences preferences = MessagesController.getNotificationsSettings(currentAccount);
             preferences.edit().remove("pin_" + dialog_id).apply();
@@ -46138,70 +46024,6 @@ public class ChatActivity extends BaseFragment implements
                 }
                 doAdminActions(1);
                 break;
-            }
-            case nkbtn_PGPVerify:
-            case nkbtn_PGPDecrypt: {
-
-                MessageObject messageObject = null;
-                if (selectedObjectGroup != null) {
-                    if (!TextUtils.isEmpty(selectedObjectGroup.messages.get(0).messageOwner.message)) {
-                        messageObject = selectedObjectGroup.messages.get(0);
-                    }
-                } else if (!TextUtils.isEmpty(selectedObject.messageOwner.message) || selectedObject.type == MessageObject.TYPE_POLL) {
-                    messageObject = selectedObject;
-                }
-                if (messageObject == null) {
-                    return;
-                }
-
-                Intent open = new Intent(Intent.ACTION_SEND);
-                open.setType("application/pgp-message");
-                open.putExtra(Intent.EXTRA_TEXT, messageObject.messageOwner.message);
-                open.setClassName(NekoConfig.openPGPApp.String(), NekoConfig.openPGPApp.String() + ".ui.DecryptActivity");
-
-                try {
-
-                    getParentActivity().startActivity(open);
-
-                } catch (Exception e) {
-
-                    AlertUtil.showToast(e);
-
-                }
-
-//                ByteArrayInputStream is = IoUtil.toUtf8Stream(selectedObject.messageOwner.message);
-//
-//                PGPUtil.post(() -> PGPUtil.api.executeApiAsync(new Intent(OpenPgpApi.ACTION_DECRYPT_VERIFY), is, null, new OpenPgpApi.IOpenPgpCallback() {
-//
-//                    @Override
-//                    public void onReturn(Intent result) {
-//
-//                        OpenPgpSignatureResult s = result.getParcelableExtra(OpenPgpApi.RESULT_SIGNATURE);
-//
-//                    }
-//
-//                }));
-
-                break;
-            }
-            case nkbtn_PGPImportPrivate:
-            case nkbtn_PGPImport: {
-
-                Intent open = new Intent(NekoConfig.openPGPApp.String() + ".action.IMPORT_KEY");
-                open.putExtra(NekoConfig.openPGPApp.String() + ".EXTRA_KEY_BYTES", StrUtil.utf8Bytes(selectedObject.messageOwner.message));
-
-                try {
-
-                    getParentActivity().startActivity(open);
-
-                } catch (Exception e) {
-
-                    AlertUtil.showToast(e);
-
-                }
-
-                break;
-
             }
             case nkbtn_hide: {
                 if (selectedObjectGroup != null) {
@@ -48568,25 +48390,6 @@ public class ChatActivity extends BaseFragment implements
                             icons.add(R.drawable.msg_shareout);
                         }
                     }
-                    if (messageObject != null && StrUtil.isNotBlank(messageObject.messageOwner.message) && StrUtil.isNotBlank(NekoConfig.openPGPApp.String())) {
-                        if (PgpHelper.PGP_CLEARTEXT_SIGNATURE.matcher(selectedObject.messageOwner.message).matches()) {
-                            items.add(LocaleController.getString(R.string.PGPVerify));
-                            options.add(nkbtn_PGPVerify);
-                            icons.add(R.drawable.baseline_vpn_key_24);
-                        } else if (PgpHelper.PGP_MESSAGE.matcher(selectedObject.messageOwner.message).matches()) {
-                            items.add(LocaleController.getString(R.string.PGPDecrypt));
-                            options.add(nkbtn_PGPDecrypt);
-                            icons.add(R.drawable.baseline_vpn_key_24);
-                        } else if (PgpHelper.PGP_PRIVATE_KEY.matcher(selectedObject.messageOwner.message).matches()) {
-                            items.add(LocaleController.getString(R.string.PGPImportPrivate));
-                            options.add(nkbtn_PGPImportPrivate);
-                            icons.add(R.drawable.baseline_vpn_key_24);
-                        } else if (PgpHelper.PGP_PUBLIC_KEY.matcher(selectedObject.messageOwner.message).matches()) {
-                            items.add(LocaleController.getString(R.string.PGPImport));
-                            options.add(nkbtn_PGPImport);
-                            icons.add(R.drawable.baseline_vpn_key_24);
-                        }
-                    }
                 }
                 if (NekoConfig.showMessageDetails.Bool()) {
                     items.add(LocaleController.getString(R.string.MessageDetails));
@@ -48795,26 +48598,6 @@ public class ChatActivity extends BaseFragment implements
                         items.add(LocaleController.getString(R.string.ShareMessages));
                         options.add(nkbtn_sharemessage);
                         icons.add(R.drawable.msg_shareout);
-                    }
-                }
-                if (messageObject != null && StrUtil.isNotBlank(messageObject.messageOwner.message) && StrUtil.isNotBlank(NekoConfig.openPGPApp.String())) {
-                    //TODO wtf
-                    if (PgpHelper.PGP_CLEARTEXT_SIGNATURE.matcher(selectedObject.messageOwner.message).matches()) {
-                        items.add(LocaleController.getString(R.string.PGPVerify));
-                        options.add(nkbtn_PGPVerify);
-                        icons.add(R.drawable.baseline_vpn_key_24);
-                    } else if (PgpHelper.PGP_MESSAGE.matcher(selectedObject.messageOwner.message).matches()) {
-                        items.add(LocaleController.getString(R.string.PGPDecrypt));
-                        options.add(nkbtn_PGPDecrypt);
-                        icons.add(R.drawable.baseline_vpn_key_24);
-                    } else if (PgpHelper.PGP_PRIVATE_KEY.matcher(selectedObject.messageOwner.message).matches()) {
-                        items.add(LocaleController.getString(R.string.PGPImportPrivate));
-                        options.add(nkbtn_PGPImportPrivate);
-                        icons.add(R.drawable.baseline_vpn_key_24);
-                    } else if (PgpHelper.PGP_PUBLIC_KEY.matcher(selectedObject.messageOwner.message).matches()) {
-                        items.add(LocaleController.getString(R.string.PGPImport));
-                        options.add(nkbtn_PGPImport);
-                        icons.add(R.drawable.baseline_vpn_key_24);
                     }
                 }
                 if (NekoConfig.showMessageDetails.Bool()) {
