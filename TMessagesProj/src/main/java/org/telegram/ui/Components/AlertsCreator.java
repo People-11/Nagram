@@ -636,35 +636,12 @@ public class AlertsCreator {
             } else {
                 showSimpleToast(fragment, error.text);
             }
-        } else if (request instanceof TLRPC.TL_payments_sendPaymentForm) {
-            switch (error.text) {
-                case "BOT_PRECHECKOUT_FAILED":
-                    showSimpleToast(fragment, LocaleController.getString(R.string.PaymentPrecheckoutFailed));
-                    break;
-                case "PAYMENT_FAILED":
-                    showSimpleToast(fragment, LocaleController.getString(R.string.PaymentFailed));
-                    break;
-                default:
-                    showSimpleToast(fragment, error.text);
-                    break;
-            }
-        } else if (request instanceof TLRPC.TL_payments_validateRequestedInfo) {
-            switch (error.text) {
-                case "SHIPPING_NOT_AVAILABLE":
-                    showSimpleToast(fragment, LocaleController.getString(R.string.PaymentNoShippingMethod));
-                    break;
-                default:
-                    showSimpleToast(fragment, error.text);
-                    break;
-            }
         } else if (request instanceof TLRPC.TL_messages_hideChatJoinRequest) {
             if ("USER_CHANNELS_TOO_MUCH".equals(error.text)) {
                 showAddUserAlert(error, fragment, true, false, request);
             } else {
                 showSimpleToast(fragment, error.text);
             }
-        } else if (request instanceof TLRPC.TL_payments_assignPlayMarketTransaction) {
-            showSimpleAlert(fragment, LocaleController.getString(R.string.PaymentConfirmationError) + "\n" + error.text);
         }
 
         return null;
@@ -7816,10 +7793,6 @@ public class AlertsCreator {
         builder.setView(linearLayout);
         builder.setPositiveButton(LocaleController.getString(R.string.Cancel), null);
         return alertDialog[0] = builder.create();
-    }
-
-    public interface PaymentAlertDelegate {
-        void didPressedNewCard();
     }
 
     public static void createDeleteMessagesAlert(BaseFragment fragment, TLRPC.User user, TLRPC.Chat chat, TLRPC.EncryptedChat encryptedChat, TLRPC.ChatFull chatInfo, long mergeDialogId, MessageObject selectedMessage, SparseArray<MessageObject>[] selectedMessages, MessageObject.GroupedMessages selectedGroup, int topicId, int mode, TLRPC.ChannelParticipant[] channelParticipants, Runnable onDelete, Runnable hideDim, Theme.ResourcesProvider resourcesProvider) {

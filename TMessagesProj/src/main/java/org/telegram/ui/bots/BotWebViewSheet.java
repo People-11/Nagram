@@ -62,6 +62,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaDataController;
+import org.telegram.messenger.BillingController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
@@ -99,8 +100,6 @@ import org.telegram.ui.Components.SimpleFloatPropertyCompat;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.ui.DialogsActivity;
 import org.telegram.ui.LaunchActivity;
-//import org.telegram.ui.PaymentFormActivity;
-import org.telegram.ui.PaymentFormActivity;
 import org.telegram.ui.ProfileActivity;
 import org.telegram.ui.Stars.StarsController;
 import org.telegram.ui.web.BotWebViewContainer;
@@ -696,8 +695,6 @@ public class BotWebViewSheet extends Dialog implements NotificationCenter.Notifi
 
             @Override
             public void onWebAppOpenInvoice(TLRPC.InputInvoice inputInvoice, String slug, TLObject response) {
-                BaseFragment parentFragment = ((LaunchActivity) parentActivity).getActionBarLayout().getLastFragment();
-                PaymentFormActivity paymentFormActivity = null;
                 if (response instanceof TLRPC.TL_payments_paymentFormStars) {
                     AndroidUtilities.hideKeyboard(windowView);
                     final AlertDialog progressDialog = new AlertDialog(getContext(), AlertDialog.ALERT_TYPE_SPINNER);
@@ -708,30 +705,9 @@ public class BotWebViewSheet extends Dialog implements NotificationCenter.Notifi
                         webViewContainer.onInvoiceStatusUpdate(slug, status);
                     });
                     return;
-                } else if (response instanceof TLRPC.PaymentForm) {
-                    TLRPC.PaymentForm form = (TLRPC.PaymentForm) response;
-                    MessagesController.getInstance(currentAccount).putUsers(form.users, false);
-                    paymentFormActivity = new PaymentFormActivity(form, slug, parentFragment);
-                } else if (response instanceof TLRPC.PaymentReceipt) {
-                    paymentFormActivity = new PaymentFormActivity((TLRPC.PaymentReceipt) response);
                 }
-
-                if (paymentFormActivity != null) {
-                    swipeContainer.stickTo(-swipeContainer.getOffsetY() + swipeContainer.getTopActionBarOffsetY());
-
-                    AndroidUtilities.hideKeyboard(windowView);
-                    OverlayActionBarLayoutDialog overlayActionBarLayoutDialog = new OverlayActionBarLayoutDialog(context, resourcesProvider);
-                    overlayActionBarLayoutDialog.show();
-                    paymentFormActivity.setPaymentFormCallback(status -> {
-                        if (status != PaymentFormActivity.InvoiceStatus.PENDING) {
-                            overlayActionBarLayoutDialog.dismiss();
-                        }
-
-                        webViewContainer.onInvoiceStatusUpdate(slug, status.name().toLowerCase(Locale.ROOT));
-                    });
-                    paymentFormActivity.setResourcesProvider(resourcesProvider);
-                    overlayActionBarLayoutDialog.addFragment(paymentFormActivity);
-                }
+                BillingController.showUnavailable();
+                webViewContainer.onInvoiceStatusUpdate(slug, "cancelled");
             }
 
             @Override

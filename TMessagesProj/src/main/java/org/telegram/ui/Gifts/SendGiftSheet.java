@@ -7,14 +7,12 @@ import static org.telegram.messenger.LocaleController.formatSpannable;
 import static org.telegram.messenger.LocaleController.formatString;
 import static org.telegram.messenger.LocaleController.getString;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -31,15 +29,10 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.billingclient.api.BillingClient;
-import com.android.billingclient.api.BillingFlowParams;
-import com.android.billingclient.api.ProductDetails;
 
-import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.AnimationNotificationsLocker;
 import org.telegram.messenger.BillingController;
-import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.GiftAuctionController;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaDataController;
@@ -50,7 +43,6 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.browser.Browser;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
@@ -61,7 +53,6 @@ import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Cells.ChatActionCell;
 import org.telegram.ui.Cells.EditEmojiTextCell;
 import org.telegram.ui.ChatActivity;
-import org.telegram.ui.Components.AlertsCreator;
 import org.telegram.ui.Components.BottomSheetWithRecyclerListView;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.ColoredImageSpan;
@@ -69,11 +60,8 @@ import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.EditTextEmoji;
 import org.telegram.ui.Components.EditTextSuggestionsFix;
 import org.telegram.ui.Components.LayoutHelper;
-import org.telegram.ui.Components.LinkSpanDrawable;
 import org.telegram.ui.Components.MotionBackgroundDrawable;
 import org.telegram.ui.Components.Premium.GiftPremiumBottomSheet;
-import org.telegram.ui.Components.Premium.boosts.BoostDialogs;
-import org.telegram.ui.Components.Premium.boosts.BoostRepository;
 import org.telegram.ui.Components.Premium.boosts.PremiumPreviewGiftSentBottomSheet;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
@@ -94,7 +82,6 @@ import org.telegram.ui.Stories.recorder.PreviewView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -284,9 +271,6 @@ public class SendGiftSheet extends BottomSheetWithRecyclerListView implements No
             action.flags |= 4;
             action.currency = premiumTier.getCurrency();
             action.amount = premiumTier.getPrice();
-            if (premiumTier.googlePlayProductDetails != null) {
-                action.amount = (long) (action.amount * Math.pow(10, BillingController.getInstance().getCurrencyExp(action.currency) - 6));
-            }
             action.flags |= 16;
             action.message = new TLRPC.TL_textWithEntities();
             this.action = action;
@@ -295,9 +279,6 @@ public class SendGiftSheet extends BottomSheetWithRecyclerListView implements No
             action.months = premiumTier.getMonths();
             action.currency = premiumTier.getCurrency();
             action.amount = premiumTier.getPrice();
-            if (premiumTier.googlePlayProductDetails != null) {
-                action.amount = (long) (action.amount * Math.pow(10, BillingController.getInstance().getCurrencyExp(action.currency) - 6));
-            }
             action.flags |= 2;
             action.message = new TLRPC.TL_textWithEntities();
             this.action = action;
@@ -586,9 +567,6 @@ public class SendGiftSheet extends BottomSheetWithRecyclerListView implements No
                     } else {
                         thisAction.currency = premiumTier.getCurrency();
                         thisAction.amount = premiumTier.getPrice();
-                        if (premiumTier.googlePlayProductDetails != null) {
-                            thisAction.amount = (long) (thisAction.amount * Math.pow(10, BillingController.getInstance().getCurrencyExp(thisAction.currency) - 6));
-                        }
                     }
                 } else if (action instanceof TLRPC.TL_messageActionGiftCode) {
                     final TLRPC.TL_messageActionGiftCode thisAction = (TLRPC.TL_messageActionGiftCode) action;
@@ -598,9 +576,6 @@ public class SendGiftSheet extends BottomSheetWithRecyclerListView implements No
                     } else {
                         thisAction.currency = premiumTier.getCurrency();
                         thisAction.amount = premiumTier.getPrice();
-                        if (premiumTier.googlePlayProductDetails != null) {
-                            thisAction.amount = (long) (thisAction.amount * Math.pow(10, BillingController.getInstance().getCurrencyExp(thisAction.currency) - 6));
-                        }
                     }
                 }
                 messageObject.updateMessageText();
@@ -778,36 +753,8 @@ public class SendGiftSheet extends BottomSheetWithRecyclerListView implements No
                     button.setLoading(false);
                 });
             } else {
-                final BaseFragment fragment = new BaseFragment() {
-                    @Override
-                    public Activity getParentActivity() {
-                        Activity activity = getOwnerActivity();
-                        if (activity == null) activity = LaunchActivity.instance;
-                        if (activity == null)
-                            activity = AndroidUtilities.findActivity(SendGiftSheet.this.getContext());
-                        return activity;
-                    }
-
-                    @Override
-                    public Theme.ResourcesProvider getResourceProvider() {
-                        return SendGiftSheet.this.resourcesProvider;
-                    }
-                };
-                BoostRepository.payGiftCode(new ArrayList<>(Arrays.asList(user)), o, null, getMessage(), fragment, result -> {
-                    if (closeParentSheet != null) {
-                        closeParentSheet.run();
-                    }
-                    dismiss();
-                    NotificationCenter.getInstance(UserConfig.selectedAccount).postNotificationName(NotificationCenter.giftsToUserSent);
-                    AndroidUtilities.runOnUIThread(() -> PremiumPreviewGiftSentBottomSheet.show(new ArrayList<>(Arrays.asList(user))), 250);
-
-                    MessagesController.getInstance(currentAccount).getMainSettings().edit()
-                        .putBoolean("show_gift_for_" + dialogId, true)
-                        .putBoolean(Calendar.getInstance().get(Calendar.YEAR) + "show_gift_for_" + dialogId, true)
-                        .apply();
-                }, error -> {
-                    BoostDialogs.showToastError(getContext(), error);
-                });
+                BillingController.showUnavailable();
+                button.setLoading(false);
             }
         } else if (option instanceof TLRPC.TL_premiumGiftOption) {
             final TLRPC.TL_premiumGiftOption o = (TLRPC.TL_premiumGiftOption) option;
@@ -828,46 +775,9 @@ public class SendGiftSheet extends BottomSheetWithRecyclerListView implements No
                     }
                     button.setLoading(false);
                 });
-            } else if (BuildVars.useInvoiceBilling()) {
-                final LaunchActivity activity = LaunchActivity.instance;
-                if (activity != null) {
-                    Uri uri = Uri.parse(o.bot_url);
-                    if (uri.getHost().equals("t.me")) {
-                        if (!uri.getPath().startsWith("/$") && !uri.getPath().startsWith("/invoice/")) {
-                            activity.setNavigateToPremiumBot(true);
-                        } else {
-                            activity.setNavigateToPremiumGiftCallback(() -> onGiftSuccess(false));
-                        }
-                    }
-                    Browser.openUrl(activity, premiumTier.giftOption.bot_url);
-                    dismiss();
-                }
             } else {
-                if (BillingController.getInstance().isReady() && premiumTier.googlePlayProductDetails != null) {
-                    TLRPC.TL_inputStorePaymentGiftPremium giftPremium = new TLRPC.TL_inputStorePaymentGiftPremium();
-                    giftPremium.user_id = MessagesController.getInstance(currentAccount).getInputUser(user);
-                    ProductDetails.OneTimePurchaseOfferDetails offerDetails = premiumTier.googlePlayProductDetails.getOneTimePurchaseOfferDetails();
-                    giftPremium.currency = offerDetails.getPriceCurrencyCode();
-                    giftPremium.amount = (long) ((offerDetails.getPriceAmountMicros() / Math.pow(10, 6)) * Math.pow(10, BillingController.getInstance().getCurrencyExp(giftPremium.currency)));
-
-                    BillingController.getInstance().addResultListener(premiumTier.giftOption.store_product, billingResult -> {
-                        if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                            AndroidUtilities.runOnUIThread(() -> onGiftSuccess(true));
-                        }
-                    });
-
-                    TLRPC.TL_payments_canPurchaseStore req = new TLRPC.TL_payments_canPurchaseStore();
-                    req.purpose = giftPremium;
-                    ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
-                        if (response instanceof TLRPC.TL_boolTrue) {
-                            BillingController.getInstance().launchBillingFlow(getBaseFragment().getParentActivity(), AccountInstance.getInstance(currentAccount), giftPremium, Collections.singletonList(BillingFlowParams.ProductDetailsParams.newBuilder()
-                                    .setProductDetails(premiumTier.googlePlayProductDetails)
-                                    .build()));
-                        } else if (error != null) {
-                            AlertsCreator.processError(currentAccount, error, getBaseFragment(), req);
-                        }
-                    }));
-                }
+                BillingController.showUnavailable();
+                button.setLoading(false);
             }
         }
     }

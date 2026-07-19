@@ -120,6 +120,7 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaController;
 import org.telegram.messenger.MediaDataController;
 import org.telegram.messenger.MessageObject;
+import org.telegram.messenger.BillingController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.NotificationCenter;
@@ -636,7 +637,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             .add(NotificationCenter.screenStateChanged)
             .add(NotificationCenter.showBulletin)
             .add(NotificationCenter.requestPermissions)
-            .add(NotificationCenter.billingConfirmPurchaseError)
             .add(NotificationCenter.tlSchemeParseException)
             .add(NotificationCenter.memoryLeakFoundException);
 
@@ -4312,7 +4312,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                         BulletinFactory.of(mainFragmentsStack.get(mainFragmentsStack.size() - 1)).createErrorBulletin(LocaleController.getString(R.string.PaymentInvoiceLinkInvalid)).show();
                     }
                 } else if (!LaunchActivity.this.isFinishing()) {
-                    PaymentFormActivity paymentFormActivity = null;
                     if (response instanceof TLRPC.TL_payments_paymentFormStars) {
                         Runnable callback = navigateToPremiumGiftCallback;
                         navigateToPremiumGiftCallback = null;
@@ -4328,26 +4327,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                             }
                         });
                         return;
-                    } else if (response instanceof TLRPC.PaymentForm) {
-                        TLRPC.PaymentForm form = (TLRPC.PaymentForm) response;
-                        MessagesController.getInstance(intentAccount).putUsers(form.users, false);
-                        paymentFormActivity = new PaymentFormActivity(form, inputInvoiceSlug, getActionBarLayout().getLastFragment());
-                    } else if (response instanceof TLRPC.PaymentReceipt) {
-                        paymentFormActivity = new PaymentFormActivity((TLRPC.PaymentReceipt) response);
                     }
-
-                    if (paymentFormActivity != null) {
-                        if (navigateToPremiumGiftCallback != null) {
-                            Runnable callback = navigateToPremiumGiftCallback;
-                            navigateToPremiumGiftCallback = null;
-                            paymentFormActivity.setPaymentFormCallback(status -> {
-                                if (status == PaymentFormActivity.InvoiceStatus.PAID) {
-                                    callback.run();
-                                }
-                            });
-                        }
-                        presentFragment(paymentFormActivity);
-                    }
+                    navigateToPremiumGiftCallback = null;
+                    BillingController.showUnavailable();
                 }
 
                 try {
@@ -7721,8 +7703,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             if (args.length > 1 && !mainFragmentsStack.isEmpty()) {
                 AlertsCreator.processError(currentAccount, (TLRPC.TL_error) args[2], mainFragmentsStack.get(mainFragmentsStack.size() - 1), (TLObject) args[1]);
             }
-        } else if (id == NotificationCenter.billingConfirmPurchaseError) {
-            AlertsCreator.processError(currentAccount, (TLRPC.TL_error) args[1], mainFragmentsStack.get(mainFragmentsStack.size() - 1), (TLObject) args[0]);
         } else if (id == NotificationCenter.stickersImportComplete) {
             MediaDataController.getInstance(account).toggleStickerSet(this, (TLObject) args[0], 2, !mainFragmentsStack.isEmpty() ? mainFragmentsStack.get(mainFragmentsStack.size() - 1) : null, false, true);
         } else if (id == NotificationCenter.showBulletin) {

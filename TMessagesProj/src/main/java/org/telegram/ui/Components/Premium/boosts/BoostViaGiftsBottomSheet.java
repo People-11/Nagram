@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.BillingController;
 import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
@@ -38,7 +38,6 @@ import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.FireworksOverlay;
 import org.telegram.ui.Components.LayoutHelper;
-import org.telegram.ui.Components.Premium.PremiumNotAvailableBottomSheet;
 import org.telegram.ui.Components.Premium.PremiumPreviewBottomSheet;
 import org.telegram.ui.Components.Premium.boosts.adapters.BoostAdapter;
 import org.telegram.ui.Components.Premium.boosts.cells.ActionBtnCell;
@@ -73,14 +72,8 @@ public class BoostViaGiftsBottomSheet extends BottomSheetWithRecyclerListView im
     }
 
     private final ArrayList<Item> items = new ArrayList<>();
-    private final List<Integer> sliderValues =
-        BoostRepository.isGoogleBillingAvailable() ?
-            Arrays.asList(1, 3, 5, 7, 10, 25, 50) :
-            Arrays.asList(1, 3, 5, 7, 10, 25, 50, 100);
-    private final List<Integer> sliderStarsValues =
-        BoostRepository.isGoogleBillingAvailable() ?
-            Arrays.asList(1, 3, 5, 7, 10, 25, 50) :
-            Arrays.asList(1, 3, 5, 7, 10, 25, 50, 100);
+    private final List<Integer> sliderValues = Arrays.asList(1, 3, 5, 7, 10, 25, 50, 100);
+    private final List<Integer> sliderStarsValues = Arrays.asList(1, 3, 5, 7, 10, 25, 50, 100);
     private final List<Integer> starsNotExtended = Arrays.asList(750, 10_000, 50_000);
     private final TLRPC.Chat currentChat;
     private final List<TLObject> selectedChats = new ArrayList<>();
@@ -249,13 +242,6 @@ public class BoostViaGiftsBottomSheet extends BottomSheetWithRecyclerListView im
         actionBtn = new ActionBtnCell(getContext(), resourcesProvider);
         actionBtn.setOnClickListener(v -> {
 
-            // ---- nagram start ----
-            if (BuildVars.IS_BILLING_UNAVAILABLE) {
-                fragment.showDialog(new PremiumNotAvailableBottomSheet(fragment));
-                return;
-            }
-            // ---- nagram end ----
-
             if (actionBtn.isLoading()) {
                 return;
             }
@@ -344,51 +330,7 @@ public class BoostViaGiftsBottomSheet extends BottomSheetWithRecyclerListView im
                 return;
             }
 
-            if (selectedBoostSubType == BoostTypeCell.TYPE_SPECIFIC_USERS) {
-                List<TLRPC.TL_premiumGiftCodeOption> options = BoostRepository.filterGiftOptions(giftCodeOptions, selectedUsers.size());
-                for (int i = 0; i < options.size(); i++) {
-                    TLRPC.TL_premiumGiftCodeOption option = options.get(i);
-                    if (option.months == selectedMonths && selectedUsers.size() > 0) {
-                        if (BoostRepository.isGoogleBillingAvailable() && BoostDialogs.checkReduceUsers(getContext(), resourcesProvider, giftCodeOptions, option)) {
-                            return;
-                        }
-                        actionBtn.updateLoading(true);
-                        BoostRepository.payGiftCode(selectedUsers, option, currentChat, null, fragment, result -> {
-                            dismiss();
-                            AndroidUtilities.runOnUIThread(() -> NotificationCenter.getInstance(UserConfig.selectedAccount).postNotificationName(NotificationCenter.boostByChannelCreated, currentChat, false), 220);
-                        }, error -> {
-                            actionBtn.updateLoading(false);
-                            BoostDialogs.showToastError(getContext(), error);
-                        });
-                        break;
-                    }
-                }
-            } else {
-                List<TLRPC.TL_premiumGiftCodeOption> options = BoostRepository.filterGiftOptions(giftCodeOptions, getSelectedSliderValue());
-                for (int i = 0; i < options.size(); i++) {
-                    TLRPC.TL_premiumGiftCodeOption option = options.get(i);
-                    if (option.months == selectedMonths) {
-                        if (BoostRepository.isGoogleBillingAvailable() && BoostDialogs.checkReduceQuantity(sliderValues, getContext(), resourcesProvider, giftCodeOptions, option, arg -> {
-                            selectedSliderIndex = sliderValues.indexOf(arg.users);
-                            updateRows(true, true);
-                            updateActionButton(true);
-                        })) {
-                            return;
-                        }
-                        boolean onlyNewSubscribers = selectedParticipantsType == ParticipantsTypeCell.TYPE_NEW;
-                        int dateInt = BoostRepository.prepareServerDate(selectedEndDate);
-                        actionBtn.updateLoading(true);
-                        BoostRepository.payGiveAway(selectedChats, selectedCountries, option, currentChat, dateInt, onlyNewSubscribers, fragment, isShowWinnersSelected, isAdditionalPrizeSelected, additionalPrize, result -> {
-                            dismiss();
-                            AndroidUtilities.runOnUIThread(() -> NotificationCenter.getInstance(UserConfig.selectedAccount).postNotificationName(NotificationCenter.boostByChannelCreated, currentChat, true), 220);
-                        }, error -> {
-                            actionBtn.updateLoading(false);
-                            BoostDialogs.showToastError(getContext(), error);
-                        });
-                        break;
-                    }
-                }
-            }
+            BillingController.showUnavailable();
         });
         updateActionButton(false);
         containerView.addView(actionBtn, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, BOTTOM_HEIGHT_DP, Gravity.BOTTOM, 0, 0, 0, 0));
