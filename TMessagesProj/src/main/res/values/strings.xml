@@ -10965,11 +10965,6 @@
 
     <string name="GuestBotFor"> for </string>
 
-    <string name="WearAuthTitle">Use Telegram with WearOS</string>
-    <string name="WearAuthText">Connect your account to WatchOS device\nto use it separately from your watch.</string>
-    <string name="WearAuthEmojis">Compare emojis on your watch</string>
-    <string name="WearAuthEmojisLogIn">Log In</string>
-
     <string name="Community">Community</string>
     <string name="CommunityAddGroupToCommunity">Add Group to a Community</string>
     <string name="CommunityAddChannelToCommunity">Add Channel to a Community</string>
