@@ -168,7 +168,6 @@
     <string name="DefaultHlsVideoQuality">Standaard Hls Videokwaliteit</string>
     <string name="DisableBotOpenButton">Bot Open Knop Uitschakelen</string>
     <string name="CustomTitleUserName">Gebruik gebruikersnaam gebruiker als titel</string>
-    <string name="EnhancedVideoBitrate">Verbeterde gedeelde videobitrate</string>
     <string name="DisableStarsSubscription">Notificatie met lage balans uitschakelen</string>
     <string name="DisablePremiumExpiring">Premium vervalmelding uitschakelen</string>
     <string name="DisablePremiumUpgrade">Schakel melding voor Premium upgrade uit</string>

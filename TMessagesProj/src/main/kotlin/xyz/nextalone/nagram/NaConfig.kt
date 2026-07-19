@@ -738,12 +738,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val enhancedVideoBitrate =
-        addConfig(
-            "EnhancedVideoBitrate",
-            ConfigItem.configTypeBool,
-            false
-        )
     private val disableTrendingFlags =
         addConfig(
             "DisableTrendingFlags",

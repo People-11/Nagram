@@ -168,7 +168,6 @@
     <string name="DefaultHlsVideoQuality">Standard Hls Videokvalitet</string>
     <string name="DisableBotOpenButton">Deaktiver Bot Åpen Knapp</string>
     <string name="CustomTitleUserName">Bruk bruker kallenavn som tittel</string>
-    <string name="EnhancedVideoBitrate">Forbedret delt videobitrate</string>
     <string name="DisableStarsSubscription">Deaktiver stjerner lavsaldo varsling</string>
     <string name="DisablePremiumExpiring">Deaktiver Premium utløpsvarsel</string>
     <string name="DisablePremiumUpgrade">Deaktiver Premium Oppgraderings Varsel</string>

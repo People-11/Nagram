@@ -168,7 +168,6 @@
     <string name="DefaultHlsVideoQuality">Hls Videon Oletuslaatu</string>
     <string name="DisableBotOpenButton">Poista Botti Avaa Painike Käytöstä</string>
     <string name="CustomTitleUserName">Käytä käyttäjän nimimerkkiä otsikkona</string>
-    <string name="EnhancedVideoBitrate">Tehostettu jaettu videobittinopeus</string>
     <string name="DisableStarsSubscription">Poista käytöstä alhaisen saldon Stars-ilmoitus</string>
     <string name="DisablePremiumExpiring">Poista Premiumin vanhentumisilmoitus käytöstä</string>
     <string name="DisablePremiumUpgrade">Poista Premium-päivitysilmoitus käytöstä</string>

@@ -7795,7 +7795,20 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             if (parentChatActivity != null && parentChatActivity.isInScheduleMode() && !parentChatActivity.isEditingMessageMedia()) {
                 showScheduleDatePickerDialog();
             } else {
-                sendPressed(true, 0, 0);
+                boolean isCurrentPhoto = false;
+                if (currentIndex >= 0 && currentIndex < imagesArrLocals.size()) {
+                    Object obj = imagesArrLocals.get(currentIndex);
+                    if (obj instanceof MediaController.PhotoEntry && !((MediaController.PhotoEntry) obj).isVideo) {
+                        isCurrentPhoto = true;
+                    }
+                }
+                if (isCurrentPhoto && currentPhotoQuality == 2) {
+                    sendPressed(true, 0, 0, false, true, false);
+                } else if (!isCurrentPhoto && compressionsCount > 0 && selectedCompression == compressionsCount - 1) {
+                    sendPressed(true, 0, 0, false, true, false);
+                } else {
+                    sendPressed(true, 0, 0);
+                }
             }
         });
         pickerViewSendButton.setOnLongClickListener(view -> {
@@ -8042,7 +8055,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         compressItem.setBackground(Theme.createInsetRoundRectDrawable(0x10FFFFFF, dp(22), dp(4), dp(6)));
 
         selectedCompression = selectCompression();
-        compressItem.setState(videoConvertSupported && compressionsCount > 1, muteVideo, Math.min(resultWidth, resultHeight));
+        compressItem.setState(videoConvertSupported && compressionsCount > 1, muteVideo, Math.min(resultWidth, resultHeight), selectedCompression == compressionsCount - 1);
         compressItem.setContentDescription(getString("AccDescrVideoQuality", R.string.AccDescrVideoQuality));
         itemsLayout.addView(compressItem, LayoutHelper.createLinear(48, 48));
         compressItem.setOnClickListener(v -> {
@@ -8054,13 +8067,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 if (object instanceof MediaController.PhotoEntry) {
                     MediaController.PhotoEntry photoEntry = (MediaController.PhotoEntry) object;
                     if (!photoEntry.isVideo || photoEntry.isLivePhoto()) {
-                        photoEntry.highQuality = !photoEntry.isHighQuality();
-                        compressItem.setPhotoState(photoEntry.isHighQuality());
-                        showPhotoQualityHint(photoEntry.isHighQuality());
-
-                        SharedConfig.photoHighQualityDefault = photoEntry.isHighQuality();
-                        final SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
-                        prefs.edit().putBoolean("photoHighQualityDefault", SharedConfig.photoHighQualityDefault).apply();
+                        currentPhotoQuality = (currentPhotoQuality + 1) % 3;
+                        photoEntry.highQuality = currentPhotoQuality >= 1;
+                        compressItem.setPhotoState(currentPhotoQuality);
+                        showPhotoQualityHint(currentPhotoQuality);
                         return;
                     }
                 }
@@ -8873,6 +8883,16 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             }
                         });
                         return;
+                    }
+                }
+                if (!forceDocument && !imagesArrLocals.isEmpty()) {
+                    for (Object obj : imagesArrLocals) {
+                        if (obj instanceof MediaController.PhotoEntry) {
+                            MediaController.PhotoEntry pe = (MediaController.PhotoEntry) obj;
+                            if (!pe.isVideo) {
+                                pe.highQuality = currentPhotoQuality >= 1;
+                            }
+                        }
                     }
                 }
                 placeProvider.sendButtonPressed(currentIndex, videoEditedInfo, notify, scheduleDate, scheduleRepeatPeriod, forceDocument);
@@ -14474,6 +14494,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         containerView.setTag(1);
         playerAutoStarted = false;
         isCurrentVideo = false;
+        currentPhotoQuality = 1;
         shownControlsByEnd = false;
         imagesArr.clear();
         imagesArrLocations.clear();
@@ -15502,7 +15523,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 }
             } else {
                 boolean isAnimation = false;
-                boolean highQuality = false;
                 if (object instanceof MediaController.PhotoEntry) {
                     MediaController.PhotoEntry photoEntry = ((MediaController.PhotoEntry) object);
                     currentPathObject = photoEntry.path;
@@ -15512,7 +15532,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     livePhotoTimestampUs = photoEntry.livePhotoTimestampUs;
                     duration = photoEntry.duration;
                     cropState = photoEntry.cropState;
-                    highQuality = photoEntry.isHighQuality();
                 } else if (object instanceof MediaController.SearchImage) {
                     MediaController.SearchImage searchImage = (MediaController.SearchImage) object;
                     currentPathObject = searchImage.getPathToAttach();
@@ -15616,7 +15635,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     if (isLivePhoto && object instanceof MediaController.PhotoEntry) {
                         final MediaController.PhotoEntry entry = (MediaController.PhotoEntry) object;
                         compressItem.setVisibility(sendPhotoTypeIsGif || sendPhotoTypeIsPollMedia ? View.GONE : View.VISIBLE);
-                        compressItem.setPhotoState(highQuality);
+                        compressItem.setPhotoState(currentPhotoQuality);
                     }
                 } else {
                     showVideoTimeline(false, animated);
@@ -15632,7 +15651,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         final MediaController.PhotoEntry entry = (MediaController.PhotoEntry) object;
                         if (!entry.isVideo && sendPhotoType != SELECT_TYPE_STICKER && (currentIndex == index ? getCurrentVideoEditedInfo() : entry.editedInfo) == null) {
                             compressItem.setVisibility(sendPhotoTypeIsGif || sendPhotoTypeIsPollMedia ? View.GONE : View.VISIBLE);
-                            compressItem.setPhotoState(highQuality);
+                            compressItem.setPhotoState(currentPhotoQuality);
                         } else {
                             compressItem.setVisibility(View.GONE);
                         }
@@ -21667,6 +21686,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     private volatile int selectedCompression;
     private volatile int compressionsCount = -1;
     private int previousCompression;
+    private int currentPhotoQuality = 1; // 0=SD, 1=HD, 2=Original
 
     private int rotationValue;
     private volatile int originalWidth;
@@ -21928,7 +21948,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             return;
         }
         if (!centerImageIsLivePhoto) {
-            compressItem.setState(videoConvertSupported && compressionsCount > 1, muteVideo, Math.min(resultWidth, resultHeight));
+            compressItem.setState(videoConvertSupported && compressionsCount > 1, muteVideo, Math.min(resultWidth, resultHeight), selectedCompression == compressionsCount - 1);
         }
         itemsLayout.requestLayout();
 
@@ -22086,10 +22106,13 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 break;
         }
         float scale = originalWidth > originalHeight ? maxSize / originalWidth : maxSize / originalHeight;
-        if (selectedCompression == compressionsCount - 1 && scale >= 1f) {
+        if (selectedCompression == compressionsCount - 1) {
             resultWidth = originalWidth;
             resultHeight = originalHeight;
         } else {
+            if (scale > 1.0f) {
+                scale = 1.0f;
+            }
             resultWidth = Math.round(originalWidth * scale / 2) * 2;
             resultHeight = Math.round(originalHeight * scale / 2) * 2;
         }
@@ -22120,6 +22143,14 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             selectedCompression = compressionsCount - 1;
         }
 
+        if (selectedCompression == compressionsCount - 1) {
+            resultWidth = originalWidth;
+            resultHeight = originalHeight;
+            bitrate = originalBitrate;
+            videoFramesSize = originalSize;
+            return;
+        }
+
         if (sendPhotoType == SELECT_TYPE_AVATAR) {
             float scale = Math.max(800.0f / originalWidth, 800.0f / originalHeight);
             resultWidth = Math.round(originalWidth * scale / 2) * 2;
@@ -22135,9 +22166,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             if (sendPhotoType == SELECT_TYPE_AVATAR) {
                 bitrate = 1560000;
                 encoderBitrate = bitrate;
-            } else if (resultWidth == originalWidth && resultHeight == originalHeight) {
-                bitrate = originalBitrate;
-                encoderBitrate = MediaController.extractRealEncoderBitrate(resultWidth, resultHeight, bitrate, false);
             } else {
                 bitrate = MediaController.makeVideoBitrate(originalHeight, originalWidth, originalBitrate, resultHeight, resultWidth);
                 encoderBitrate = MediaController.extractRealEncoderBitrate(resultWidth, resultHeight, bitrate, false);
@@ -22330,7 +22358,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         }
 
                         if (!centerImageIsLivePhoto) {
-                            compressItem.setState(compressionsCount > 1, muteVideo, Math.min(resultWidth, resultHeight));
+                            compressItem.setState(compressionsCount > 1, muteVideo, Math.min(resultWidth, resultHeight), selectedCompression == compressionsCount - 1);
                         }
                         if (BuildVars.LOGS_ENABLED) {
                             FileLog.d("compressionsCount = " + compressionsCount + " w = " + originalWidth + " h = " + originalHeight + " r = " + rotationValue);
@@ -22338,7 +22366,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         qualityChooseView.invalidate();
                     } else {
                         if (!centerImageIsLivePhoto) {
-                            compressItem.setState(false, muteVideo, Math.min(resultWidth, resultHeight));
+                            compressItem.setState(false, muteVideo, Math.min(resultWidth, resultHeight), false);
                         }
                         compressionsCount = 0;
                     }
@@ -22357,20 +22385,24 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
         SharedPreferences preferences = MessagesController.getGlobalMainSettings();
         int compressionsCount = this.compressionsCount;
-        int maxCompression = 2;
-        while (compressionsCount < 5) {
+        int maxCompression = this.compressionsCount - 1;
+        while (compressionsCount < 8) {
             int selectedCompression = preferences.getInt(String.format(Locale.US, "compress_video_%d", compressionsCount), -1);
             if (selectedCompression >= 0) {
                 return Math.min(selectedCompression, maxCompression);
             }
             compressionsCount++;
         }
-        return Math.min(maxCompression, Math.round(DownloadController.getInstance(currentAccount).getMaxVideoBitrate() / (100f / compressionsCount)) - 1);
+        return this.compressionsCount - 1;
     }
 
     private void updateCompressionsCount(int h, int w) {
         int maxSize = Math.max(h, w);
-        if (maxSize > 1280) {
+        if (maxSize > 2560) {
+            compressionsCount = 6;
+        } else if (maxSize > 1920) {
+            compressionsCount = 5;
+        } else if (maxSize > 1280) {
             compressionsCount = 4;
         } else if (maxSize > 854) {
             compressionsCount = 3;
@@ -22379,13 +22411,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         } else {
             compressionsCount = 1;
         }
-        if (NaConfig.INSTANCE.getEnhancedVideoBitrate().Bool()) {
-            if (maxSize > 2560) {
-                compressionsCount = 6;
-            } else if (maxSize > 1920) {
-                compressionsCount = 5;
-            }
-        }
+        compressionsCount++;
     }
 
     private void updateAccessibilityOverlayVisibility() {
@@ -24205,15 +24231,20 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
     }
 
-    private void showPhotoQualityHint(boolean highQuality) {
+    private void showPhotoQualityHint(int quality) {
         if (compressPhotoHint != null) {
             compressPhotoHint.hide();
             compressPhotoHint = null;
         }
         if (activityContext == null) return;
         compressPhotoHint = new HintView2(activityContext, HintView2.DIRECTION_BOTTOM);
-        final SpannableStringBuilder sb = new SpannableStringBuilder("x ").append(getString(highQuality ? R.string.PhotoWillBeSentInHD : R.string.PhotoWillBeSentInSD));
-        sb.setSpan(new ColoredImageSpan(highQuality ? R.drawable.menu_quality_hd_filled : R.drawable.menu_quality_sd_filled), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        final SpannableStringBuilder sb;
+        if (quality == 2) {
+            sb = new SpannableStringBuilder(getString(R.string.PhotoWillBeSentAsFile));
+        } else {
+            sb = new SpannableStringBuilder("x ").append(getString(quality == 1 ? R.string.PhotoWillBeSentInHD : R.string.PhotoWillBeSentInSD));
+            sb.setSpan(new ColoredImageSpan(quality == 1 ? R.drawable.menu_quality_hd_filled : R.drawable.menu_quality_sd_filled), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
         compressPhotoHint.setText(sb);
         containerView.addView(compressPhotoHint, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 100, Gravity.BOTTOM | Gravity.FILL_HORIZONTAL, 0, 0, 0, 48));
         compressPhotoHint.setTranslationY(pickerView.getTranslationY());
