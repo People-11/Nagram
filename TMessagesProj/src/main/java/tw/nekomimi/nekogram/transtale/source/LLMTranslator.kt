@@ -485,7 +485,7 @@ object LLMTranslator : Translator {
                 }
             }.execute()
 
-            if (response.status().value !in 200..299) {
+            if (response.statusCode !in 200..299) {
                 return emptyList()
             }
 
