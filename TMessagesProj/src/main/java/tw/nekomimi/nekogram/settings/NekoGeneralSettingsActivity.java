@@ -122,8 +122,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
     private final AbstractConfigCell dividerAiTools = cellGroup.appendCell(new ConfigCellDivider());
 
     private final AbstractConfigCell headerMap = cellGroup.appendCell(new ConfigCellHeader("Map"));
-    private final AbstractConfigCell useOSMDroidMapRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.useOSMDroidMap));
-    private final AbstractConfigCell mapDriftingFixForGoogleMapsRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.mapDriftingFixForGoogleMaps));
     private final AbstractConfigCell mapPreviewRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NekoConfig.mapPreviewProvider,
             new String[]{
                     LocaleController.getString("MapPreviewProviderTelegram", R.string.MapPreviewProviderTelegram),
@@ -511,10 +509,6 @@ private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCel
                 if (chatBlurAlphaSeekbar != null)
                     chatBlurAlphaSeekbar.setEnabled(enabled);
                 ((ConfigCellCustom) chatBlurAlphaValueRow).enabled = enabled;
-            } else if (NekoConfig.useOSMDroidMap.getKey().equals(key)) {
-                boolean enabled = (Boolean) newValue;
-                ((ConfigCellTextCheck) mapDriftingFixForGoogleMapsRow).setEnabled(!enabled);
-                listAdapter.notifyItemChanged(cellGroup.rows.indexOf(mapDriftingFixForGoogleMapsRow));
             } else if (key.equals(NekoConfig.useTelegramTranslateInChat.getKey())) {
                 var cell = (TextSettingsCell) (listView.findViewHolderForAdapterPosition(cellGroup.rows.indexOf(translationProviderRow)).itemView);
                 if (NekoConfig.useTelegramTranslateInChat.Bool()) {
@@ -778,9 +772,6 @@ private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCel
     @Override
     protected void setCanNotChange() {
         super.setCanNotChange();
-
-        if (NekoConfig.useOSMDroidMap.Bool())
-            ((ConfigCellTextCheck) mapDriftingFixForGoogleMapsRow).setEnabled(false);
 
         if (NaConfig.INSTANCE.getCustomTitleUserName().Bool())
             ((ConfigCellTextInput) customTitleRow).setEnabled(false);

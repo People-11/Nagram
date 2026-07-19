@@ -124,7 +124,6 @@
     <uses-permission android:name="android.permission.CREDENTIAL_MANAGER_SET_ORIGIN" />
 
     <queries>
-        <package android:name="com.google.android.apps.maps"/>
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="ton"/>
@@ -811,10 +810,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-        <!-- NekoX Google Maps API Key -->
-        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyAjS-41simO1sLTIEX4YYrCjINOyFEHSo4" />
-        <uses-library android:name="com.google.android.maps" android:required="false"/>
 
         <meta-data
             android:name="firebase_analytics_collection_deactivated"

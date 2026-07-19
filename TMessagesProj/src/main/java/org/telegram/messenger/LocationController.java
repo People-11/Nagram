@@ -17,7 +17,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -39,11 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.location.NekoLocation;
-
 @SuppressLint("MissingPermission")
-public class LocationController extends BaseController implements NotificationCenter.NotificationCenterDelegate, ILocationServiceProvider.IAPIConnectionCallbacks, ILocationServiceProvider.IAPIOnConnectionFailedListener {
+public class LocationController extends BaseController implements NotificationCenter.NotificationCenterDelegate {
 
     private LongSparseArray<SharingLocationInfo> sharingLocationsMap = new LongSparseArray<>();
     private ArrayList<SharingLocationInfo> sharingLocations = new ArrayList<>();
@@ -53,7 +49,6 @@ public class LocationController extends BaseController implements NotificationCe
     private GpsLocationListener gpsLocationListener = new GpsLocationListener();
     private GpsLocationListener networkLocationListener = new GpsLocationListener();
     private GpsLocationListener passiveLocationListener = new GpsLocationListener();
-    private FusedLocationListener fusedLocationListener = new FusedLocationListener();
     private Location lastKnownLocation;
     private long lastLocationSendTime;
     private boolean locationSentSinceLastMapUpdate = true;
@@ -67,18 +62,12 @@ public class LocationController extends BaseController implements NotificationCe
     public ArrayList<SharingLocationInfo> sharingLocationsUI = new ArrayList<>();
     private LongSparseArray<SharingLocationInfo> sharingLocationsMapUI = new LongSparseArray<>();
 
-    private Boolean servicesAvailable;
-    private boolean wasConnectedToPlayServices;
-    private ILocationServiceProvider.IMapApiClient apiClient;
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private final static long UPDATE_INTERVAL = 1000, FASTEST_INTERVAL = 1000;
     private final static int BACKGROUD_UPDATE_TIME = 30 * 1000;
     private final static int LOCATION_ACQUIRE_TIME = 10 * 1000;
     private final static int FOREGROUND_UPDATE_TIME = 20 * 1000;
     private final static int WATCH_LOCATION_TIMEOUT = 65 * 1000;
     private final static int SEND_NEW_LOCATION_TIME = 2 * 1000;
 
-    private ILocationServiceProvider.ILocationRequest locationRequest;
 
     private static SparseArray<LocationController> Instance = new SparseArray<>();
 
@@ -139,28 +128,10 @@ public class LocationController extends BaseController implements NotificationCe
         }
     }
 
-    private class FusedLocationListener implements ILocationServiceProvider.ILocationListener {
-
-        @Override
-        public void onLocationChanged(Location location) {
-            if (location == null) {
-                return;
-            }
-            setLastKnownLocation(location);
-        }
-    }
-
     public LocationController(int instance) {
         super(instance);
 
         locationManager = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
-        apiClient = ApplicationLoader.getLocationServiceProvider().onCreateLocationServicesAPI(ApplicationLoader.applicationContext, this, this);
-
-        locationRequest = ApplicationLoader.getLocationServiceProvider().onCreateLocationRequest();
-        locationRequest.setPriority(ILocationServiceProvider.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(UPDATE_INTERVAL);
-        locationRequest.setFastestInterval(FASTEST_INTERVAL);
-
         AndroidUtilities.runOnUIThread(() -> {
             LocationController locationController = getAccountInstance().getLocationController();
             getNotificationCenter().addObserver(locationController, NotificationCenter.didReceiveNewMessages);
@@ -270,86 +241,6 @@ public class LocationController extends BaseController implements NotificationCe
                 NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.liveLocationsCacheChanged, did, currentAccount);
             }
         }
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        wasConnectedToPlayServices = true;
-        try {
-            if (Build.VERSION.SDK_INT >= 21) {
-                ApplicationLoader.getLocationServiceProvider().checkLocationSettings(locationRequest, status -> {
-                    switch (status) {
-                        case ILocationServiceProvider.STATUS_SUCCESS:
-                            startFusedLocationRequest(true);
-                            break;
-                        case ILocationServiceProvider.STATUS_RESOLUTION_REQUIRED:
-                            Utilities.stageQueue.postRunnable(() -> {
-                                if (!sharingLocations.isEmpty()) {
-                                    AndroidUtilities.runOnUIThread(() -> getNotificationCenter().postNotificationName(NotificationCenter.needShowPlayServicesAlert, status));
-                                }
-                            });
-                            break;
-                        case ILocationServiceProvider.STATUS_SETTINGS_CHANGE_UNAVAILABLE:
-                            Utilities.stageQueue.postRunnable(() -> {
-                                servicesAvailable = false;
-                                try {
-                                    apiClient.disconnect();
-                                    start();
-                                } catch (Throwable ignore) {}
-                            });
-                            break;
-                    }
-                });
-            } else {
-                startFusedLocationRequest(true);
-            }
-        } catch (Throwable e) {
-            FileLog.e(e);
-        }
-    }
-
-    public void startFusedLocationRequest(boolean permissionsGranted) {
-        Utilities.stageQueue.postRunnable(() -> {
-            if (!permissionsGranted) {
-                servicesAvailable = false;
-            }
-            if (!sharingLocations.isEmpty()) {
-                if (permissionsGranted) {
-                    try {
-                        ApplicationLoader.getLocationServiceProvider().getLastLocation(this::setLastKnownLocation);
-                        ApplicationLoader.getLocationServiceProvider().requestLocationUpdates(locationRequest, fusedLocationListener);
-                    } catch (Throwable e) {
-                        FileLog.e(e);
-                    }
-                } else {
-                    start();
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed() {
-        if (wasConnectedToPlayServices) {
-            return;
-        }
-        servicesAvailable = false;
-        if (started) {
-            started = false;
-            start();
-        }
-    }
-
-    private boolean checkServices() {
-        if (servicesAvailable == null) {
-            servicesAvailable = ApplicationLoader.getLocationServiceProvider().checkServices();
-        }
-        return servicesAvailable;
     }
 
     private void broadcastLastKnownLocation(boolean cancelCurrent) {
@@ -528,9 +419,6 @@ public class LocationController extends BaseController implements NotificationCe
     private void setLastKnownLocation(Location location) {
         if (location != null && (SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos()) / 1000000000 > 60 * 5) {
             return;
-        }
-        if (NekoConfig.fixDriftingForGoogleMaps() && location != null) {
-            NekoLocation.transform(location);
         }
         lastKnownLocation = location;
         if (lastKnownLocation != null) {
@@ -820,54 +708,35 @@ public class LocationController extends BaseController implements NotificationCe
         }
         lastLocationStartTime = SystemClock.elapsedRealtime();
         started = true;
-        boolean ok = false;
-        if (checkServices()) {
-            try {
-                apiClient.connect();
-                ok = true;
-            } catch (Throwable e) {
-                FileLog.e(e);
-            }
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0, gpsLocationListener);
+        } catch (Exception e) {
+            FileLog.e(e);
         }
-        if (!ok) {
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 0, networkLocationListener);
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+        try {
+            locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1, 0, passiveLocationListener);
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+        if (lastKnownLocation == null) {
             try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0, gpsLocationListener);
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
-            try {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 0, networkLocationListener);
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
-            try {
-                locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1, 0, passiveLocationListener);
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
-            if (lastKnownLocation == null) {
-                try {
-                    setLastKnownLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-                    if (lastKnownLocation == null) {
-                        setLastKnownLocation(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
-                    }
-                } catch (Exception e) {
-                    FileLog.e(e);
+                setLastKnownLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+                if (lastKnownLocation == null) {
+                    setLastKnownLocation(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
                 }
+            } catch (Exception e) {
+                FileLog.e(e);
             }
         }
     }
 
     private void stop(boolean empty) {
         started = false;
-        if (checkServices()) {
-            try {
-                ApplicationLoader.getLocationServiceProvider().removeLocationUpdates(fusedLocationListener);
-                apiClient.disconnect();
-            } catch (Throwable e) {
-                FileLog.e(e, false);
-            }
-        }
         locationManager.removeUpdates(gpsLocationListener);
         if (empty) {
             locationManager.removeUpdates(networkLocationListener);

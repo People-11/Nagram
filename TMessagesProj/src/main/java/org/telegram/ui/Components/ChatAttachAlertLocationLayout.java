@@ -95,8 +95,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.location.NekoLocation;
 import tw.nekomimi.nekogram.ui.BottomBuilder;
 
 public class ChatAttachAlertLocationLayout extends ChatAttachAlert.AttachAlertLayout implements NotificationCenter.NotificationCenterDelegate {
@@ -390,7 +388,6 @@ public class ChatAttachAlertLocationLayout extends ChatAttachAlert.AttachAlertLa
 
     public ChatAttachAlertLocationLayout(ChatAttachAlert alert, Context context, Theme.ResourcesProvider resourcesProvider, boolean allowLiveLocation) {
         super(alert, context, resourcesProvider);
-        AndroidUtilities.fixGoogleMapsBug();
         ChatActivity chatActivity = parentAlert.baseFragment instanceof ChatActivity ? (ChatActivity) parentAlert.baseFragment : null;
         dialogId = parentAlert.getDialogId();
         if (parentAlert.isStoryLocationPicker) {
@@ -1624,9 +1621,6 @@ public class ChatAttachAlertLocationLayout extends ChatAttachAlert.AttachAlertLa
             for (int i = providers.size() - 1; i >= 0; i--) {
                 l = lm.getLastKnownLocation(providers.get(i));
                 if (l != null) {
-                    if (NekoConfig.fixDriftingForGoogleMaps()) {
-                        NekoLocation.transform(l);
-                    }
                     break;
                 }
             }

@@ -130,9 +130,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.location.NekoLocation;
-
 public class LocationActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
     private ImageView locationButton;
@@ -453,7 +450,6 @@ public class LocationActivity extends BaseFragment implements NotificationCenter
     public LocationActivity(int type) {
         super();
         locationType = type;
-        AndroidUtilities.fixGoogleMapsBug();
     }
 
     private SharedMediaLayout sharedMediaLayout;
@@ -2511,9 +2507,6 @@ public class LocationActivity extends BaseFragment implements NotificationCenter
             for (int i = providers.size() - 1; i >= 0; i--) {
                 l = lm.getLastKnownLocation(providers.get(i));
                 if (l != null) {
-                    if (NekoConfig.fixDriftingForGoogleMaps()) {
-                        NekoLocation.transform(l);
-                    }
                     break;
                 }
             }
