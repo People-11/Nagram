@@ -24,22 +24,6 @@ public class HuaweiApplicationLoader extends ApplicationLoader {
     }
 
     @Override
-    protected ILocationServiceProvider onCreateLocationServiceProvider() {
-        if (PushListenerController.GooglePushListenerServiceProvider.INSTANCE.hasServices()) {
-            return new GoogleLocationProvider();
-        }
-        return new HuaweiLocationProvider();
-    }
-
-    @Override
-    protected IMapsProvider onCreateMapsProvider() {
-        if (PushListenerController.GooglePushListenerServiceProvider.INSTANCE.hasServices()) {
-            return new GoogleMapsProvider();
-        }
-        return new HuaweiMapsProvider();
-    }
-
-    @Override
     protected String onGetApplicationId() {
         return BuildConfig.APPLICATION_ID;
     }

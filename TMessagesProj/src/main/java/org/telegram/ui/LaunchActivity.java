@@ -1383,7 +1383,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             .add(NotificationCenter.wasUnableToFindCurrentLocation)
             .add(NotificationCenter.openArticle)
             .add(NotificationCenter.hasNewContactsToImport)
-            .add(NotificationCenter.needShowPlayServicesAlert)
             .add(NotificationCenter.fileLoaded)
             .add(NotificationCenter.fileLoadFailed)
             .add(NotificationCenter.historyImportProgressChanged)
@@ -7618,8 +7617,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     rightActionBarLayout.animateThemedValues(theme, accentId, nightTheme, instant);
                 }
             }
-        } else if (id == NotificationCenter.needShowPlayServicesAlert) {
-
         } else if (id == NotificationCenter.fileLoaded) {
             String path = (String) args[0];
             if (loadingThemeFileName != null) {

@@ -57,7 +57,6 @@ import java.util.Locale;
 
 import java.util.LinkedList;
 
-import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.parts.SignturesKt;
 import tw.nekomimi.nekogram.utils.FileUtil;
 import xyz.nextalone.nagram.NaConfig;
@@ -94,7 +93,6 @@ public class ApplicationLoader extends Application {
 
     private static PushListenerController.IPushListenerServiceProvider pushProvider;
     private static IMapsProvider mapsProvider;
-    private static ILocationServiceProvider locationServiceProvider;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -108,20 +106,9 @@ public class ApplicationLoader extends Application {
         });
     }
 
-    public static ILocationServiceProvider getLocationServiceProvider() {
-        if (locationServiceProvider == null) {
-            locationServiceProvider = new GoogleLocationProvider();
-        }
-        return locationServiceProvider;
-    }
-
     public static IMapsProvider getMapsProvider() {
         if (mapsProvider == null) {
-            if (NekoConfig.useOSMDroidMap.Bool())
-                mapsProvider = new LibreMapsProvider();
-            else {
-                mapsProvider = new GoogleMapsProvider();
-            }
+            mapsProvider = new LibreMapsProvider();
         }
         return mapsProvider;
     }
