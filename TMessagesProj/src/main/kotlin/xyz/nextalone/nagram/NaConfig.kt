@@ -322,9 +322,9 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val fakeHighPerformanceDevice =
+    val fakeLowPerformanceDevice =
         addConfig(
-            "FakeHighPerformanceDevice",
+            "FakeLowPerformanceDevice",
             ConfigItem.configTypeBool,
             false
         )
