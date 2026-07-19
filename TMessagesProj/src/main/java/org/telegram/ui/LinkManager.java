@@ -19,6 +19,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LiteMode;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaDataController;
+import org.telegram.messenger.BillingController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationsController;
 import org.telegram.messenger.R;
@@ -1251,7 +1252,6 @@ public class LinkManager {
                     getBulletinFactory().createErrorBulletin(LocaleController.getString(R.string.PaymentInvoiceLinkInvalid)).show();
                 }
             } else if (!activity.isFinishing()) {
-                PaymentFormActivity paymentFormActivity = null;
                 if (response instanceof TLRPC.TL_payments_paymentFormStars) {
                     final Runnable callback = activity.navigateToPremiumGiftCallback;
                     activity.navigateToPremiumGiftCallback = null;
@@ -1263,26 +1263,9 @@ public class LinkManager {
                         }
                     });
                     return;
-                } else if (response instanceof TLRPC.PaymentForm) {
-                    final TLRPC.PaymentForm form = (TLRPC.PaymentForm) response;
-                    MessagesController.getInstance(currentAccount).putUsers(form.users, false);
-                    paymentFormActivity = new PaymentFormActivity(form, slug, getLastFragment());
-                } else if (response instanceof TLRPC.PaymentReceipt) {
-                    paymentFormActivity = new PaymentFormActivity((TLRPC.PaymentReceipt) response);
                 }
-
-                if (paymentFormActivity != null) {
-                    if (activity.navigateToPremiumGiftCallback != null) {
-                        Runnable callback = activity.navigateToPremiumGiftCallback;
-                        activity.navigateToPremiumGiftCallback = null;
-                        paymentFormActivity.setPaymentFormCallback(status -> {
-                            if (status == PaymentFormActivity.InvoiceStatus.PAID) {
-                                callback.run();
-                            }
-                        });
-                    }
-                    presentFragment(paymentFormActivity);
-                }
+                activity.navigateToPremiumGiftCallback = null;
+                BillingController.showUnavailable();
             }
 
             done();

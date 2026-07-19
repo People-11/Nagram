@@ -238,7 +238,7 @@
     <string name="BackupSettings">匯入設定</string>
     <string name="ImportSettings">備份設定</string>
     <string name="ImportSettingsAlert">確定要覆蓋設定嗎？從未知來源匯入設定可能導致 PIN 被覆蓋從而導致應用被鎖定。</string>
-    <string name="nekoXPaymentRemovedToast">支付功能已被移除。</string>
+    <string name="nekoXPaymentRemovedToast">目前版本不支援購買。</string>
     <string name="VersionUpdateTitle">新版本可用</string>
     <string name="VersionUpdateVariantNotMatch">版本自動檢測失敗，
 \n請手動從GitHub下載。</string>

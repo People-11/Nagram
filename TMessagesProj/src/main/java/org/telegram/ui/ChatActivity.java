@@ -148,6 +148,7 @@ import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.BillingController;
 import org.telegram.messenger.BotForumHelper;
 import org.telegram.messenger.BotInlineKeyboard;
 import org.telegram.messenger.BotWebViewVibrationEffect;
@@ -31746,7 +31747,7 @@ public class ChatActivity extends BaseFragment implements
                     if (response instanceof TLRPC.TL_payments_paymentReceiptStars) {
                         StarsIntroActivity.showTransactionSheet(getContext(), false, currentAccount, (TLRPC.TL_payments_paymentReceiptStars) response, resourceProvider);
                     } else if (response instanceof TLRPC.PaymentReceipt) {
-                        presentFragment(new PaymentFormActivity((TLRPC.PaymentReceipt) response));
+                        BillingController.showUnavailable();
                     }
                 }), ConnectionsManager.RequestFlagFailOnServerErrors);
                 return true;

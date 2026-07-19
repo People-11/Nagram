@@ -235,7 +235,7 @@
     <string name="BackupSettings">Backup settings</string>
     <string name="ImportSettings">Import settings</string>
     <string name="ImportSettingsAlert">Overwrite the settings\? Importing settings from unknown sources may cause the pin to be overwritten and the app to be locked.</string>
-    <string name="nekoXPaymentRemovedToast">The payment function has been removed.</string>
+    <string name="nekoXPaymentRemovedToast">Purchases are unavailable in this build.</string>
     <string name="VersionUpdateTitle">New Version Available</string>
     <string name="VersionUpdateVariantNotMatch">Could not match version variants automatically.
 \nPlease download manually from GitHub.</string>

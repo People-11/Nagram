@@ -708,8 +708,6 @@ public class MessagesController extends BaseController implements NotificationCe
     public boolean storyQualityFull;
     public int uploadMaxFileParts;
     public int uploadMaxFilePartsPremium;
-    public String premiumBotUsername;
-    public String premiumInvoiceSlug;
     public String verifyAgeBotUsername;
     public String verifyAgeCountry;
     public int verifyAgeMin;
@@ -764,8 +762,6 @@ public class MessagesController extends BaseController implements NotificationCe
     public boolean premiumPurchaseBlocked() {
         return premiumLocked;
     }
-
-    public List<String> directPaymentsCurrency = new ArrayList<>();
 
     public NewMessageCallback newMessageCallback;
 
@@ -1769,11 +1765,9 @@ public class MessagesController extends BaseController implements NotificationCe
         reactionsInChatMax = mainPreferences.getInt("reactionsInChatMax", 3);
         uploadMaxFileParts = mainPreferences.getInt("uploadMaxFileParts", (int) (FileLoader.DEFAULT_MAX_FILE_SIZE / 1024L / 512L));
         uploadMaxFilePartsPremium = mainPreferences.getInt("uploadMaxFilePartsPremium", uploadMaxFileParts * 2);
-        premiumInvoiceSlug = mainPreferences.getString("premiumInvoiceSlug", null);
         verifyAgeBotUsername = mainPreferences.getString("verifyAgeBotUsername", null);
         verifyAgeCountry = mainPreferences.getString("verifyAgeCountry", "GB");
         verifyAgeMin = mainPreferences.getInt("verifyAgeMin", 18);
-        premiumBotUsername = mainPreferences.getString("premiumBotUsername", null);
         premiumLocked = mainPreferences.getBoolean("premiumLocked", false);
         if (NekoConfig.localPremium.Bool())
             premiumLocked = false;
@@ -1937,12 +1931,6 @@ public class MessagesController extends BaseController implements NotificationCe
             webFileDatacenterId = mainPreferences.getInt("webFileDatacenterId", 4);
         } else {
             webFileDatacenterId = isTest ? 2 : 4;
-        }
-
-        Set<String> currencySet = mainPreferences.getStringSet("directPaymentsCurrency", null);
-        if (currencySet != null) {
-            directPaymentsCurrency.clear();
-            directPaymentsCurrency.addAll(currencySet);
         }
 
         loadPremiumFeaturesPreviewOrder(premiumFeaturesTypesToPosition, mainPreferences.getString("premiumFeaturesTypesToPosition", null));
@@ -2939,28 +2927,6 @@ public class MessagesController extends BaseController implements NotificationCe
                             }
                             break;
                         }
-                        case "premium_playmarket_direct_currency_list": {
-                            if (value.value instanceof TLRPC.TL_jsonArray) {
-                                TLRPC.TL_jsonArray arr = (TLRPC.TL_jsonArray) value.value;
-                                HashSet<String> currencySet = new HashSet<>();
-                                for (TLRPC.JSONValue el : arr.value) {
-                                    if (el instanceof TLRPC.TL_jsonString) {
-                                        TLRPC.TL_jsonString currencyEl = (TLRPC.TL_jsonString) el;
-                                        String currency = currencyEl.value;
-                                        currencySet.add(currency);
-                                    }
-                                }
-
-                        if (!(directPaymentsCurrency.containsAll(currencySet) && currencySet.containsAll(directPaymentsCurrency))) {
-                            directPaymentsCurrency.clear();
-                            directPaymentsCurrency.addAll(currencySet);
-                            editor.putStringSet("directPaymentsCurrency", currencySet);
-                            changed = true;
-                            NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.billingProductDetailsUpdated);
-                        }
-                    }
-                    break;
-                }
                 case "premium_purchase_blocked": {
                     if (value.value instanceof TLRPC.TL_jsonBool) {
                         if (premiumLocked != ((TLRPC.TL_jsonBool) value.value).value) {
@@ -2976,17 +2942,6 @@ public class MessagesController extends BaseController implements NotificationCe
                         if (starsLocked != ((TLRPC.TL_jsonBool) value.value).value) {
                             starsLocked = ((TLRPC.TL_jsonBool) value.value).value;
                             editor.putBoolean("starsLocked", starsLocked);
-                            changed = true;
-                        }
-                    }
-                    break;
-                }
-                case "premium_bot_username": {
-                    if (value.value instanceof TLRPC.TL_jsonString) {
-                        String string = ((TLRPC.TL_jsonString) value.value).value;
-                        if (!string.equals(premiumBotUsername)) {
-                            premiumBotUsername = string;
-                            editor.putString("premiumBotUsername", premiumBotUsername);
                             changed = true;
                         }
                     }
@@ -3019,17 +2974,6 @@ public class MessagesController extends BaseController implements NotificationCe
                         int num = (int) ((TLRPC.TL_jsonNumber) value.value).value;
                         if (num != verifyAgeMin) {
                             editor.putInt("verifyAgeMin", verifyAgeMin = num);
-                            changed = true;
-                        }
-                    }
-                    break;
-                }
-                case "premium_invoice_slug": {
-                    if (value.value instanceof TLRPC.TL_jsonString) {
-                        String string = ((TLRPC.TL_jsonString) value.value).value;
-                        if (!string.equals(premiumInvoiceSlug)) {
-                            premiumInvoiceSlug = string;
-                            editor.putString("premiumInvoiceSlug", premiumInvoiceSlug);
                             changed = true;
                         }
                     }

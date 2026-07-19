@@ -39,6 +39,7 @@ import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaDataController;
 import org.telegram.messenger.MessageObject;
+import org.telegram.messenger.BillingController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
@@ -68,13 +69,11 @@ import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.SimpleFloatPropertyCompat;
 import org.telegram.ui.DialogsActivity;
 import org.telegram.ui.LaunchActivity;
-import org.telegram.ui.PaymentFormActivity;
 import org.telegram.ui.ReportBottomSheet;
 import org.telegram.ui.Stars.StarsController;
 import org.telegram.ui.web.BotWebViewContainer;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class BotWebViewMenuContainer extends FrameLayout implements NotificationCenter.NotificationCenterDelegate, BottomSheetTabsOverlay.Sheet, BottomSheetTabsOverlay.SheetView {
@@ -404,8 +403,6 @@ public class BotWebViewMenuContainer extends FrameLayout implements Notification
 
             @Override
             public void onWebAppOpenInvoice(TLRPC.InputInvoice inputInvoice, String slug, TLObject response) {
-                ChatActivity parentFragment = parentEnterView.getParentFragment();
-                PaymentFormActivity paymentFormActivity = null;
                 if (response instanceof TLRPC.TL_payments_paymentFormStars) {
                     final AlertDialog progressDialog = new AlertDialog(getContext(), AlertDialog.ALERT_TYPE_SPINNER);
                     progressDialog.showDelayed(150);
@@ -415,18 +412,9 @@ public class BotWebViewMenuContainer extends FrameLayout implements Notification
                         webViewContainer.onInvoiceStatusUpdate(slug, status);
                     });
                     return;
-                } else if (response instanceof TLRPC.PaymentForm) {
-                    TLRPC.PaymentForm form = (TLRPC.PaymentForm) response;
-                    MessagesController.getInstance(currentAccount).putUsers(form.users, false);
-                    paymentFormActivity = new PaymentFormActivity(form, slug, parentFragment);
-                } else if (response instanceof TLRPC.PaymentReceipt) {
-                    paymentFormActivity = new PaymentFormActivity((TLRPC.PaymentReceipt) response);
                 }
-
-                if (paymentFormActivity != null) {
-                    paymentFormActivity.setPaymentFormCallback(status -> webViewContainer.onInvoiceStatusUpdate(slug, status.name().toLowerCase(Locale.ROOT)));
-                    parentFragment.presentFragment(paymentFormActivity);
-                }
+                BillingController.showUnavailable();
+                webViewContainer.onInvoiceStatusUpdate(slug, "cancelled");
             }
 
             @Override

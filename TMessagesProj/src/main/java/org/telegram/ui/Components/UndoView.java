@@ -61,7 +61,7 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.Forum.ForumUtilities;
 import org.telegram.ui.Components.Premium.boosts.BoostRepository;
-import org.telegram.ui.PaymentFormActivity;
+import org.telegram.messenger.BillingController;
 
 import java.util.ArrayList;
 
@@ -666,7 +666,7 @@ public class UndoView extends FrameLayout {
                         req.peer = parentFragment.getMessagesController().getInputPeer(message.peer_id);
                         parentFragment.getConnectionsManager().sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
                             if (response instanceof TLRPC.PaymentReceipt) {
-                                parentFragment.presentFragment(new PaymentFormActivity((TLRPC.PaymentReceipt) response));
+                                BillingController.showUnavailable();
                             }
                         }), ConnectionsManager.RequestFlagFailOnServerErrors);
                     });
