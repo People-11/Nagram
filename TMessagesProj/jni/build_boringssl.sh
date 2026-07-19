@@ -13,6 +13,8 @@ function build_one {
 	-DCMAKE_BUILD_TYPE=Release \
 	-DANDROID_NDK=${NDK} \
 	-DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake \
+	-DCMAKE_C_FLAGS="-flto=full -ffunction-sections -fdata-sections" \
+	-DCMAKE_CXX_FLAGS="-flto=full -ffunction-sections -fdata-sections" \
 	-GNinja -DCMAKE_MAKE_PROGRAM=${NINJA_PATH} \
 	../..
 

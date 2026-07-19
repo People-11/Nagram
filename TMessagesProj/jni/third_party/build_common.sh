@@ -301,7 +301,7 @@ if [[ "$HOST_IS_WINDOWS" == "1" ]]; then
     unset TEMPDIR
 fi
 
-COMMON_CFLAGS_BASE="$(build_common_cflags)"
+COMMON_CFLAGS_BASE="$(build_common_cflags) -flto=full"
 COMMON_CFLAGS="$COMMON_CFLAGS_BASE"
 LIBVPX_COMMON_CFLAGS="$COMMON_CFLAGS_BASE"
 
@@ -309,12 +309,10 @@ LIBVPX_COMMON_CFLAGS="$COMMON_CFLAGS_BASE"
 # Clang does not enable it by default on Android. libvpx is excluded because
 # its `%.a: %_g.a` strip rule zeroes sh_link on the table and lld then rejects
 # it under --fatal-warnings; see build_libvpx.sh.
-LIBVPX_SKIP_STRIP=0
 if [[ "$ADDRSIG" == "1" ]]; then
     COMMON_CFLAGS+=" -faddrsig"
     if [[ "$LIBVPX_ADDRSIG" == "1" ]]; then
         LIBVPX_COMMON_CFLAGS+=" -faddrsig"
-        LIBVPX_SKIP_STRIP=1
     fi
 fi
 

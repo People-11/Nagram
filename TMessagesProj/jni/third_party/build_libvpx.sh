@@ -190,25 +190,15 @@ build_libvpx_for_abi() {
         return 1
     fi
 
-    # `%.a: %_g.a` runs `$(STRIP) --strip-debug`, which zeroes sh_link on
-    # SHT_LLVM_ADDRSIG and makes lld reject the table under --icf=safe.
-    # Degrade the rule to a plain copy so the table stays usable.
-    if [[ "$LIBVPX_SKIP_STRIP" == "1" && -f "$build_dir/config.mk" ]]; then
-        if grep -q '^HAVE_GNU_STRIP=' "$build_dir/config.mk"; then
-            sed -i.bak 's/^HAVE_GNU_STRIP=.*/HAVE_GNU_STRIP=no/' "$build_dir/config.mk"
-            rm -f "$build_dir/config.mk.bak"
-        else
-            echo 'HAVE_GNU_STRIP=no' >> "$build_dir/config.mk"
-        fi
-    fi
-
-    if ! make -j"$JOBS" 2>&1 | tee "$build_dir/build.log"; then
+    # Full LTO emits LLVM bitcode objects, which llvm-strip cannot process.
+    # A make command-line override survives libvpx's recursive make calls.
+    if ! make HAVE_GNU_STRIP=no -j"$JOBS" 2>&1 | tee "$build_dir/build.log"; then
         error "libvpx build failed for $abi. Log: $build_dir/build.log"
         popd >/dev/null
         return 1
     fi
 
-    if ! make install 2>&1 | tee "$build_dir/install.log"; then
+    if ! make HAVE_GNU_STRIP=no install 2>&1 | tee "$build_dir/install.log"; then
         error "libvpx install failed for $abi. Log: $build_dir/install.log"
         popd >/dev/null
         return 1
