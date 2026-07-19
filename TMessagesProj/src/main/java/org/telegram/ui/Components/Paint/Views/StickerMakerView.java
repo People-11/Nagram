@@ -101,6 +101,7 @@ public class StickerMakerView extends FrameLayout implements NotificationCenter.
     private SegmentedObject selectedObject;
     public float outlineWidth = 2f;
     public boolean empty;
+    public boolean showFrameBorder = false;
     public SegmentedObject[] objects;
     private volatile Bitmap sourceBitmap;
     public int orientation;
@@ -779,8 +780,10 @@ public class StickerMakerView extends FrameLayout implements NotificationCenter.
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        canvas.drawPath(screenPath, bgPaint);
-        canvas.drawPath(dashPath, dashPaint);
+        if (showFrameBorder) {
+            canvas.drawPath(screenPath, bgPaint);
+            canvas.drawPath(dashPath, dashPaint);
+        }
     }
 
     private Bitmap createSmoothEdgesSegmentedImage(int x, int y, Bitmap inputBitmap, boolean full) {
