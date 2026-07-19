@@ -18822,17 +18822,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     }
 
     protected boolean checkNeedDrawShareButton(MessageObject messageObject) {
-        if (isReportChat) return false;
-        if (currentMessageObject.deleted && !currentMessageObject.deletedByThanos) return false;
-        if (currentMessageObject.isSponsored()) return false;
-        if (currentMessageObject.isEphemeral()) return false;
-        if (currentMessagesGroup != null && currentPosition != null) {
-            final boolean last = (currentPosition.flags & MessageObject.POSITION_FLAG_BOTTOM) != 0 && (currentPosition.flags & (messageObject.isOutOwner() ? MessageObject.POSITION_FLAG_LEFT : MessageObject.POSITION_FLAG_RIGHT)) != 0;
-            if (!currentMessagesGroup.isDocuments && !last) {
-                return false;
-            }
-        }
-        return messageObject.needDrawShareButton();
+        return false;
     }
 
     public boolean isInsideBackground(float x, float y) {
