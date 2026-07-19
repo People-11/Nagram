@@ -324,7 +324,7 @@ public class MessagesStorage extends BaseController {
         }
         try {
             database = new SQLiteDatabase(cacheFile.getPath());
-            database.executeFast("PRAGMA secure_delete = ON").stepThis().dispose();
+            database.executeFast("PRAGMA secure_delete = OFF").stepThis().dispose();
             database.executeFast("PRAGMA temp_store = MEMORY").stepThis().dispose();
             database.executeFast("PRAGMA journal_mode = WAL").stepThis().dispose();
             database.executeFast("PRAGMA journal_size_limit = 10485760").stepThis().dispose();
@@ -437,7 +437,7 @@ public class MessagesStorage extends BaseController {
         if (restored) {
             try {
                 database = new SQLiteDatabase(cacheFile.getPath());
-                database.executeFast("PRAGMA secure_delete = ON").stepThis().dispose();
+                database.executeFast("PRAGMA secure_delete = OFF").stepThis().dispose();
                 database.executeFast("PRAGMA temp_store = MEMORY").stepThis().dispose();
                 database.executeFast("PRAGMA journal_mode = WAL").stepThis().dispose();
                 database.executeFast("PRAGMA journal_size_limit = 10485760").stepThis().dispose();

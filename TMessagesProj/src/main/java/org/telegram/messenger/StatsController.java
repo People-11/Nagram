@@ -44,7 +44,7 @@ public class StatsController extends BaseController {
     private long[] resetStatsDate = new long[3];
     private int[] callsTotalTime = new int[3];
     private RandomAccessFile statsFile;
-    private static DispatchQueue statsSaveQueue = new DispatchQueue("statsSaveQueue");
+    private static DispatchQueue statsSaveQueue = new DispatchQueue("statsSaveQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
     private static final ThreadLocal<Long> lastStatsSaveTime = new ThreadLocal<Long>() {
         @Override
@@ -86,7 +86,7 @@ public class StatsController extends BaseController {
         @Override
         public void run() {
             long newTime = System.currentTimeMillis();
-            if (Math.abs(newTime - lastInternalStatsSaveTime) < 2000) {
+            if (Math.abs(newTime - lastInternalStatsSaveTime) < 30 * 1000) {
                 return;
             }
             lastInternalStatsSaveTime = newTime;
@@ -112,7 +112,7 @@ public class StatsController extends BaseController {
                 }
                 statsFile.seek(0);
                 statsFile.write(byteArrayOutputStream.buf, 0, byteArrayOutputStream.count());
-                statsFile.getFD().sync();
+                // ponytail: skip explicit fsync, let the OS batch the flush to reduce disk I/O
             } catch (Exception ignore) {
 
             }
@@ -284,7 +284,7 @@ public class StatsController extends BaseController {
 
     private void saveStats() {
         long newTime = System.currentTimeMillis();
-        if (Math.abs(newTime - lastStatsSaveTime.get()) >= 2000) {
+        if (Math.abs(newTime - lastStatsSaveTime.get()) >= 30 * 1000) {
             lastStatsSaveTime.set(newTime);
             statsSaveQueue.cancelRunnable(saveRunnable);
             statsSaveQueue.postRunnable(saveRunnable);

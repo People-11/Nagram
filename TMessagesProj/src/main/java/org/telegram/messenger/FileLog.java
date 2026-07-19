@@ -317,7 +317,7 @@ public class FileLog {
             e.printStackTrace();
         }
         try {
-            logQueue = new DispatchQueue("logQueue");
+            logQueue = new DispatchQueue("logQueue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
             currentFile.createNewFile();
             FileOutputStream stream = new FileOutputStream(currentFile);
             streamWriter = new OutputStreamWriter(stream);
@@ -649,11 +649,12 @@ public class FileLog {
     public class ANRDetector {
         private final long TIMEOUT_MS = 5000; // ANR threshold (5 seconds)
         private final Handler mainHandler = new Handler(Looper.getMainLooper());
-        private boolean isUIThreadResponsive = true;
+        private volatile boolean isUIThreadResponsive = true;
+        private Thread watchThread;
 
         public ANRDetector(Runnable anrDetected) {
-            new Thread(() -> {
-                while (true) {
+            watchThread = new Thread(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
                     isUIThreadResponsive = false;
 
                     // Post a task to the main thread
@@ -662,14 +663,24 @@ public class FileLog {
                     try {
                         Thread.sleep(TIMEOUT_MS);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        break;
                     }
 
                     if (!isUIThreadResponsive) {
                         anrDetected.run();
                     }
                 }
-            }).start();
+            });
+            watchThread.setDaemon(true);
+            watchThread.setName("ANRDetector");
+            watchThread.start();
+        }
+
+        public void stop() {
+            if (watchThread != null) {
+                watchThread.interrupt();
+                watchThread = null;
+            }
         }
     }
 }

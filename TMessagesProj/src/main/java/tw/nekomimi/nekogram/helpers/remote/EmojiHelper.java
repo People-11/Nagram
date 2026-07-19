@@ -9,7 +9,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.os.SystemClock;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -52,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import tw.nekomimi.nekogram.NekoConfig;
@@ -86,6 +86,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     private boolean loadSystemEmojiFailed = false;
     private boolean loadingPack = false;
     private String pendingDeleteEmojiPackId;
+    private CountDownLatch pendingDeleteLatch;
     private Bulletin emojiPackBulletin;
 
     static {
@@ -253,7 +254,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     }
 
     public Long getEmojiSize() {
-        return getAllEmojis().parallelStream()
+        return getAllEmojis().stream()
                 .filter(file -> !file.getName().startsWith(emojiPack))
                 .filter(file -> !isValidCustomPack(file))
                 .map(EmojiHelper::calculateFolderSize)
@@ -261,7 +262,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     }
 
     public void deleteAll() {
-        getAllEmojis().parallelStream()
+        getAllEmojis().stream()
                 .filter(file -> !file.getName().startsWith(emojiPack))
                 .filter(file -> !isValidCustomPack(file))
                 .forEach(EmojiHelper::deleteFolder);
@@ -314,7 +315,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
 
     private Typeface getSelectedTypeface() {
         EmojiPackBase pack = getEmojiPacksInfoAll()
-                .parallelStream()
+                .stream()
                 .filter(emojiPackInfo -> emojiPackInfo.packId.equals(emojiPack))
                 .findFirst()
                 .orElse(null);
@@ -337,7 +338,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     public String getSelectedPackName() {
         if (NekoConfig.useSystemEmoji.Bool()) return "System";
         return emojiPacksInfo
-                .parallelStream()
+                .stream()
                 .filter(e -> {
                     if (e instanceof EmojiPackInfo) {
                         return isPackInstalled((EmojiPackInfo) e);
@@ -352,7 +353,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
 
     public String getSelectedEmojiPackId() {
         return getAllEmojis()
-                .parallelStream()
+                .stream()
                 .map(File::getName)
                 .anyMatch(name -> name.startsWith(emojiPack) || name.endsWith(emojiPack))
                 ? emojiPack : "default";
@@ -390,7 +391,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     }
 
     public ArrayList<EmojiPackInfo> getEmojiPacksInfo() {
-        return emojiPacksInfo.parallelStream()
+        return emojiPacksInfo.stream()
                 .filter(Objects::nonNull)
                 .filter(e -> e instanceof EmojiPackInfo)
                 .map(e -> (EmojiPackInfo) e)
@@ -399,7 +400,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     }
 
     public ArrayList<EmojiPackBase> getEmojiCustomPacksInfo() {
-        return emojiPacksInfo.parallelStream()
+        return emojiPacksInfo.stream()
                 .filter(Objects::nonNull)
                 .filter(e -> !(e instanceof EmojiPackInfo))
                 .filter(e -> !e.getPackId().equals(pendingDeleteEmojiPackId))
@@ -430,20 +431,20 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
 
     public File getCurrentEmojiPackOffline() {
         return getAllVersions(emojiPack)
-                .parallelStream()
+                .stream()
                 .findFirst()
                 .orElse(null);
     }
 
     public ArrayList<File> getAllVersions(String emojiID, int version) {
-        return getAllEmojis().parallelStream()
+        return getAllEmojis().stream()
                 .filter(file -> file.getName().startsWith(emojiID))
                 .filter(file -> version == -1 || !file.getName().endsWith("_v" + version))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public ArrayList<File> getAllVersionsLocal(String version) {
-        return getAllEmojis().parallelStream()
+        return getAllEmojis().stream()
                 .filter(file -> file.getName().endsWith(version))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -469,14 +470,14 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
 
     public EmojiPackBase getCurrentEmojiPackInfo() {
         var selected = getSelectedEmojiPackId();
-        return emojiPacksInfo.parallelStream()
+        return emojiPacksInfo.stream()
                 .filter(emojiPackInfo -> emojiPackInfo != null && emojiPackInfo.packId.equals(selected))
                 .findFirst()
                 .orElse(null);
     }
 
     public EmojiPackInfo getEmojiPackInfo(String emojiPackId) {
-        return emojiPacksInfo.parallelStream()
+        return emojiPacksInfo.stream()
                 .filter(emojiPackInfo -> emojiPackInfo instanceof EmojiPackInfo)
                 .filter(emojiPackInfo -> emojiPackInfo.packId.equals(emojiPackId))
                 .map(emojiPackInfo -> (EmojiPackInfo) emojiPackInfo)
@@ -549,7 +550,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
             FileLog.e(e);
         }
         File emojiDir = new File(EMOJI_PACKS_FILE_DIR + fontName + "_v" + sb);
-        boolean isAlreadyInstalled = getAllEmojis().parallelStream()
+        boolean isAlreadyInstalled = getAllEmojis().stream()
                 .filter(EmojiHelper::isValidCustomPack)
                 .anyMatch(file -> file.getName().endsWith(sb.toString()));
         if (isAlreadyInstalled) {
@@ -608,7 +609,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     }
 
     private void loadCustomEmojiPacks() {
-        getAllEmojis().parallelStream()
+        getAllEmojis().stream()
                 .filter(EmojiHelper::isValidCustomPack)
                 .sorted(Comparator.comparingLong(File::lastModified))
                 .map(file -> {
@@ -620,7 +621,7 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
     }
 
     public boolean isSelectedCustomEmojiPack() {
-        return getAllEmojis().parallelStream()
+        return getAllEmojis().stream()
                 .filter(EmojiHelper::isValidCustomPack)
                 .anyMatch(file -> file.getName().endsWith(emojiPack));
     }
@@ -629,23 +630,29 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
         if (emojiPackBulletin != null && pendingDeleteEmojiPackId != null) {
             AlertDialog progressDialog = new AlertDialog(fragment.getParentActivity(), 3);
             emojiPackBulletin.hide(false, 0);
-            new Thread() {
-                @Override
-                public void run() {
-                    do {
-                        SystemClock.sleep(50);
-                    } while (pendingDeleteEmojiPackId != null);
-                    AndroidUtilities.runOnUIThread(() -> {
-                        progressDialog.dismiss();
-                        cancelableDelete(fragment, emojiPackBase, onUndoBulletinAction);
-                    });
+            CountDownLatch latch = pendingDeleteLatch;
+            Thread waitThread = new Thread(() -> {
+                if (latch != null) {
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
                 }
-            }.start();
+                AndroidUtilities.runOnUIThread(() -> {
+                    progressDialog.dismiss();
+                    cancelableDelete(fragment, emojiPackBase, onUndoBulletinAction);
+                });
+            }, "emoji-delete-wait");
+            waitThread.setDaemon(true);
+            waitThread.start();
             progressDialog.setCanCancel(false);
             progressDialog.showDelayed(150);
             return;
         }
         pendingDeleteEmojiPackId = emojiPackBase.getPackId();
+        pendingDeleteLatch = new CountDownLatch(1);
         onUndoBulletinAction.onPreStart();
         boolean wasSelected = emojiPackBase.getPackId().equals(emojiPack);
         if (wasSelected) {
@@ -663,6 +670,10 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
                 EmojiHelper.getInstance().setEmojiPack(pendingDeleteEmojiPackId, false);
             }
             pendingDeleteEmojiPackId = null;
+            if (pendingDeleteLatch != null) {
+                pendingDeleteLatch.countDown();
+                pendingDeleteLatch = null;
+            }
             onUndoBulletinAction.onUndo();
         }).setDelayedAction(() -> new Thread() {
             @Override
@@ -670,6 +681,10 @@ public class EmojiHelper extends BaseRemoteHelper implements NotificationCenter.
                 deleteEmojiPack(emojiPackBase);
                 reloadEmoji();
                 pendingDeleteEmojiPackId = null;
+                if (pendingDeleteLatch != null) {
+                    pendingDeleteLatch.countDown();
+                    pendingDeleteLatch = null;
+                }
             }
         }.start());
         bulletinLayout.setButton(undoButton);

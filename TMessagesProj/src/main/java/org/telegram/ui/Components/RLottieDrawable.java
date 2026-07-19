@@ -38,6 +38,7 @@ import org.telegram.messenger.ImageReceiver;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.utils.BitmapsCache;
+import org.telegram.messenger.utils.LottiePowerSaver;
 import org.telegram.ui.BubbleActivity;
 import org.telegram.ui.LaunchActivity;
 
@@ -144,6 +145,9 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
         @Override
         public void run() {
             loadFrameTask = null;
+            if (bitmapsCache != null && bitmapsCache.needGenCache() && !allowDrawFramesWhileCacheGenerating) {
+                return;
+            }
             decodeFrameFinishedInternal();
             if (onFrameReadyRunnable != null) {
                 onFrameReadyRunnable.run();
@@ -212,7 +216,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
     int generateCacheFramePointer;
 
     public static void createCacheGenQueue() {
-        lottieCacheGenerateQueue = new DispatchQueue("cache generator queue");
+        lottieCacheGenerateQueue = new DispatchQueue("cache generator queue", true, android.os.Process.THREAD_PRIORITY_BACKGROUND);
     }
 
     protected void checkRunningTasks() {
@@ -1236,13 +1240,16 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
     public void updateCurrentFrame(long time, boolean updateInBackground) {
         long now = time == 0 ? System.currentTimeMillis() : time;
         long timeDiff = now - lastFrameTime;
+        // ponytail: under system power-save mode, floor the frame-advance interval to ~15fps
+        // regardless of the animation's authored fps, to cut down CPU-bound native decode calls
+        int effectiveTimeBetweenFrames = LottiePowerSaver.active ? Math.max(timeBetweenFrames, 66) : timeBetweenFrames;
         int timeCheck;
         if (updateInBackground && !shouldLimitFps) {
-            timeCheck = timeBetweenFrames - 16;
+            timeCheck = effectiveTimeBetweenFrames - 16;
         } else if (AndroidUtilities.screenRefreshRate <= 60 || (updateInBackground && AndroidUtilities.screenRefreshRate <= 80)) {
-            timeCheck = timeBetweenFrames - 6;
+            timeCheck = effectiveTimeBetweenFrames - 6;
         } else {
-            timeCheck = timeBetweenFrames;
+            timeCheck = effectiveTimeBetweenFrames;
         }
         if (isRunning) {
             if (renderingBitmap == null && nextRenderingBitmap == null) {

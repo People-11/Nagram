@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
 import org.json.JSONObject;
+import org.telegram.messenger.utils.LottiePowerSaver;
 import org.telegram.messenger.voip.VideoCapturerDevice;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
@@ -273,6 +274,8 @@ public class ApplicationLoader extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        LottiePowerSaver.init(applicationContext);
 
         LinkedList<Runnable> postRun = new LinkedList<>();
         for (int a : SharedConfig.activeAccounts) {

@@ -332,6 +332,9 @@ public class GLIconTextureView extends TextureView implements TextureView.Surfac
                     else {
                         long thisFrameTime = System.currentTimeMillis();
                         long timDiff = thisFrameTime - lastFrameTime;
+                        if (timDiff + 1 < targetFrameDurationMillis) {
+                            Thread.sleep(targetFrameDurationMillis - timDiff - 1);
+                        }
                         while (timDiff < targetFrameDurationMillis) {
                             thisFrameTime = System.currentTimeMillis();
                             timDiff = thisFrameTime - lastFrameTime;

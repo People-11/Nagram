@@ -53,6 +53,7 @@ public class BitmapsCache {
     byte[] bufferTmp;
 
     private final static int N = Utilities.clamp(Runtime.getRuntime().availableProcessors() - 2, 6, 1);
+    private final static int POWER_SAVE_THREADS = 1;
     private static ThreadPoolExecutor bitmapCompressExecutor;
     private final Object mutex = new Object();
     private int frameIndex;
@@ -88,7 +89,8 @@ public class BitmapsCache {
         compressQuality = options.compressQuality;
         fileName = sourceFile.getName();
         if (bitmapCompressExecutor == null) {
-            bitmapCompressExecutor = new ThreadPoolExecutor(N, N, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+            int startSize = LottiePowerSaver.active ? POWER_SAVE_THREADS : N;
+            bitmapCompressExecutor = new ThreadPoolExecutor(startSize, startSize, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         }
 
         File fileTmo = new File(FileLoader.checkDirectory(FileLoader.MEDIA_DIR_CACHE), "acache");
@@ -145,6 +147,26 @@ public class BitmapsCache {
         } else {
             fileExist = false;
             cacheCreated = false;
+        }
+    }
+
+    // called from LottiePowerSaver when the system's power-save mode toggles; shrinks/restores
+    // the shared cache-generation pool instead of always burning up to N cores on it
+    public static synchronized void onPowerSaveChanged(boolean active) {
+        ThreadPoolExecutor executor = bitmapCompressExecutor;
+        if (executor == null) {
+            return;
+        }
+        int size = active ? POWER_SAVE_THREADS : N;
+        if (size == executor.getCorePoolSize()) {
+            return;
+        }
+        if (size > executor.getCorePoolSize()) {
+            executor.setMaximumPoolSize(size);
+            executor.setCorePoolSize(size);
+        } else {
+            executor.setCorePoolSize(size);
+            executor.setMaximumPoolSize(size);
         }
     }
 
