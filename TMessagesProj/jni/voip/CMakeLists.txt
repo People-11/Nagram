@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6.0)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -DANDROID -g")
+set(CMAKE_CXX_STANDARD 17)
 
 #tgvoip
 add_library(tgvoip STATIC
@@ -36,7 +36,7 @@ add_library(tgvoip STATIC
         voip/libtgvoip/os/android/VideoSourceAndroid.cpp
         voip/libtgvoip/os/android/VideoRendererAndroid.cpp
         voip/tg_voip_jni.cpp)
-target_compile_options(tgvoip PUBLIC
+target_compile_options(tgvoip PRIVATE
         -Wall -finline-functions -ffast-math -fno-strict-aliasing -O3 -frtti -Wno-unknown-pragmas -funroll-loops -fexceptions -fno-math-errno)
 set_target_properties(tgvoip PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -142,7 +142,7 @@ add_library(openh264 STATIC
         third_party/openh264/src/codec/processing/src/scrolldetection/ScrollDetectionFuncs.cpp
         third_party/openh264/src/codec/processing/src/vaacalc/vaacalcfuncs.cpp
         third_party/openh264/src/codec/processing/src/vaacalc/vaacalculation.cpp)
-target_compile_options(openh264 PUBLIC
+target_compile_options(openh264 PRIVATE
         -Wall -finline-functions -fno-strict-aliasing -O3 -frtti -Wno-unknown-pragmas -funroll-loops -fexceptions -fno-math-errno)
 set_target_properties(openh264 PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -213,7 +213,7 @@ add_library(rnnoise STATIC
         voip/rnnoise/src/rnn_reader.c
         voip/rnnoise/src/rnn_reader.c
         voip/rnnoise/src/rnn.c)
-target_compile_options(rnnoise PUBLIC
+target_compile_options(rnnoise PRIVATE
         -Wall -finline-functions -fno-strict-aliasing -O3 -frtti -Wno-unknown-pragmas -funroll-loops -fexceptions -fno-math-errno)
 set_target_properties(rnnoise PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -457,7 +457,7 @@ add_library(tgcalls_tp STATIC
         voip/webrtc/absl/base/internal/low_level_alloc.cc
         voip/webrtc/absl/base/log_severity.cc
 )
-target_compile_options(tgcalls_tp PUBLIC
+target_compile_options(tgcalls_tp PRIVATE
         -finline-functions -ffast-math -Os )
 set_target_properties(tgcalls_tp PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -1822,7 +1822,7 @@ add_library(tgcalls STATIC
         voip/webrtc/third_party/crc32c/src/crc32c.cc
 #        voip/webrtc/third_party/jni_zero/jni_zero.cc
 )
-target_compile_options(tgcalls PUBLIC
+target_compile_options(tgcalls PRIVATE
         -Wall -finline-functions -ffast-math)
 set_target_properties(tgcalls PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -2007,7 +2007,7 @@ add_library(voipandroid STATIC
         voip/webrtc/sdk/android/src/jni/nv12_buffer.cc
         voip/org_telegram_messenger_voip_Instance.cpp
 )
-target_compile_options(voipandroid PUBLIC
+target_compile_options(voipandroid PRIVATE
         -Wall -finline-functions -ffast-math -fexceptions)
 set_target_properties(voipandroid PROPERTIES
         ANDROID_ARM_MODE arm)

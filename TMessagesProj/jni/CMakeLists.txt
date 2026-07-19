@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-set(CMAKE_CXX_FLAGS "-std=c++14 -DANDROID")
+set(CMAKE_CXX_FLAGS "-std=c++17 -DANDROID")
 set(CMAKE_C_FLAGS "-w -std=c11 -DANDROID -D_LARGEFILE_SOURCE=1 -Wno-error=implicit-function-declaration")
 set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections -fvisibility=hidden -flto=full")
@@ -22,8 +22,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Os -DNDEBUG")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Os -DNDEBUG")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -DNDEBUG")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
     set(LINKER_FLAGS "${LINKER_FLAGS} -Wl,-exclude-libs,ALL -Wl,--gc-sections -Wl,--strip-all")
 endif()
 
@@ -210,7 +210,7 @@ add_library(tgnet STATIC
         tgnet/ProxyCheckInfo.cpp
         tgnet/Handshake.cpp
         tgnet/Config.cpp)
-target_compile_options(tgnet PUBLIC
+target_compile_options(tgnet PRIVATE
         -Wall -frtti -finline-functions -ffast-math -Oz)
 set_target_properties(tgnet PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -254,8 +254,8 @@ add_library(rlottie STATIC
         rlottie/src/vector/vraster.cpp
         rlottie/src/vector/vrect.cpp
         rlottie/src/vector/vrle.cpp)
-target_compile_options(rlottie PUBLIC
-        -Wall -fno-rtti -finline-functions -ffast-math -Oz -fno-unwind-tables -fno-asynchronous-unwind-tables -Wnon-virtual-dtor -Woverloaded-virtual -Wno-unused-parameter -fvisibility=hidden)
+target_compile_options(rlottie PRIVATE
+        -Wall -fno-rtti -finline-functions -ffast-math -fno-unwind-tables -fno-asynchronous-unwind-tables -Wnon-virtual-dtor -Woverloaded-virtual -Wno-unused-parameter -fvisibility=hidden)
 set_target_properties(rlottie PROPERTIES
         ANDROID_ARM_MODE arm)
 target_compile_definitions(rlottie PUBLIC
@@ -309,7 +309,7 @@ add_library(flac STATIC
         exoplayer/libFLAC/stream_encoder_intrin_sse2.c
         exoplayer/libFLAC/stream_encoder_intrin_ssse3.c
         exoplayer/libFLAC/window.c)
-target_compile_options(flac PUBLIC
+target_compile_options(flac PRIVATE
         -Oz -finline-functions -fPIC -frtti)
 set_target_properties(flac PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -321,7 +321,7 @@ target_include_directories(flac PUBLIC
 #sqlite
 add_library(sqlite STATIC
         sqlite/sqlite3.c)
-target_compile_options(sqlite PUBLIC
+target_compile_options(sqlite PRIVATE
         -fno-strict-aliasing -Oz)
 set_target_properties(sqlite PROPERTIES
         ANDROID_ARM_MODE arm)
@@ -389,8 +389,8 @@ add_library(${NATIVE_LIB} SHARED
         tde2e/bridge.cpp
 )
 
-target_compile_options(${NATIVE_LIB} PUBLIC
-        -ffast-math -Oz -funroll-loops -ffast-math -fno-strict-aliasing -fno-math-errno)
+target_compile_options(${NATIVE_LIB} PRIVATE
+        -ffast-math -funroll-loops -fno-strict-aliasing -fno-math-errno)
 
 target_compile_definitions(${NATIVE_LIB} PUBLIC
         BSD=1 NULL=0 SOCKLEN_T=socklen_t ANDROID_NDK DISABLE_IMPORTGL AVOID_TABLES ANDROID_TILE_BASED_DECODE __STDC_CONSTANT_MACROS ANDROID_ARMV6_IDCT OPUS_BUILD FIXED_POINT USE_ALLOCA restrict= __EMX__ LOCALE_NOT_USED HAVE_LRINT HAVE_LRINTF)

@@ -57,7 +57,7 @@ function build_one {
 	--cc=${CC} \
 	--cxx=${CXX} \
 	--ld="${LD}" \
-	--enable-stripping \
+	--disable-stripping \
 	--arch=$ARCH \
 	--target-os=linux \
 	--enable-cross-compile \
@@ -71,9 +71,9 @@ function build_one {
 	--enable-x86asm \
 	--cross-prefix=$CROSS_PREFIX \
 	--sysroot="${SYSROOT}" \
-	--extra-cflags="${INCLUDES} -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIC" \
-	--extra-cxxflags="${INCLUDES} -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIC" \
-	--extra-ldflags="${LIBS} -Wl,-Bsymbolic -Wl,-rpath-link=${PLATFORM_LIB} -L${PLATFORM_LIB} -lc -lm -ldl -fPIC" \
+	--extra-cflags="${INCLUDES} -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIC -flto=full -ffunction-sections -fdata-sections" \
+	--extra-cxxflags="${INCLUDES} -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIC -flto=full -ffunction-sections -fdata-sections" \
+	--extra-ldflags="${LIBS} -Wl,-Bsymbolic -Wl,-rpath-link=${PLATFORM_LIB} -L${PLATFORM_LIB} -lc -lm -ldl -fPIC -flto=full" \
 	\
 	--enable-version3 \
 	--enable-gpl \

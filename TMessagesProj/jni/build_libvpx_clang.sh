@@ -23,7 +23,7 @@ function build_one {
 	fi
 
 	export AR="${LLVM_BIN}/llvm-ar${TOOL_EXE}"
-	export STRIP="${LLVM_BIN}/llvm-strip${TOOL_EXE}"
+	export STRIP=true
 	export RANLIB="${LLVM_BIN}/llvm-ranlib${TOOL_EXE}"
 	export NM="${LLVM_BIN}/llvm-nm${TOOL_EXE}"
 
@@ -40,11 +40,11 @@ function build_one {
 	export CROSS_PREFIX="${LLVM_BIN}/llvm-"
 
 
-	export CFLAGS="-DANDROID -fpic -fpie ${OPTIMIZE_CFLAGS}"
+	export CFLAGS="-DANDROID -fpic -fpie ${OPTIMIZE_CFLAGS} -flto=full -ffunction-sections -fdata-sections"
 	export CPPFLAGS="${CFLAGS}"
 	export CXXFLAGS="${CFLAGS} -std=c++11"
 	export ASFLAGS="-D__ANDROID__"
-	export LDFLAGS="-L${PLATFORM_LIB}"
+	export LDFLAGS="-L${PLATFORM_LIB} -flto=full"
 
   if [ "x86" = ${ARCH} ]; then
     patch -p1 < ../patches/libvpx_x86_fix.patch
@@ -57,8 +57,8 @@ function build_one {
 
 
 	./configure \
-	--extra-cflags="${OPTIMIZE_CFLAGS}" \
-	--extra-cxxflags="${OPTIMIZE_CFLAGS}" \
+	--extra-cflags="${OPTIMIZE_CFLAGS} -flto=full -ffunction-sections -fdata-sections" \
+	--extra-cxxflags="${OPTIMIZE_CFLAGS} -flto=full -ffunction-sections -fdata-sections" \
 	--libc="${LLVM_PREFIX}/sysroot" \
 	--prefix=${PREFIX} \
 	--target=${TARGET} \
