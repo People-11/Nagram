@@ -940,11 +940,16 @@ public class ActionBarPopupWindow extends PopupWindow {
             content.setPivotX(content.getMeasuredWidth());
             content.setPivotY(0);
             int count = content.getItemsCount();
+            for (int a = 0; a < content.getItemsCount(); a++) {
+                View child = content.getItemAt(a);
+                if (!(child instanceof GapView)) {
+                    child.setAlpha(0.0f);
+                }
+            }
             content.positions.clear();
             int visibleCount = 0;
             for (int a = 0; a < count; a++) {
                 View child = content.getItemAt(a);
-                child.setAlpha(0.0f);
                 if (child.getVisibility() != View.VISIBLE) {
                     continue;
                 }
