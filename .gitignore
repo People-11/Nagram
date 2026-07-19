@@ -9,7 +9,6 @@
 .vscode/
 build/
 local.properties
-sentry.properties
 obj/
 service_account_credentials.json
 __pycache__/
