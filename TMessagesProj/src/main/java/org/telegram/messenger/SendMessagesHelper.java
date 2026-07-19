@@ -10800,7 +10800,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 for (int a = 0; a < count; a++) {
                     final SendingMediaInfo info = media.get(a);
                     if (info.searchImage == null && !info.isVideo && info.videoEditedInfo == null) {
-                        if (info.originalPhotoEntry != null && info.highQuality) {
+                        if (info.originalPhotoEntry != null && info.highQuality && info.originalPhotoEntry.paintPath == null) {
                             info.originalPhotoEntry.rebuildPhoto(true);
                             if (info.originalPhotoEntry.imagePath != null) {
                                 info.path = info.originalPhotoEntry.imagePath;

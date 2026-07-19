@@ -171,7 +171,6 @@
     <string name="DefaultHlsVideoQuality">Стандартна якість відео Hls</string>
     <string name="DisableBotOpenButton">Вимкнути відкриту кнопку бота</string>
     <string name="CustomTitleUserName">Використовувати псевдонім користувача</string>
-    <string name="EnhancedVideoBitrate">Розширений спільний бітрейт відео</string>
     <string name="DisableStarsSubscription">Вимкнути сповіщення про низький баланс</string>
     <string name="DisablePremiumExpiring">Вимкнути повідомлення про закінчення терміну дії Premium-підписки</string>
     <string name="DisablePremiumUpgrade">Вимкнути сповіщення про оновлення Premium</string>

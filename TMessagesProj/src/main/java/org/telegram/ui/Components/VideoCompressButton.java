@@ -71,10 +71,13 @@ public class VideoCompressButton extends View {
         2160, // 2160x3840, 4K
     };
 
-    public void setState(boolean enabled, boolean muted, int mn) {
+    public void setState(boolean enabled, boolean muted, int mn, boolean isOriginal) {
         this.disabled = !enabled || muted;
         if (muted) {
             textDrawable.setText("GIF");
+            sizeTextDrawable.setText("", true);
+        } else if (isOriginal) {
+            textDrawable.setText("RAW");
             sizeTextDrawable.setText("", true);
         } else {
             textDrawable.setText(mn >= 720 ? "HD" : "SD");
@@ -98,9 +101,13 @@ public class VideoCompressButton extends View {
         invalidate();
     }
 
-    public void setPhotoState(boolean highQuality) {
+    public void setPhotoState(int quality) {
         this.disabled = false;
-        textDrawable.setText(highQuality ? "HD" : "SD");
+        if (quality == 2) {
+            textDrawable.setText("RAW");
+        } else {
+            textDrawable.setText(quality == 1 ? "HD" : "SD");
+        }
         sizeTextDrawable.setText("", false);
     }
 

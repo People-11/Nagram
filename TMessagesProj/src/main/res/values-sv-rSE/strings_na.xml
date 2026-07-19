@@ -171,7 +171,6 @@
     <string name="DefaultHlsVideoQuality">Standard Hls videokvalitet</string>
     <string name="DisableBotOpenButton">Inaktivera Bot Open Button</string>
     <string name="CustomTitleUserName">Använd användarnamn som titel</string>
-    <string name="EnhancedVideoBitrate">Förbättrad bithastighet för delade videor</string>
     <string name="DisableStarsSubscription">Inaktivera Stars-notifiering med lågt saldo</string>
     <string name="DisablePremiumExpiring">Inaktivera Premium-utgångsmeddelande</string>
     <string name="DisablePremiumUpgrade">Inaktivera Premium-uppgraderingsavisering</string>

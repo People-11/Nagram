@@ -171,7 +171,6 @@
     <string name="DefaultHlsVideoQuality">Výchozí kvalita videa Hls</string>
     <string name="DisableBotOpenButton">Zakázat tlačítko Bot Open</string>
     <string name="CustomTitleUserName">Použít uživatelské přezdívku jako titulek</string>
-    <string name="EnhancedVideoBitrate">Rozšířená bitrate sdíleného videa</string>
     <string name="DisableStarsSubscription">Zakázat oznámení o nízkém zůstatku</string>
     <string name="DisablePremiumExpiring">Zakázat oznámení o vypršení platnosti prémiového členství</string>
     <string name="DisablePremiumUpgrade">Zakázat prémiovou aktualizaci</string>

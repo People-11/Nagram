@@ -171,7 +171,6 @@
     <string name="DefaultHlsVideoQuality">Calidad de vídeo Hls por defecto</string>
     <string name="DisableBotOpenButton">Desactivar boton abierto</string>
     <string name="CustomTitleUserName">Usar nombre de usuario como título</string>
-    <string name="EnhancedVideoBitrate">Bitrate compartido mejorado</string>
     <string name="DisableStarsSubscription">Desactivar notificación de balance bajo de estrellas</string>
     <string name="DisablePremiumExpiring">Desactivar notificación de expiración Premium</string>
     <string name="DisablePremiumUpgrade">Desactivar notificación de actualización Premium</string>

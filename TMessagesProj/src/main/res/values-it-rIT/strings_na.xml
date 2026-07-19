@@ -171,7 +171,6 @@
     <string name="DefaultHlsVideoQuality">Qualità Video Hls Predefinita</string>
     <string name="DisableBotOpenButton">Disabilita Il Pulsante Aperto Bot</string>
     <string name="CustomTitleUserName">Usa il nickname utente come titolo</string>
-    <string name="EnhancedVideoBitrate">Bitrate video condiviso migliorato</string>
     <string name="DisableStarsSubscription">Disabilita la notifica Stars low balance</string>
     <string name="DisablePremiumExpiring">Disabilita notifica scadenza Premium</string>
     <string name="DisablePremiumUpgrade">Disabilita notifica aggiornamento Premium</string>

@@ -171,7 +171,6 @@
     <string name="DefaultHlsVideoQuality">Domyślna jakość wideo Hls</string>
     <string name="DisableBotOpenButton">Wyłącz Otwarty Przycisk Bot</string>
     <string name="CustomTitleUserName">Użyj pseudonimu użytkownika jako tytułu</string>
-    <string name="EnhancedVideoBitrate">Ulepszony bitrate współdzielonego filmu</string>
     <string name="DisableStarsSubscription">Wyłącz powiadomienia o niskim saldzie gwiazd</string>
     <string name="DisablePremiumExpiring">Wyłącz powiadomienie o wygaśnięciu wersji Premium</string>
     <string name="DisablePremiumUpgrade">Wyłącz powiadomienie o aktualizacji Premium</string>
