@@ -48,14 +48,8 @@ public class UpdateHelper extends BaseRemoteHelper {
 
     private Map<String, Integer> jsonToMap(JSONObject obj) {
         Map<String, Integer> map = new HashMap<>();
-        List<String> abis = new ArrayList<>();
-        abis.add("armeabi-v7a");
-        abis.add("arm64-v8a");
-
         try {
-            for(var abi: abis) {
-                map.put(abi, obj.getInt(abi));
-            }
+            map.put("arm64-v8a", obj.getInt("arm64-v8a"));
         } catch (JSONException ignored) {}
         return map;
     }

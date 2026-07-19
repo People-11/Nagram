@@ -8,7 +8,6 @@ set -euo pipefail
 
 NEED_FFMPEG=0
 NEED_BORINGSSL=0
-NEED_NATIVE_V7A=0
 NEED_NATIVE_V8A=0
 
 if [ ! -d "TMessagesProj/jni/ffmpeg/build" ] \
@@ -23,11 +22,6 @@ if [ ! -d "TMessagesProj/jni/boringssl/build" ] \
   NEED_BORINGSSL=1
 fi
 
-if [ ! -d "TMessagesProj/src/main/libs/armeabi-v7a" ] \
-   || [ -z "$(ls -A TMessagesProj/src/main/libs/armeabi-v7a 2>/dev/null)" ]; then
-  NEED_NATIVE_V7A=1
-fi
-
 if [ ! -d "TMessagesProj/src/main/libs/arm64-v8a" ] \
    || [ -z "$(ls -A TMessagesProj/src/main/libs/arm64-v8a 2>/dev/null)" ]; then
   NEED_NATIVE_V8A=1
@@ -40,7 +34,6 @@ fi
 >&2 echo "  NATIVE_KEY    = ${NATIVE_KEY}"
 >&2 echo "  ffmpeg/libvpx need build: $NEED_FFMPEG"
 >&2 echo "  boringssl     need build: $NEED_BORINGSSL"
->&2 echo "  native v7a    need build: $NEED_NATIVE_V7A"
 >&2 echo "  native v8a    need build: $NEED_NATIVE_V8A"
 
 cat <<'YAML_HEAD'
@@ -150,16 +143,12 @@ cat <<YAML
 YAML
 }
 
-if [ "$NEED_NATIVE_V7A" = "1" ]; then
-  emit_native_job "armeabi-v7a"
-fi
-
 if [ "$NEED_NATIVE_V8A" = "1" ]; then
   emit_native_job "arm64-v8a"
 fi
 
 if [ "$NEED_FFMPEG" = "0" ] && [ "$NEED_BORINGSSL" = "0" ] \
-   && [ "$NEED_NATIVE_V7A" = "0" ] && [ "$NEED_NATIVE_V8A" = "0" ]; then
+   && [ "$NEED_NATIVE_V8A" = "0" ]; then
 cat <<'YAML'
 noop:
   stage: native-deps

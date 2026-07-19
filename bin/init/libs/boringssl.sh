@@ -31,4 +31,4 @@ git clean -fdx
 cd ..
 
 ./patch_boringssl.sh || exit 1
-./build_boringssl.sh
+./build_boringssl.sh arm64

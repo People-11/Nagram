@@ -10,5 +10,5 @@ git reset --hard
 git clean -fdx
 cd ..
 
-./build_ffmpeg_clang.sh || exit 1
+./build_ffmpeg_clang.sh arm64 || exit 1
 ./patch_ffmpeg.sh || exit 1
