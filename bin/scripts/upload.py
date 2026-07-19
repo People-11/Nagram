@@ -6,7 +6,7 @@ from sys import argv
 from typing import Iterable, Union
 
 from pyrogram import Client, enums
-from pyrogram.types import InputMediaDocument, Message
+from pyrogram.types import Message
 from release_caption import (
     is_changelog_ignored,
     read_apk_version,
@@ -58,23 +58,6 @@ def get_caption() -> str:
     )
 
 
-def get_document() -> list["InputMediaDocument"]:
-    documents = []
-    abis = ["arm64-v8a", "armeabi-v7a"]
-    for abi in abis:
-        if apk := find_apk(abi):
-            documents.append(
-                InputMediaDocument(
-                    media=str(apk),
-                    thumb=get_thumb(),
-                )
-            )
-    documents[-1].caption = get_caption()
-    if test_version:
-        documents[-1].parse_mode = enums.ParseMode.HTML
-    return documents
-
-
 def get_timestamp() -> int:
     with open("gradle.properties", "r", encoding="utf-8") as f:
         for line in f:
@@ -84,7 +67,7 @@ def get_timestamp() -> int:
 
 
 def get_version() -> tuple[str, int]:
-    apk = find_apk("arm64-v8a") or find_apk("armeabi-v7a")
+    apk = find_apk("arm64-v8a")
     if apk is None:
         raise FileNotFoundError("No supported APK found")
     return read_apk_version(apk)
@@ -105,10 +88,16 @@ def retry(func):
 async def send_to_channel(client: "Client", cid: str):
     with contextlib.suppress(ValueError):
         cid = int(cid)
-    return await client.send_media_group(
+    apk = find_apk("arm64-v8a")
+    if apk is None:
+        raise FileNotFoundError("No arm64-v8a APK found")
+    return [await client.send_document(
         cid,
-        media=get_document(),
-    )
+        document=str(apk),
+        thumb=get_thumb(),
+        caption=get_caption(),
+        parse_mode=enums.ParseMode.HTML if test_version else None,
+    )]
 
 
 @retry
@@ -130,14 +119,9 @@ async def edit_metadata_msg(
     json_dict = json.loads(message.text.replace("#updatetest", ""))
     version_name, version_code = get_version()
     abis = ["gcm", "nogcm"]
-    if not isinstance(msg, list):
-        v8a, v7a = msg.id, msg.id
-    elif len(msg) == 1:
-        v8a, v7a = msg[0].id, msg[0].id
-    else:
-        v8a, v7a = msg[0].id, msg[1].id
+    v8a = msg[0].id if isinstance(msg, list) else msg.id
     for abi in abis:
-        json_dict[abi] = {"armeabi-v7a": v7a, "arm64-v8a": v8a}
+        json_dict[abi] = {"arm64-v8a": v8a}
     json_dict["version"] = f"{version_name} ({version_code})"
     json_dict["version_code"] = version_code
     json_dict["timestamp"] = timestamp

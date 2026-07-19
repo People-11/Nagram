@@ -20,5 +20,4 @@ function install() {
   echo ">> Install $DIR/$ABI/$(ls $DIR/$ABI)"
 }
 
-install armeabi-v7a
 install arm64-v8a

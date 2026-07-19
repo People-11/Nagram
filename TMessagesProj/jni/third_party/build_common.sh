@@ -87,7 +87,7 @@ API="${API:-21}"
 # ABIS and emits per-ABI dispatchers, so a package built from a subset would
 # #error out when compiled for a missing ABI.
 #ABIS="${ABIS:-arm64-v8a armeabi-v7a x86_64 x86}"
-ABIS="${ABIS:-arm64-v8a armeabi-v7a}"
+ABIS="${ABIS:-arm64-v8a}"
 CLEAN="${CLEAN:-1}"
 PACKAGE_OUTPUT="${PACKAGE_OUTPUT:-1}"
 JOBS="${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 8)}"

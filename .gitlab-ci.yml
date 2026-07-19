@@ -86,10 +86,6 @@ cache-probe:
       paths:
         - TMessagesProj/jni/boringssl/build/
       policy: pull
-    - key: "native-armeabi-v7a-${NATIVE_KEY}"
-      paths:
-        - TMessagesProj/src/main/libs/armeabi-v7a/
-      policy: pull
     - key: "native-arm64-v8a-${NATIVE_KEY}"
       paths:
         - TMessagesProj/src/main/libs/arm64-v8a/
@@ -135,10 +131,6 @@ build:
     - key: "gradle-${GRADLE_KEY}"
       paths:
         - .gradle-cache/
-    - key: "native-armeabi-v7a-${NATIVE_KEY}"
-      paths:
-        - TMessagesProj/src/main/libs/armeabi-v7a/
-      policy: pull
     - key: "native-arm64-v8a-${NATIVE_KEY}"
       paths:
         - TMessagesProj/src/main/libs/arm64-v8a/
@@ -176,9 +168,7 @@ upload:
   script:
     - cp artifacts/gradle.properties gradle.properties
     - export mini64=$(find artifacts -name "*arm64-v8a.apk")
-    - export mini32=$(find artifacts -name "*armeabi-v7a.apk")
     - echo $mini64
-    - echo $mini32
     - pip install --no-cache-dir -r bin/scripts/requirements.txt
     - git log -1 --pretty=format:"%s%n%n%b" > artifacts/caption.txt
     - python bin/scripts/upload.py "${HELPER_BOT_TOKEN}" "${HELPER_BOT_TARGET}" test
