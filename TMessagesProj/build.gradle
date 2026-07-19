@@ -318,9 +318,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0"
 
     implementation "cn.hutool:hutool-core:5.8.42"
-    // openpgp
-    implementation project(":openpgp-api")
-
     compileOnly fileTree("libs")
 
     // add for undo and redo

@@ -155,9 +155,6 @@ public class NekoConfig {
 
     public static ConfigItem usePersianCalendar = addConfig("UsePersiancalendar", configTypeBool, false);
     public static ConfigItem displayPersianCalendarByLatin = addConfig("DisplayPersianCalendarByLatin", configTypeBool, false);
-    public static ConfigItem openPGPApp = addConfig("OpenPGPApp", configTypeString, "");
-    public static ConfigItem openPGPKeyId = addConfig("OpenPGPKey", configTypeLong, 0L);
-
     public static ConfigItem disableVibration = addConfig("DisableVibration", configTypeBool, false);
     public static ConfigItem autoPauseVideo = addConfig("AutoPauseVideo", configTypeBool, false);
     public static ConfigItem disableProximityEvents = addConfig("DisableProximityEvents", configTypeBool, false);
@@ -470,10 +467,6 @@ public class NekoConfig {
         if (preferences.contains("proxy_auto_switch"))
             proxyAutoSwitch.setConfigBool(preferences.getBoolean("proxy_auto_switch", false));
 
-        if (preferences.contains("openPGPApp"))
-            openPGPApp.setConfigString(preferences.getString("openPGPApp", ""));
-        if (preferences.contains("openPGPKeyId"))
-            openPGPKeyId.setConfigLong(preferences.getLong("openPGPKeyId", 0L));
 
         if (preferences.contains("disableVibration"))
             disableVibration.setConfigBool(preferences.getBoolean("disableVibration", false));

@@ -2,8 +2,6 @@ package tw.nekomimi.nekogram;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 
@@ -132,19 +130,6 @@ public class NekoXConfig {
             }
         }
         return hasDeveloper;
-    }
-
-    public static String getOpenPGPAppName() {
-        if (StrUtil.isNotBlank(NekoConfig.openPGPApp.String())) {
-            try {
-                PackageManager manager = ApplicationLoader.applicationContext.getPackageManager();
-                ApplicationInfo info = manager.getApplicationInfo(NekoConfig.openPGPApp.String(), PackageManager.GET_META_DATA);
-                return (String) manager.getApplicationLabel(info);
-            } catch (PackageManager.NameNotFoundException e) {
-                NekoConfig.openPGPApp.setConfigString("");
-            }
-        }
-        return LocaleController.getString("None", R.string.None);
     }
 
     public static String formatLang(String name) {
