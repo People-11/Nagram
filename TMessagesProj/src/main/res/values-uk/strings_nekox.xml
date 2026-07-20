@@ -220,9 +220,6 @@
     <string name="WsPayload">Навантаження</string>
     <string name="ProxyInfoWS">Параметри реле WebSocket</string>
     <string name="AddProxyWs">Додати реле WebSocket</string>
-    <string name="DisplayPersianCalendarByLatin">Показувати перський календар латиницею</string>
-    <string name="UsePersiancalendarInfo">Показувати дату у форматі Solar Hijri (перський календар)</string>
-    <string name="UsePersiancalendar">Перський календар</string>
     <string name="AppLinkFDroid">F-Droid</string>
     <string name="SetPinnedSuffix">(Закріплено)</string>
     <string name="UnpinSticker">Відкріпити</string>

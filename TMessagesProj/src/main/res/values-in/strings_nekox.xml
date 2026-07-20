@@ -216,9 +216,6 @@
     <string name="WsPayload">Muatan</string>
     <string name="ProxyInfoWS">Pengaturan WebSocket Relay</string>
     <string name="AddProxyWs">Tambah WebSocket Relay</string>
-    <string name="DisplayPersianCalendarByLatin">Tampilkan kalender Persia dengan Latin</string>
-    <string name="UsePersiancalendarInfo">Tampilkan tanggal dengan kalender Matahari Hijriah</string>
-    <string name="UsePersiancalendar">Gunakan kalender Persia</string>
     <string name="AppLinkFDroid">F-Droid</string>
     <string name="SetPinnedSuffix">(Disematkan)</string>
     <string name="UnpinSticker">Lepas sematan</string>

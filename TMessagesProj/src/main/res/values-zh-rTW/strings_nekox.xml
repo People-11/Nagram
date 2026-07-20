@@ -219,9 +219,6 @@
     <string name="UnpinSticker">取消置頂</string>
     <string name="SetPinnedSuffix">(置頂)</string>
     <string name="AppLinkFDroid">F-Droid</string>
-    <string name="UsePersiancalendar">使用伊朗歷</string>
-    <string name="UsePersiancalendarInfo">用太陽回曆顯示日期</string>
-    <string name="DisplayPersianCalendarByLatin">以拉丁字母顯示波斯日曆</string>
     <string name="AddProxyWs">新增 WebSocket 中繼</string>
     <string name="ProxyInfoWS">WebSocket 中繼設定</string>
     <string name="WsPayload">負載</string>

@@ -218,8 +218,6 @@
     <string name="BackupSettings">バックアップ設定</string>
     <string name="ImportSettings">インポート設定</string>
     <string name="AutoCheckUpdateSwitch">自動更新</string>
-    <string name="UsePersiancalendar">ペルシャのカレンダーを使う</string>
-    <string name="DisplayPersianCalendarByLatin">ペルシャのカレンダーをラテン語で表示</string>
     <string name="nekoXPaymentRemovedToast">決済機能は廃止されました。</string>
     <string name="AutoCheckUpdateStable">安定版</string>
     <string name="VersionUpdateConfirm">アップデート</string>

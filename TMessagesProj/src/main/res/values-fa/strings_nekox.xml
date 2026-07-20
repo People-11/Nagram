@@ -219,9 +219,6 @@
     <string name="ArchiveFiles">فایل‌های آرشیو</string>
     <string name="Win32ExecutableFiles">فایل‌های قابل اجرای ویندوزی</string>
     <string name="AppLinkFDroid">F-Droid</string>
-    <string name="UsePersiancalendarInfo">نمایش تاریخ با تقویم هجری‌شمسی</string>
-    <string name="DisplayPersianCalendarByLatin">نمایش تقویم پارسی بصورت لاتین</string>
-    <string name="UsePersiancalendar">استفاده از تقویم پارسی</string>
     <string name="WsPayload">محموله</string>
     <string name="ProxyInfoWS">تنظیمات رله WebSocket</string>
     <string name="AddProxyWs">افزودن رله WebSocket</string>

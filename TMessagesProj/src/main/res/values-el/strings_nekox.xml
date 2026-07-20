@@ -203,11 +203,9 @@
     <string name="CCHK">Παραδοσιακά κινέζικα (Χονγκ Κονγκ)</string>
     <string name="AppLinkFDroid">F-Droid</string>
     <string name="FCTitle">Σχετικά με τις ενημερώσεις της εφαρμογής</string>
-    <string name="UsePersiancalendar">Χρήση Περσικού ημ/γίου</string>
     <string name="VersionUpdateConfirm">ΕΝΗΜΕΡΩΣΗ</string>
     <string name="channelAliasDetails">Απαιτείται ετικέτα καναλιού ενεργού χρήστη.</string>
     <string name="CCTT">Παραδοσιακά κινέζικα (Ταϊβάν)</string>
-    <string name="UsePersiancalendarInfo">Εμφάνιση ημ/νίας με ηλιακό ημ/γιο Hijri</string>
     <string name="VersionUpdateTitle">Διαθέσιμη νέα έκδοση</string>
     <string name="EnableStickerPinAbout">Καρφιτσώστε αυτοκόλλητα και συγχρονιστείτε με το cloud ακόμα και όταν προσθέτετε νέα.
 \nΣυνδυάζεται με την Απεν/μένα Αγαπημένα και Πρόσφατα.</string>
@@ -243,7 +241,6 @@
 \nΠαρακαλούμε κατεβάστε χειροκίνητα από το GitHub.</string>
     <string name="EnableStickerPin">Ενεργ/ση καρφ/ματος αυτοκόλλητου</string>
     <string name="EnableStickerPinTip">Αυτή η λειτουργία είναι υπό ανάπτυξη. Ο συγχρ/μός με το cloud ενδέχεται να μην λειτουργεί.</string>
-    <string name="DisplayPersianCalendarByLatin">Εμφάνιση Περσικού ημ/γίου λατινικά</string>
     <string name="AddProxyWs">Προσθήκη WebSocket Relay</string>
     <string name="ImportSettings">Εισαγωγή ρυθμίσεων</string>
     <string name="ImportSettingsAlert">Αντικατάσταση των ρυθμίσεων; Η εισαγωγή ρυθμίσεων από άγνωστες πηγές μπορεί να προκαλέσει την αντικατάσταση του pin και το κλείδωμα της εφαρμογής.</string>
