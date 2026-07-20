@@ -275,8 +275,6 @@ private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCel
             LocaleController.getString("LastFirst", R.string.LastFirst),
             LocaleController.getString("FirstLast", R.string.FirstLast)
     }, null));
-    private final AbstractConfigCell usePersianCalendarRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.usePersianCalendar, LocaleController.getString("UsePersiancalendarInfo")));
-    private final AbstractConfigCell displayPersianCalendarByLatinRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.displayPersianCalendarByLatin));
     private final AbstractConfigCell divider7 = cellGroup.appendCell(new ConfigCellDivider());
 
     private final AbstractConfigCell headerPushService = cellGroup.appendCell(new ConfigCellHeader(LocaleController.getString("Notifications", R.string.Notifications)));
@@ -427,10 +425,6 @@ private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCel
             } else if (key.equals(NekoConfig.tabletMode.getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESATRT, null, null);
             } else if (key.equals(NekoConfig.newYear.getKey())) {
-                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESATRT, null, null);
-            } else if (key.equals(NekoConfig.usePersianCalendar.getKey())) {
-                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESATRT, null, null);
-            } else if (key.equals(NekoConfig.displayPersianCalendarByLatin.getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESATRT, null, null);
             } else if (key.equals(NekoConfig.disableSystemAccount.getKey())) {
                 if ((boolean) newValue) {

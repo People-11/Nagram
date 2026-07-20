@@ -208,8 +208,6 @@
     <string name="HideDeviceInfo">הסתר את דגם המכשיר</string>
     <string name="HideDeviceInfoOff">דגם המכשיר יעלה בפעם השנייה שהאפליקציה מתחילה לאחר הכניסה.</string>
     <string name="HideDeviceInfoOn">תוכל לשנות זאת בהגדרות מאוחר יותר.</string>
-    <string name="UsePersiancalendarInfo">להציג תאריך עם לוח שנה היג׳רי לפי השמש</string>
-    <string name="UsePersiancalendar">להשתמש בלוח השנה הפרסי</string>
     <string name="AppLinkFDroid">F-Droid</string>
     <string name="SetPinnedSuffix">(נעוץ)</string>
     <string name="UnpinSticker">שחרור</string>
@@ -232,7 +230,6 @@
     <string name="WsPayload">מטען</string>
     <string name="ProxyInfoWS">הגדרות ממסר WebSocket</string>
     <string name="AddProxyWs">הוספת ממסר WebSocket</string>
-    <string name="DisplayPersianCalendarByLatin">הצגת לוח שנה פרסי בכתב לטיני</string>
     <string name="EnableStickerPinTip">יכולת זו עדיין בהליכי פיתוח, סנכרון מול הענן כנראה לא יעבוד כראוי.</string>
     <string name="AutoCheckUpdateRc">מועמד להפצה</string>
     <string name="AutoCheckUpdateStable">יציב</string>

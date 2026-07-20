@@ -206,12 +206,10 @@
     <string name="TextReplace">Reemplazar</string>
     <string name="UnpinSticker">Desfijar</string>
     <string name="ArchiveFiles">Guardar archivos</string>
-    <string name="DisplayPersianCalendarByLatin">Mostrar el calendario Persa en lugar del Latino</string>
     <string name="SetPinnedSuffix">(Fijado)</string>
     <string name="AutoLockImmediately">Inmediatamente</string>
     <string name="VersionUpdateVariantNotMatch">Las variantes de la versión no coincidieron automáticamente.
 \nPor favor descargar manualmente desde GitHub.</string>
-    <string name="UsePersiancalendarInfo">Mostrar la fecha con el calendario Solar Hijri</string>
     <string name="AutoCheckUpdateSwitch">Actualización Automática</string>
     <string name="DisableTrending">Deshabilitar tendencia</string>
     <string name="ImportSettings">Importar ajustes</string>
@@ -224,7 +222,6 @@
     <string name="repeatConfirm">Preguntar antes de repetir</string>
     <string name="repeatConfirmText">¿Está seguro de que quiere repetir\?</string>
     <string name="AddProxyWs">Añadir Relevo de WebSocket</string>
-    <string name="UsePersiancalendar">Usar el calendario Persa</string>
     <string name="hideSponsoredMessage">Ocultar mensajes patrocinados</string>
     <string name="DeleteDownloadedFileConfirm">¿Eliminar este archivo de la caché local\?</string>
     <string name="customPublicProxyIP">Establecer la IP del proxy público</string>

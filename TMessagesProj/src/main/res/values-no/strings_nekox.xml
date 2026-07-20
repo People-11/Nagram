@@ -192,7 +192,6 @@
     <string name="DeleteAllInChat">Slett alle i sludring</string>
     <string name="EnableDeveloperMode">Skru på utviklingsmodus</string>
     <string name="ShareMessages">Del</string>
-    <string name="UsePersiancalendar">Bruk persisk kalender</string>
     <string name="AutoLockImmediately">Umiddelbart</string>
     <string name="BackupSettings">Sikkerhetskopieringsinnstillinger</string>
     <string name="ImportSettings">Importer innstillinger</string>
@@ -226,7 +225,6 @@
     <string name="DismissForYourself">Skru av for deg selv</string>
     <string name="VersionUpdateConfirm">Oppgrader</string>
     <string name="FCInfo">Følg vår kanal for kunngjøringer og oppgraderinger\?</string>
-    <string name="UsePersiancalendarInfo">Vis dato med sol-hijrakalender</string>
     <string name="QRLoginNotice">Denne QR-koden/lenken lar noen logge inn på din Telegram-konto\? Er dette noe du har bedt om\?</string>
     <string name="CCTitle">OpenCC (kinesisk konvertering)</string>
     <string name="CCSC">Forenklet kinesisk</string>
@@ -248,7 +246,6 @@
     <string name="SendCommentAfterForward">Send kommentar etter videresending</string>
     <string name="CCHK">Tradisjonell kinesisk (Hongkong)</string>
     <string name="MiniVersionAlert">Mini-versjonen støtter ikke denne typen mellomtjener. Bytt versjon i innstillingene.</string>
-    <string name="DisplayPersianCalendarByLatin">Vis persisk kalender (latinsk)</string>
     <string name="ImportSettingsAlert">Overskriv innstillingene\? Importering av innstillinger fra ukjente kilder kan forårsake at festingen overskrives og at programmet låses.</string>
     <string name="PrivacyNoticePhoneVisible">Mobiltelefonnummeret ditt er synlig for alle, som kan la myndighetssponsede hackere ta rede på din sanne identitet. Skru det av!</string>
     <string name="IgnoreContentRestrictionsNotice">Ignorerer avspillingsbegrensninger for meldinger.</string>

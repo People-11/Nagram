@@ -153,8 +153,6 @@ public class NekoConfig {
 
     public static ConfigItem proxyAutoSwitch = addConfig("ProxyAutoSwitch", configTypeBool, false);
 
-    public static ConfigItem usePersianCalendar = addConfig("UsePersiancalendar", configTypeBool, false);
-    public static ConfigItem displayPersianCalendarByLatin = addConfig("DisplayPersianCalendarByLatin", configTypeBool, false);
     public static ConfigItem disableVibration = addConfig("DisableVibration", configTypeBool, false);
     public static ConfigItem autoPauseVideo = addConfig("AutoPauseVideo", configTypeBool, false);
     public static ConfigItem disableProximityEvents = addConfig("DisableProximityEvents", configTypeBool, false);

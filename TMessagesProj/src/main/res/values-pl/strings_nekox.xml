@@ -219,9 +219,6 @@
     <string name="WsPayload">Ładunek</string>
     <string name="ProxyInfoWS">Ustawienia przekazywania WebSocket</string>
     <string name="AddProxyWs">Dodaj przekazywanie WebSocket</string>
-    <string name="DisplayPersianCalendarByLatin">Wyświetlaj kalendarz perski po łacinie</string>
-    <string name="UsePersiancalendarInfo">Wyświetl datę wraz z kalendarzem solarnym Hijri</string>
-    <string name="UsePersiancalendar">Używaj kalendarza perskiego</string>
     <string name="AppLinkFDroid">F-Droid</string>
     <string name="SetPinnedSuffix">(Przypięto)</string>
     <string name="UnpinSticker">Odepnij</string>

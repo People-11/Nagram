@@ -213,9 +213,6 @@
     <string name="WsPayload">Payload</string>
     <string name="ProxyInfoWS">Impostazioni Relay WebSocket</string>
     <string name="AddProxyWs">Aggiungi un Relay WebSocket</string>
-    <string name="DisplayPersianCalendarByLatin">Mostra il calendario Persiano (Latino)</string>
-    <string name="UsePersiancalendarInfo">Mostra data con il calendario Solare Hijri</string>
-    <string name="UsePersiancalendar">Usa il calendario Persiano</string>
     <string name="AppLinkFDroid">F-Droid</string>
     <string name="SetPinnedSuffix">(Fissato)</string>
     <string name="UnpinSticker">Togli Fissato</string>

@@ -220,9 +220,6 @@
     <string name="UnpinSticker">Открепить</string>
     <string name="PinSticker">Закрепить</string>
     <string name="AppLinkFDroid">F-Droid</string>
-    <string name="DisplayPersianCalendarByLatin">Иранский календарь латиницей</string>
-    <string name="UsePersiancalendarInfo">Отображать даты по солнечному календарю Хиджри</string>
-    <string name="UsePersiancalendar">Иранский календарь</string>
     <string name="nekoXPaymentRemovedToast">Платежи через Telegram недоступны в NekoX.</string>
     <string name="ImportSettings">Импорт настроек</string>
     <string name="BackupSettings">Экспорт настроек</string>

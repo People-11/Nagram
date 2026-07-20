@@ -214,9 +214,6 @@
     <string name="AutoDownload">Otomatik İndirme</string>
     <string name="ProxyInfoWS">WebSocket Relay Ayarları</string>
     <string name="AddProxyWs">WebSocket Relay Ekle</string>
-    <string name="UsePersiancalendarInfo">Güneş Hicri takvimi ile tarihi görüntüle</string>
-    <string name="DisplayPersianCalendarByLatin">Farsça takvimini Latince olarak görüntüle</string>
-    <string name="UsePersiancalendar">Farsça takvimi kullan</string>
     <string name="nekoXPaymentRemovedToast">Ödeme işlevi kaldırıldı.</string>
     <string name="ImportSettingsAlert">Ayarların üzerine yazmak istediğinize emin misiniz\? Bilinmeyen kaynaklardan ayarları içe aktarmak, PIN kodunun üzerine yazılmasına ve uygulamanın kilitlenmesine neden olabilir.</string>
     <string name="ImportSettings">Ayarları içe aktar</string>

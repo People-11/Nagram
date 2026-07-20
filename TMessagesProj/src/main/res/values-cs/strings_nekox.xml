@@ -103,7 +103,6 @@
     <string name="StorageReset">Vyčistit Uložiště</string>
     <string name="ReplaceText">Nahradit Text</string>
     <string name="TabletMode">Tabletový režim</string>
-    <string name="UsePersiancalendarInfo">Zobrazit datum s Solar Hijri kalendářem</string>
     <string name="ImportSettingsAlert">Jste si jisti že chcete přepsat nastavení\? Vložení nastavení z neznámého zdroje může způsobit že pin bude přepsán a způsobí že aplikace bude uzamknuta.</string>
     <string name="nekoXPaymentRemovedToast">Platební funkce byla odstraněna.</string>
     <string name="VersionUpdateConfirm">AKTUALIZOVAT</string>
@@ -129,7 +128,6 @@
     <string name="TextOrigin">Původ</string>
     <string name="FilterNameGroupsDescription">Pouze zprávy ze skupinových chatů</string>
     <string name="MinApi23Required">Je nám líto, potřebujete nejméně Android 6 (API23).</string>
-    <string name="UsePersiancalendar">Použít Perský kalendář</string>
     <string name="Win32ExecutableFiles">Win32 spustitelný soubor</string>
     <string name="FCTitle">O aktualizacích aplikace</string>
     <string name="VmessAlterId">Alternativní ID</string>

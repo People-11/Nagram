@@ -216,9 +216,6 @@
     <string name="WsPayload">Payանրաբեռնվածություն</string>
     <string name="ProxyInfoWS">WebSocket ռելեի կարգավորումներ</string>
     <string name="AddProxyWs">Ավելացնել WebSocket ռելե</string>
-    <string name="DisplayPersianCalendarByLatin">Persianուցադրել պարսկական օրացույցը լատիներենով</string>
-    <string name="UsePersiancalendarInfo">ցուցադրել ամսաթիվը Solar Hijri օրացույցով</string>
-    <string name="UsePersiancalendar">Օգտագործեք պարսկական օրացույց</string>
     <string name="AppLinkFDroid">F-Droid խանութ</string>
     <string name="SetPinnedSuffix">(Ամրացված)</string>
     <string name="UnpinSticker">անջատել</string>

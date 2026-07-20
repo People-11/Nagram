@@ -218,14 +218,12 @@
     <string name="ArchiveFiles">Archiv-Dateien</string>
     <string name="EnableStickerPinAbout">Heftet Sticker an und synchronisiert diese mit der Cloud, selbst wenn neue Sticker hinzugefügt werden.
 \nDeaktiviert zugleich beliebte und letzte Sticker.</string>
-    <string name="UsePersiancalendar">Persischen Kalender benutzen</string>
     <string name="AddProxyWs">WebSocket-Relay hinzufügen</string>
     <string name="ProxyInfoWS">WebSocket-Relay Einstellungen</string>
     <string name="AutoLockImmediately">Sofort</string>
     <string name="WsPayload">WebSocket-Payload</string>
     <string name="BackupSettings">Sicherungseinstellungen</string>
     <string name="AutoCheckUpdateOFF">AUS</string>
-    <string name="UsePersiancalendarInfo">Datum auf Basis des Hijri-Sonnenkalenders anzeigen</string>
     <string name="AutoCheckUpdateStable">Stabil</string>
     <string name="VersionUpdateTitle">Neue Version verfügbar</string>
     <string name="repeatConfirmText">Möchtest du wirklich wiederholen\?</string>
@@ -242,7 +240,6 @@
 \nGroßer Avatar als Hintergrund</string>
     <string name="hideSponsoredMessage">Verstecke gesponserte Nachrichten</string>
     <string name="repeatConfirm">Vorm Wiederholen Fragen</string>
-    <string name="DisplayPersianCalendarByLatin">Lateinische Schriftzeichen für persischen Kalender nutzen</string>
     <string name="ImportSettings">Einstellungen importieren</string>
     <string name="VersionUpdateConfirm">AKTUALISIERUNG</string>
     <string name="EnableStickerPinTip">Diese Funktion befindet sich in der Entwicklung. Die Synchronisierung mit der Cloud funktioniert möglicherweise nicht.</string>
