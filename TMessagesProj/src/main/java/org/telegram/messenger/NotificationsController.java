@@ -1130,7 +1130,7 @@ public class NotificationsController extends BaseController implements Notificat
                     }
                     continue;
                 }
-                if (NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(messageObject.getSenderId()) >= 0) {
+                if (getMessagesController().shouldIgnoreBlockedMessage(messageObject)) {
                     continue;
                 }
 
@@ -5313,7 +5313,7 @@ public class NotificationsController extends BaseController implements Notificat
                         FileLog.d("showExtraNotifications: ["+dialogId+"] continue; topic id is not equal: topicId=" + topicId + " messageTopicId=" + messageTopicId + "; selfId=" + getUserConfig().getClientUserId());
                         continue;
                     }
-                    if (NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(messageObject.getSenderId()) >= 0) {
+                    if (getMessagesController().shouldIgnoreBlockedMessage(messageObject)) {
                         continue;
                     }
                     String message = getShortStringForMessage(messageObject, senderName, preview);

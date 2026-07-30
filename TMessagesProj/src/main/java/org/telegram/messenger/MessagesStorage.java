@@ -12000,8 +12000,10 @@ public class MessagesStorage extends BaseController {
                     int messageId = message.id;
                     MessageObject.getDialogId(message);
                     long topicId = MessageObject.getTopicId(currentAccount, message, getForumTypeFlags(message.dialog_id));
+                    // Keep ignored messages in history, but never expose them as unread or dialog/topic heads.
+                    boolean ignoredBlockedSender = getMessagesController().shouldIgnoreBlockedMessage(message);
 
-                    if (message.mentioned && message.media_unread) {
+                    if (!ignoredBlockedSender && message.mentioned && message.media_unread) {
                         ArrayList<Integer> ids = dialogMentionsIdsMap.get(message.dialog_id);
                         if (ids == null) {
                             ids = new ArrayList<>();
@@ -12034,7 +12036,7 @@ public class MessagesStorage extends BaseController {
                             dialogsReadMax.put(message.dialog_id, currentMaxId);
                         }
                         FileLog.d("update messageRead currentMaxId = " + currentMaxId + " dialogId = " + message.dialog_id);
-                        if (message.id < 0 || currentMaxId < message.id) {
+                        if (!ignoredBlockedSender && (message.id < 0 || currentMaxId < message.id)) {
                             StringBuilder messageIds = messageIdsMap.get(message.dialog_id);
                             if (messageIds == null) {
                                 messageIds = new StringBuilder();
@@ -12052,7 +12054,7 @@ public class MessagesStorage extends BaseController {
                             }
                             ids.add(messageId);
                         }
-                        if (topicId != 0) {
+                        if (!ignoredBlockedSender && topicId != 0) {
                             TopicKey topicKey = TopicKey.of(message.dialog_id, topicId);
                             Integer value = topicsReadMax.get(topicKey);
                             int currentTopicMaxId = value == null ? -1 : value;
@@ -12389,6 +12391,7 @@ public class MessagesStorage extends BaseController {
                 int downloadMediaMask = 0;
                 for (int a = 0; a < messages.size(); a++) {
                     TLRPC.Message message = messages.get(a);
+                    boolean ignoredBlockedSender = getMessagesController().shouldIgnoreBlockedMessage(message);
                     if (message == null) {
                         continue;
                     }
@@ -12429,7 +12432,7 @@ public class MessagesStorage extends BaseController {
                         createNewTopics.add(message);
                     }
 
-                    if (updateDialog) {
+                    if (!ignoredBlockedSender && updateDialog) {
                         TLRPC.Message lastMessage = messagesMap.get(message.dialog_id);
                         if (lastMessage == null || message.date > lastMessage.date || lastMessage.id > 0 && message.id > lastMessage.id || lastMessage.id < 0 && message.id < lastMessage.id) {
                             messagesMap.put(message.dialog_id, message);
@@ -12475,7 +12478,7 @@ public class MessagesStorage extends BaseController {
                         if (isTopic) {
                             statement.bindLong(pointer++, topicId);
                         }
-                        statement.bindInteger(pointer++, MessageObject.getUnreadFlags(message));
+                        statement.bindInteger(pointer++, ignoredBlockedSender ? 3 : MessageObject.getUnreadFlags(message));
                         statement.bindInteger(pointer++, message.send_state);
                         statement.bindInteger(pointer++, message.date);
                         statement.bindByteBuffer(pointer++, data);
@@ -12501,7 +12504,7 @@ public class MessagesStorage extends BaseController {
                             flags |= 2;
                         }
                         statement.bindInteger(pointer++, flags);
-                        statement.bindInteger(pointer++, message.mentioned ? 1 : 0);
+                        statement.bindInteger(pointer++, !ignoredBlockedSender && message.mentioned ? 1 : 0);
                         statement.bindInteger(pointer++, message.forwards);
                         NativeByteBuffer repliesData = null;
                         if (message.replies != null) {
@@ -16915,6 +16918,7 @@ public class MessagesStorage extends BaseController {
                     int messageDate = 0;
 
                     TLRPC.Message message = new_dialogMessage.get(dialog.id);
+                    boolean ignoredBlockedSender = getMessagesController().shouldIgnoreBlockedMessage(message);
                     if (message != null) {
                         messageDate = Math.max(message.date, messageDate);
 
@@ -16931,7 +16935,7 @@ public class MessagesStorage extends BaseController {
                         state_messages.requery();
                         state_messages.bindInteger(1, message.id);
                         state_messages.bindLong(2, dialog.id);
-                        state_messages.bindInteger(3, MessageObject.getUnreadFlags(message));
+                        state_messages.bindInteger(3, ignoredBlockedSender ? 3 : MessageObject.getUnreadFlags(message));
                         state_messages.bindInteger(4, message.send_state);
                         state_messages.bindInteger(5, message.date);
                         state_messages.bindByteBuffer(6, data);
@@ -16945,7 +16949,7 @@ public class MessagesStorage extends BaseController {
                             flags |= 2;
                         }
                         state_messages.bindInteger(10, flags);
-                        state_messages.bindInteger(11, message.mentioned ? 1 : 0);
+                        state_messages.bindInteger(11, !ignoredBlockedSender && message.mentioned ? 1 : 0);
                         state_messages.bindInteger(12, message.forwards);
                         NativeByteBuffer repliesData = null;
                         if (message.replies != null) {
@@ -17020,15 +17024,44 @@ public class MessagesStorage extends BaseController {
                         }
                     }
 
+                    int storedTopMessage = dialog.top_message;
+                    int storedMessageDate = dialog instanceof TLRPC.TL_dialogCommunity ? dialog.last_message_date : messageDate;
+                    int storedUnreadCount = dialog.unread_count;
+                    int storedUnreadMentionsCount = dialog.unread_mentions_count;
+                    long storedGroupedId = 0;
+                    boolean hasStoredGroupedId = message != null && (message.flags & 131072) != 0;
+                    if (hasStoredGroupedId) {
+                        storedGroupedId = message.grouped_id;
+                    }
+                    if (ignoredBlockedSender) {
+                        if (message.unread && storedUnreadCount > 0) {
+                            storedUnreadCount--;
+                        }
+                        if (message.mentioned && message.media_unread && storedUnreadMentionsCount > 0) {
+                            storedUnreadMentionsCount--;
+                        }
+                        cursor = database.queryFinalized("SELECT last_mid, date, last_mid_group FROM dialogs WHERE did = " + dialog.id);
+                        if (cursor.next()) {
+                            storedTopMessage = cursor.intValue(0);
+                            storedMessageDate = cursor.intValue(1);
+                            hasStoredGroupedId = !cursor.isNull(2);
+                            if (hasStoredGroupedId) {
+                                storedGroupedId = cursor.longValue(2);
+                            }
+                        }
+                        cursor.dispose();
+                        cursor = null;
+                    }
+
                     state_dialogs.requery();
                     state_dialogs.bindLong(1, dialog.id);
-                    state_dialogs.bindInteger(2, dialog instanceof TLRPC.TL_dialogCommunity ? dialog.last_message_date : messageDate);
-                    state_dialogs.bindInteger(3, dialog.unread_count);
-                    state_dialogs.bindInteger(4, dialog.top_message);
+                    state_dialogs.bindInteger(2, storedMessageDate);
+                    state_dialogs.bindInteger(3, storedUnreadCount);
+                    state_dialogs.bindInteger(4, storedTopMessage);
                     state_dialogs.bindInteger(5, dialog.read_inbox_max_id);
                     state_dialogs.bindInteger(6, dialog.read_outbox_max_id);
                     state_dialogs.bindLong(7, 0);
-                    state_dialogs.bindInteger(8, dialog.unread_mentions_count);
+                    state_dialogs.bindInteger(8, storedUnreadMentionsCount);
                     state_dialogs.bindInteger(9, dialog.pts);
                     state_dialogs.bindInteger(10, 0);
                     state_dialogs.bindInteger(11, dialog.pinnedNum);
@@ -17052,8 +17085,8 @@ public class MessagesStorage extends BaseController {
                         state_dialogs.bindNull(14);
                     }
                     state_dialogs.bindInteger(15, dialog.unread_reactions_count);
-                    if (message != null && (message.flags & 131072) != 0) {
-                        state_dialogs.bindLong(16, message.grouped_id);
+                    if (hasStoredGroupedId) {
+                        state_dialogs.bindLong(16, storedGroupedId);
                     } else {
                         state_dialogs.bindNull(16);
                     }

@@ -38829,7 +38829,7 @@ public class ChatActivity extends BaseFragment implements
                 if (msg != null && msg.messageOwner != null && msg.messageOwner.hide) {
                     return -1000;
                 }
-                if (NekoConfig.ignoreBlocked.Bool() && msg != null && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(msg.getFromChatId()) >= 0) {
+                if (MessagesController.getInstance(currentAccount).shouldIgnoreBlockedMessage(msg)) {
                     return -1000;
                 }
                 // --- NaGram hook
@@ -45247,7 +45247,7 @@ public class ChatActivity extends BaseFragment implements
             Integer end = ids.get(ids.size() - 1);
             for (int i = 0; i < messages.size(); i++) {
                 int msgId = messages.get(i).getId();
-                if (NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(messages.get(i).getSenderId()) >= 0)
+                if (getMessagesController().shouldIgnoreBlockedMessage(messages.get(i)))
                     continue;
                 if (NaConfig.INSTANCE.getRegexFiltersEnabled().Bool() && AyuFilter.isFiltered(messages.get(i), null)) {
                     continue;

@@ -3285,7 +3285,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                         clearingDialog = MessagesController.getInstance(currentAccount).isClearingDialog(dialog.id);
                         groupMessages = MessagesController.getInstance(currentAccount).dialogMessage.get(dialog.id);
                         message = groupMessages != null && groupMessages.size() > 0 ? groupMessages.get(0) : null;
-                        if (message != null && NekoConfig.ignoreBlocked.Bool() && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(message.getSenderId()) >= 0) {
+                        if (MessagesController.getInstance(currentAccount).shouldIgnoreBlockedMessage(message)) {
                             if (MessagesController.getInstance(currentAccount).dialogMessageFromUnblocked.get(dialog.id) != null)
                                 message = MessagesController.getInstance(currentAccount).dialogMessageFromUnblocked.get(dialog.id);
                             else {
@@ -3760,7 +3760,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             boolean isFiltered = AyuFilter.isFiltered(message, null) || (captionMessage != null && AyuFilter.isFiltered(captionMessage, null));
             // --- NaGram hook
             isFiltered = isFiltered || (message.messageOwner != null && message.messageOwner.hide);
-            isFiltered = isFiltered || (NekoConfig.ignoreBlocked.Bool() && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(message.getFromChatId()) >= 0);
+            isFiltered = isFiltered || MessagesController.getInstance(currentAccount).shouldIgnoreBlockedMessage(message);
             if (isFiltered) {
                 xyz.nextalone.nagram.helper.MessageHelper.INSTANCE.blurify(message);
                 if (captionMessage != null) xyz.nextalone.nagram.helper.MessageHelper.INSTANCE.blurify(captionMessage);

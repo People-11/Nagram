@@ -6645,6 +6645,7 @@ public class MessagesController extends BaseController implements NotificationCe
         objectsByUsernames.clear();
         chats.clear();
         dialogMessage.clear();
+        dialogMessageFromUnblocked.clear();
         deletedHistory.clear();
         printingUsers.clear();
         printingStrings.clear();
@@ -9031,11 +9032,32 @@ public class MessagesController extends BaseController implements NotificationCe
                 }
                 loadingBlockedPeers = false;
                 getNotificationCenter().postNotificationName(NotificationCenter.blockedUsersDidLoad);
-                if (!reset && !blockedEndReached && NekoConfig.ignoreBlocked.Bool()) {
+                if (!blockedEndReached && NekoConfig.ignoreBlocked.Bool()) {
                     getBlockedPeers(false);
                 }
+            } else {
+                loadingBlockedPeers = false;
             }
         }));
+    }
+
+    public boolean shouldIgnoreBlockedMessage(TLRPC.Message message) {
+        return message != null
+                && NekoConfig.ignoreBlocked.Bool()
+                && blockePeers.indexOfKey(MessageObject.getFromChatId(message)) >= 0;
+    }
+
+    public boolean shouldIgnoreBlockedMessage(MessageObject message) {
+        return message != null && shouldIgnoreBlockedMessage(message.messageOwner);
+    }
+
+    private ArrayList<MessageObject> filterIgnoredBlockedMessages(ArrayList<MessageObject> messages) {
+        if (messages == null || messages.isEmpty() || !NekoConfig.ignoreBlocked.Bool()) {
+            return messages;
+        }
+        ArrayList<MessageObject> visibleMessages = new ArrayList<>(messages);
+        visibleMessages.removeIf(this::shouldIgnoreBlockedMessage);
+        return visibleMessages;
     }
 
     public void unblockAllUsers(boolean isDeleted, boolean retry) {
@@ -13534,9 +13556,6 @@ public class MessagesController extends BaseController implements NotificationCe
             ArrayList<MessageObject> newMessages = new ArrayList<>();
             for (int a = 0; a < dialogsRes.messages.size(); a++) {
                 TLRPC.Message message = dialogsRes.messages.get(a);
-                if (NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(message.peer_id.user_id) >= 0) {
-                    continue;
-                }
                 if (message.date == 0) {
                     continue;
                 }
@@ -13718,6 +13737,25 @@ public class MessagesController extends BaseController implements NotificationCe
                         message.unread = value < message.id;
                     }
                 }
+            }
+            for (int a = 0; a < dialogsRes.messages.size(); a++) {
+                TLRPC.Message message = dialogsRes.messages.get(a);
+                if (!shouldIgnoreBlockedMessage(message)) {
+                    continue;
+                }
+                TLRPC.Dialog dialog = new_dialogs_dict.get(MessageObject.getDialogId(message));
+                if (dialog != null) {
+                    if (message.unread && dialog.unread_count > 0) {
+                        dialog.unread_count--;
+                    }
+                    if (message.mentioned && message.media_unread && dialog.unread_mentions_count > 0) {
+                        dialog.unread_mentions_count--;
+                    }
+                }
+                message.unread = false;
+                message.media_unread = false;
+            }
+            if (loadType != DIALOGS_LOAD_TYPE_CACHE) {
                 getMessagesStorage().putDialogs(dialogsRes, loadType == DIALOGS_LOAD_TYPE_UNKNOWN ? 3 : 0);
             }
             if (loadType == DIALOGS_LOAD_TYPE_CHANNEL) {
@@ -13781,6 +13819,20 @@ public class MessagesController extends BaseController implements NotificationCe
                         archivedDialogsCount++;
                     }
                     ArrayList<MessageObject> newMsgs = new_dialogMessage.get(value.id);
+                    if (currentDialog != null && newMsgs != null && !newMsgs.isEmpty()) {
+                        boolean onlyIgnoredMessages = true;
+                        for (int i = 0; i < newMsgs.size(); i++) {
+                            if (!shouldIgnoreBlockedMessage(newMsgs.get(i))) {
+                                onlyIgnoredMessages = false;
+                                break;
+                            }
+                        }
+                        if (onlyIgnoredMessages) {
+                            value.top_message = currentDialog.top_message;
+                            value.last_message_date = currentDialog.last_message_date;
+                            newMsgs = dialogMessage.get(key);
+                        }
+                    }
                     if (currentDialog == null) {
                         added = true;
                         dialogs_dict.put(key, value);
@@ -21141,9 +21193,11 @@ public class MessagesController extends BaseController implements NotificationCe
                 if (ephemeralMessagesFinal != null) {
                     for (int a = 0, size = ephemeralMessagesFinal.size(); a < size; a++) {
                         final long dialogId = ephemeralMessagesFinal.keyAt(a);
-                        final ArrayList<MessageObject> arrayList = ephemeralMessagesFinal.valueAt(a);
+                        final ArrayList<MessageObject> arrayList = filterIgnoredBlockedMessages(ephemeralMessagesFinal.valueAt(a));
                         // getMediaDataController().loadReplyMessagesForMessages(arrayList, dialogId, 0, 0, null, 0, null);
-                        getNotificationCenter().postNotificationName(NotificationCenter.didReceiveNewMessages, dialogId, arrayList, false, 0);
+                        if (arrayList != null && !arrayList.isEmpty()) {
+                            getNotificationCenter().postNotificationName(NotificationCenter.didReceiveNewMessages, dialogId, arrayList, false, 0);
+                        }
                     }
                 }
             }, 400);
@@ -22065,6 +22119,10 @@ public class MessagesController extends BaseController implements NotificationCe
         if (messages == null || messages.isEmpty()) {
             return false;
         }
+        messages = filterIgnoredBlockedMessages(messages);
+        if (messages.isEmpty()) {
+            return false;
+        }
         final boolean scheduled = mode == ChatActivity.MODE_SCHEDULED;
         final boolean quickReplies = mode == ChatActivity.MODE_QUICK_REPLIES;
 
@@ -22110,6 +22168,9 @@ public class MessagesController extends BaseController implements NotificationCe
                     updateRating = true;
                 }
             }
+        }
+        if (lastMessage != null && NekoConfig.ignoreBlocked.Bool()) {
+            dialogMessageFromUnblocked.put(dialogId, lastMessage);
         }
         getMediaDataController().loadReplyMessagesForMessages(messages, dialogId, mode, 0, null, 0, null);
         if (mode == ChatActivity.MODE_QUICK_REPLIES) {
@@ -22263,11 +22324,6 @@ public class MessagesController extends BaseController implements NotificationCe
                     if (msg != null && lastMessage != null && (msg.getId() == lastMessage.getId() || msg.hasValidGroupId() && lastMessage.hasValidGroupId() && msg.getGroupIdForUse() == lastMessage.getGroupIdForUse())) {
                         arrayList.add(msg);
                     }
-                }
-                if(NekoConfig.ignoreBlocked.Bool() && blockePeers.indexOfKey(lastMessage.getSenderId())>=0){
-                    ArrayList<MessageObject> preMsg = dialogMessage.get(dialogId);
-                    if(preMsg.size() > 0 && blockePeers.indexOfKey(preMsg.get(0).getSenderId())<0)
-                        dialogMessageFromUnblocked.put(dialogId, preMsg.get(0));
                 }
                 dialogMessage.put(dialogId, arrayList);
                 getTranslateController().checkDialogMessage(dialogId);

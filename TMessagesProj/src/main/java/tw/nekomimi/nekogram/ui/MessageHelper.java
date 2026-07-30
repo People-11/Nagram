@@ -366,7 +366,7 @@ public class MessageHelper extends BaseController {
                     continue;
                 TLRPC.Message message = TLRPC.Message.TLdeserialize(data, data.readInt32(false), false);
                 data.reuse();
-                if (getMessagesController().blockePeers.indexOfKey(message.from_id.user_id) < 0) {
+                if (message != null && !getMessagesController().shouldIgnoreBlockedMessage(message)) {
                     // valid message
                     ret = new MessageObject(currentAccount, message, true, true);
                     message.send_state = cursor.intValue(1);
