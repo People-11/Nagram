@@ -988,10 +988,15 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     }
 
     public void setGestureSelectedOverride(float animatedPosition, boolean allow) {
+        if (tabs == null || tabsView == null) {
+            return;
+        }
         for (int index = 0; index < tabs.length; index++) {
-            final int position = indexToPosition(index);
-            final float visibility = Math.max(0, 1f - Math.abs(position - animatedPosition));
-            tabs[index].setGestureSelectedOverride(visibility, allow);
+            if (tabs[index] != null) {
+                final int position = indexToPosition(index);
+                final float visibility = Math.max(0, 1f - Math.abs(position - animatedPosition));
+                tabs[index].setGestureSelectedOverride(visibility, allow);
+            }
         }
         tabsView.invalidate();
     }
@@ -1044,6 +1049,9 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     @NonNull
     @Override
     protected WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
+        if (updateLayoutWrapper == null || fadeView == null || viewPager == null || tabsViewWrapper == null) {
+            return super.onApplyWindowInsets(v, insets);
+        }
         final Insets systemInsets = AndroidUtilities.getDefaultWindowInsets(insets, false);
 
         insetLeft = systemInsets.left;
@@ -1214,6 +1222,9 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     }
 
     private void checkUi_tabsPosition() {
+        if (updateLayoutWrapper == null || tabsViewWrapper == null || tabsView == null) {
+            return;
+        }
         final boolean isUpdateLayoutVisible = updateLayoutWrapper.isUpdateLayoutVisible();
         final int updateLayoutHeight = isUpdateLayoutVisible ? dp(UpdateLayoutWrapper.HEIGHT) : 0;
         final int normalY = -(updateLayoutHeight);
