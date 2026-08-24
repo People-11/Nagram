@@ -1,0 +1,12 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  prune-old-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: yanovian/prune-old-actions@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          days-ago: 7
