@@ -76,27 +76,7 @@ public abstract class ViewPagerActivity extends BaseFragment {
 
             @Override
             public void bindView(View view, int position, int viewType) {
-                FragmentState state = fragmentsArr.get(position);
-                final BaseFragment fragment;
-                if (state != null) {
-                    fragment = state.fragment;
-                } else {
-                    fragment = createBaseFragmentAt(position);
-
-                    state = new FragmentState(fragment);
-                    fragmentsArr.put(position, state);
-                }
-
-                if (!state.onCreateCalled) {
-                    fragment.onFragmentCreate();
-                    state.onCreateCalled = true;
-                }
-
-                fragment.setParentLayout(getParentLayout());
-                if (fragment.getFragmentView() == null) {
-                    fragment.performCreateView(context);
-                    fragment.setTitleOverlayText(titleOverlay, titleOverlayId, titleOverlayAction);
-                }
+                final BaseFragment fragment = ensureFragmentCreated(context, position).fragment;
 
                 FrameLayout container = (FrameLayout) view;
                 container.removeAllViews();
@@ -124,6 +104,33 @@ public abstract class ViewPagerActivity extends BaseFragment {
         fragmentView = contentView;
         ViewCompat.setOnApplyWindowInsetsListener(fragmentView, this::onApplyWindowInsets);
         return fragmentView;
+    }
+
+    private FragmentState ensureFragmentCreated(Context context, int position) {
+        FragmentState state = fragmentsArr.get(position);
+        if (state == null) {
+            state = new FragmentState(createBaseFragmentAt(position));
+            fragmentsArr.put(position, state);
+        }
+
+        final BaseFragment fragment = state.fragment;
+        if (!state.onCreateCalled) {
+            fragment.onFragmentCreate();
+            state.onCreateCalled = true;
+        }
+
+        fragment.setParentLayout(getParentLayout());
+        if (fragment.getFragmentView() == null) {
+            fragment.performCreateView(context);
+            fragment.setTitleOverlayText(titleOverlay, titleOverlayId, titleOverlayAction);
+        }
+        return state;
+    }
+
+    protected void preloadFragmentAtPosition(int position) {
+        if (contentView != null && getParentLayout() != null && position >= 0 && position < getFragmentsCount()) {
+            ensureFragmentCreated(contentView.getContext(), position);
+        }
     }
 
     protected void putFragmentAtPosition(int position, BaseFragment fragment) {

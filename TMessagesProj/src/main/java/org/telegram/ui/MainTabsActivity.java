@@ -16,6 +16,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -466,6 +467,12 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         return contentView;
     }
 
+    @Override
+    public void onBecomeFullyVisible() {
+        super.onBecomeFullyVisible();
+        scheduleFragmentPreload();
+    }
+
     private void checkUnreadCount(boolean animated) {
         if (tabsView == null) {
             return;
@@ -869,14 +876,12 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
                 dropFragmentAtPosition(POSITION_CALLS_OR_SETTINGS);
                 dropCallsFragmentAfterPageScroll = false;
             }
-            if (currentPosition != POSITION_PROFILE) {
-                dropFragmentAtPosition(POSITION_PROFILE);
-            }
             if (pendingFolderId != null && currentPosition == POSITION_CHATS && dialogsActivity != null) {
                 dialogsActivity.scrollToFolder(pendingFolderId);
                 pendingFolderId = null;
             }
         }
+        scheduleFragmentPreload();
 
     }
 
@@ -1136,6 +1141,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             }
         } else if (id == NotificationCenter.needSetDayNightTheme) {
             clearAllHiddenFragments();
+            scheduleFragmentPreload();
         } else if (id == NotificationCenter.callTabsVisibleToggled) {
             final boolean callTabsVisible = getUserConfig().showCallsTab;
             checkUi_callTabVisible(callTabsVisible, true);
@@ -1145,6 +1151,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
                 dropCallsFragmentAfterPageScroll = true;
             } else {
                 dropFragmentAtPosition(POSITION_CALLS_OR_SETTINGS);
+                scheduleFragmentPreload();
             }
         } else if (id == NotificationCenter.mainUserInfoChanged) {
             if (tabs != null && tabs[INDEX_PROFILE] != null) {
@@ -1157,6 +1164,47 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     private NotificationCenter.ObserversGroup observersGroup;
     private NotificationCenter.ObserversGroup globalObserversGroup;
+
+    private int preloadGeneration;
+
+    private int findFragmentToPreload() {
+        final int currentPosition = viewPager.getCurrentPosition();
+        for (int offset = -1; offset <= 1; offset += 2) {
+            final int position = currentPosition + offset;
+            if (position < 0 || position >= TABS_COUNT) {
+                continue;
+            }
+            final FragmentState state = fragmentsArr.get(position);
+            if (state == null || state.fragment.getFragmentView() == null) {
+                return position;
+            }
+        }
+        return -1;
+    }
+
+    private void scheduleFragmentPreload() {
+        if (contentView == null || viewPager == null || findFragmentToPreload() < 0) {
+            return;
+        }
+        final int generation = ++preloadGeneration;
+        final View expectedView = contentView;
+        expectedView.postOnAnimation(() -> {
+            if (fragmentView != expectedView || getParentLayout() == null || generation != preloadGeneration) {
+                return;
+            }
+            Looper.myQueue().addIdleHandler(() -> {
+                if (fragmentView != expectedView || getParentLayout() == null || generation != preloadGeneration) {
+                    return false;
+                }
+                final int position = findFragmentToPreload();
+                if (position < 0) {
+                    return false;
+                }
+                preloadFragmentAtPosition(position);
+                return findFragmentToPreload() >= 0;
+            });
+        });
+    }
 
 
     @Override
@@ -1181,6 +1229,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     @Override
     public void onFragmentDestroy() {
+        preloadGeneration++;
         Bulletin.removeDelegate(this);
         Bulletin.removeDelegate(contentView);
 
@@ -1193,6 +1242,12 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             globalObserversGroup = null;
         }
         super.onFragmentDestroy();
+    }
+
+    @Override
+    public void clearViews() {
+        preloadGeneration++;
+        super.clearViews();
     }
 
     @Override
