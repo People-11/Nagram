@@ -1327,18 +1327,38 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
         }
         iBlur3FactoryFade = new BlurredBackgroundDrawableViewFactory(iBlur3SourceColor);
 
-        iBlur3Capture = (canvas, position) -> {
-            for (int a = 0; a < 2; a++) {
-                AttachAlertLayout layout = a == 0 ? currentAttachLayout : nextAttachLayout;
-                if (layout != null && layout.iBlur3Capture != null && layout.getVisibility() == View.VISIBLE) {
-                    final float alphaF;
-                    if (a == 0 && nextAttachLayout != null && nextAttachLayout.getVisibility() == View.VISIBLE) {
-                        alphaF =  layout.getAlpha() * (1f - nextAttachLayout.getAlpha());
-                    } else {
-                        alphaF = layout.getAlpha();
+        iBlur3Capture = new IBlur3Capture() {
+            @Override
+            public void capture(Canvas canvas, RectF position) {
+                for (int a = 0; a < 2; a++) {
+                    AttachAlertLayout layout = a == 0 ? currentAttachLayout : nextAttachLayout;
+                    if (layout != null && layout.iBlur3Capture != null && layout.getVisibility() == View.VISIBLE) {
+                        final float alphaF;
+                        if (a == 0 && nextAttachLayout != null && nextAttachLayout.getVisibility() == View.VISIBLE) {
+                            alphaF = layout.getAlpha() * (1f - nextAttachLayout.getAlpha());
+                        } else {
+                            alphaF = layout.getAlpha();
+                        }
+                        final int alpha = (int) (alphaF * 255);
+                        Blur3Utils.captureRelativeParent(layout.iBlur3Capture, canvas, position, layout.iBlur3CaptureView, getContainerView(), alpha);
                     }
-                    final int alpha = (int) (alphaF * 255);
-                    Blur3Utils.captureRelativeParent(layout.iBlur3Capture, canvas, position, layout.iBlur3CaptureView, getContainerView(), alpha);
+                }
+            }
+
+            @Override
+            public void captureCalculateHash(IBlur3Hash builder, RectF position) {
+                for (int a = 0; a < 2; a++) {
+                    AttachAlertLayout layout = a == 0 ? currentAttachLayout : nextAttachLayout;
+                    if (layout != null && layout.iBlur3Capture != null && layout.getVisibility() == View.VISIBLE) {
+                        final float alphaF;
+                        if (a == 0 && nextAttachLayout != null && nextAttachLayout.getVisibility() == View.VISIBLE) {
+                            alphaF = layout.getAlpha() * (1f - nextAttachLayout.getAlpha());
+                        } else {
+                            alphaF = layout.getAlpha();
+                        }
+                        final int alpha = (int) (alphaF * 255);
+                        Blur3Utils.captureCalculateHashRelativeParent(layout.iBlur3Capture, builder, position, layout.iBlur3CaptureView, getContainerView(), alpha);
+                    }
                 }
             }
         };
@@ -7293,7 +7313,7 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
     private final ArrayList<RectF> iBlur3PositionsMerged = new ArrayList<>();
 
     public void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

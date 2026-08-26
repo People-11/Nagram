@@ -1238,7 +1238,6 @@ public class ShareAlert extends BottomSheet implements NotificationCenter.Notifi
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
                     scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                    blur3_InvalidateBlur();
                 }
             }
         });
@@ -4005,7 +4004,7 @@ public class ShareAlert extends BottomSheet implements NotificationCenter.Notifi
     }
 
     private void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

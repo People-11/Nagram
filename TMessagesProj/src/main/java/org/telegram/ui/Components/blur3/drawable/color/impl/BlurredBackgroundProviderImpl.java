@@ -21,9 +21,12 @@ public class BlurredBackgroundProviderImpl {
     public static BlurredBackgroundProvider mainTabs(Theme.ResourcesProvider resourcesProvider) {
         return new BlurredBackgroundProviderBuilder(resourcesProvider)
             .setBackgroundColor((r, isDark) -> {
+                final int colorTarget = Theme.getColor(Theme.key_glass_targetMainTabs, r);
+                if (!checkBlurEnabled(r)) {
+                    return ColorUtils.setAlphaComponent(colorTarget, 255);
+                }
                 final float alpha = LiteMode.isEnabled(LiteMode.FLAG_LIQUID_GLASS) ? 0.85f : 0.76f;
                 final int colorBg = Theme.getColor(Theme.key_windowBackgroundWhite, r);
-                final int colorTarget = Theme.getColor(Theme.key_glass_targetMainTabs, r);
                 return solveSrcColor(colorBg, colorTarget, alpha);
             })
             .setStrokeColorTop(0x11000000, 0x06FFFFFF)
@@ -37,9 +40,12 @@ public class BlurredBackgroundProviderImpl {
     public static BlurredBackgroundProvider topPanel(Theme.ResourcesProvider resourcesProvider) {
         return new BlurredBackgroundProviderBuilder(resourcesProvider)
             .setBackgroundColor((r, isDark) -> {
+                final int colorTarget = Theme.getColor(Theme.key_glass_targetMainTopPanel, r);
+                if (!checkBlurEnabled(r)) {
+                    return ColorUtils.setAlphaComponent(colorTarget, 255);
+                }
                 final float alpha = LiteMode.isEnabled(LiteMode.FLAG_LIQUID_GLASS) ? 0.85f : 0.76f;
                 final int colorBg = Theme.getColor(Theme.key_windowBackgroundWhite, r);
-                final int colorTarget = Theme.getColor(Theme.key_glass_targetMainTopPanel, r);
                 return solveSrcColor(colorBg, colorTarget, alpha);
             })
             .setStrokeColorTop(0x11000000, 0x06FFFFFF)
@@ -87,10 +93,8 @@ public class BlurredBackgroundProviderImpl {
     public static BlurredBackgroundProvider messageMenuBackground(Theme.ResourcesProvider resourcesProvider) {
         return new BlurredBackgroundProviderBuilder(resourcesProvider)
                 .setBackgroundColor((r, isDark) -> {
-                    if (!LiteMode.isEnabled(LiteMode.FLAG_CHAT_BLUR)) {
-                        return Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground);
-                    }
-                    return Theme.multAlpha(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground), isDark ? 0.85f : 0.825f);
+                    final int color = Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground, r);
+                    return checkBlurEnabled(r) ? Theme.multAlpha(color, isDark ? 0.85f : 0.825f) : color;
                 })
                 .setStrokeColorTop(0x44FFFFFF, 0)
                 .setStrokeColorBottom(0x22FFFFFF, 0)
@@ -102,8 +106,10 @@ public class BlurredBackgroundProviderImpl {
 
     public static BlurredBackgroundProvider scrimMenuBackground(Theme.ResourcesProvider resourcesProvider) {
         return new BlurredBackgroundProviderBuilder(resourcesProvider)
-            .setBackgroundColor((r, isDark) ->
-                Theme.multAlpha(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground), isDark ? 0.85f : 0.825f))
+            .setBackgroundColor((r, isDark) -> {
+                final int color = Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground, r);
+                return checkBlurEnabled(r) ? Theme.multAlpha(color, isDark ? 0.85f : 0.825f) : color;
+            })
             .setStrokeColorTop(0x44FFFFFF, 0)
             .setStrokeColorBottom(0x22FFFFFF, 0)
             .setShadowColor(0x26000000, 0)

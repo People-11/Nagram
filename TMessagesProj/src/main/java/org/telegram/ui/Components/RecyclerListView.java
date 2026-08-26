@@ -3230,6 +3230,10 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
                 continue;
             }
 
+            builder.addF(left);
+            builder.addF(top);
+            builder.addF(right);
+            builder.addF(bottom);
             builder.add(child);
         }
     }

@@ -106,6 +106,7 @@ import org.telegram.ui.Components.blur3.BlurredBackgroundDrawableViewFactory;
 import org.telegram.ui.Components.blur3.DownscaleScrollableNoiseSuppressor;
 import org.telegram.ui.Components.blur3.ViewGroupPartRenderer;
 import org.telegram.ui.Components.blur3.capture.IBlur3Capture;
+import org.telegram.ui.Components.blur3.capture.IBlur3Hash;
 import org.telegram.ui.Components.blur3.drawable.BlurredBackgroundDrawable;
 import org.telegram.ui.Components.blur3.drawable.color.impl.BlurredBackgroundProviderImpl;
 import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceColor;
@@ -752,21 +753,27 @@ public class StatisticActivity extends BaseFragment implements NotificationCente
 
                     final int width = getMeasuredWidth();
                     final int height = getMeasuredHeight();
+                    final boolean blurEnabled = SharedConfig.chatBlurEnabled();
+                    final long sourceState = ((long) getThemedColor(Theme.key_windowBackgroundWhite) << 1) | (blurEnabled ? 1 : 0);
                     if (iBlur3SourceGlassFrosted != null && !iBlur3SourceGlassFrosted.inRecording()) {
-                        final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
-                        c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
-                        if (SharedConfig.chatBlurEnabled()) {
-                            scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
+                        if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height, sourceState)) {
+                            final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
+                            c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                            if (blurEnabled) {
+                                scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
+                            }
+                            iBlur3SourceGlassFrosted.endRecording();
                         }
-                        iBlur3SourceGlassFrosted.endRecording();
                     }
                     if (iBlur3SourceGlass != null && !iBlur3SourceGlass.inRecording()) {
-                        final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
-                        c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
-                        if (SharedConfig.chatBlurEnabled()) {
-                            scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+                        if (iBlur3SourceGlass.needUpdateDisplayList(width, height, sourceState)) {
+                            final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
+                            c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                            if (blurEnabled) {
+                                scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+                            }
+                            iBlur3SourceGlass.endRecording();
                         }
-                        iBlur3SourceGlass.endRecording();
                     }
                 }
 
@@ -813,7 +820,6 @@ public class StatisticActivity extends BaseFragment implements NotificationCente
                 public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
                         scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                        blur3_InvalidateBlur();
                     }
                 }
             });
@@ -825,7 +831,6 @@ public class StatisticActivity extends BaseFragment implements NotificationCente
                 public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
                         scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                        blur3_InvalidateBlur();
                     }
                 }
             });
@@ -867,6 +872,18 @@ public class StatisticActivity extends BaseFragment implements NotificationCente
                     //canvas.translate(fragmentPosition.left, fragmentPosition.top);
                     cap.capture(canvas, position);
                     canvas.restore();
+                }
+            }
+
+            @Override
+            public void captureCalculateHash(IBlur3Hash builder, RectF position) {
+                builder.add(getThemedColor(Theme.key_windowBackgroundWhite));
+                listBlur3Capture.captureCalculateHash(builder, position);
+                if (boostLayout != null && boostLayout.iBlur3Capture != null) {
+                    boostLayout.iBlur3Capture.captureCalculateHash(builder, position);
+                }
+                if (monetizationLayout != null && monetizationLayout.iBlur3Capture != null) {
+                    monetizationLayout.iBlur3Capture.captureCalculateHash(builder, position);
                 }
             }
         };
@@ -929,7 +946,6 @@ public class StatisticActivity extends BaseFragment implements NotificationCente
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
                     scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                    blur3_InvalidateBlur();
                 }
             }
         });
@@ -3635,7 +3651,7 @@ public class StatisticActivity extends BaseFragment implements NotificationCente
     }
 
     private void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || fragmentView == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || fragmentView == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

@@ -49470,7 +49470,8 @@ public class ChatActivity extends BaseFragment implements
             parentChatActivity.invalidateMergedVisibleBlurredPositionsAndSources(flags);
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null ||
+                !BlurredBackgroundProviderImpl.checkBlurEnabled(currentAccount, resourceProvider)) {
             return;
         }
 
@@ -49482,7 +49483,8 @@ public class ChatActivity extends BaseFragment implements
     private int glassDrawablesPositionsCount;
 
     private void invalidateMergedVisibleBlurredPositionsAndSourcesImpl(int flags) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null ||
+                !BlurredBackgroundProviderImpl.checkBlurEnabled(currentAccount, resourceProvider)) {
             return;
         }
 

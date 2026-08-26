@@ -4393,7 +4393,8 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
     }
 
     private void invalidateMergedVisibleBlurredPositionsAndSources(int flags) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null ||
+                !BlurredBackgroundProviderImpl.checkBlurEnabled(currentAccount, resourceProvider)) {
             return;
         }
 
@@ -4405,7 +4406,8 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
     private int glassDrawablesPositionsCount;
 
     private void invalidateMergedVisibleBlurredPositionsAndSourcesImpl(int flags) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null ||
+                !BlurredBackgroundProviderImpl.checkBlurEnabled(currentAccount, resourceProvider)) {
             return;
         }
 

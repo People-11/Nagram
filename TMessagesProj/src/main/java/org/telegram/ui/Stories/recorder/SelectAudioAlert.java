@@ -185,8 +185,16 @@ public class SelectAudioAlert extends BottomSheetWithRecyclerListView implements
         }
         iBlur3FactoryFade = new BlurredBackgroundDrawableViewFactory(iBlur3SourceColor);
 
-        iBlur3Capture = (canvas, position) -> {
-            Blur3Utils.captureRelativeParent(recyclerListView, canvas, position, recyclerListView, getContainerView(), 0xFF);
+        iBlur3Capture = new IBlur3Capture() {
+            @Override
+            public void capture(Canvas canvas, RectF position) {
+                Blur3Utils.captureRelativeParent(recyclerListView, canvas, position, recyclerListView, getContainerView(), 0xFF);
+            }
+
+            @Override
+            public void captureCalculateHash(IBlur3Hash builder, RectF position) {
+                Blur3Utils.captureCalculateHashRelativeParent(recyclerListView, builder, position, recyclerListView, getContainerView(), 0xFF);
+            }
         };
 
         fadeView = new ChatAttachAlert.SearchFadeView(context, Theme.key_windowBackgroundGray, resourcesProvider);
@@ -271,7 +279,6 @@ public class SelectAudioAlert extends BottomSheetWithRecyclerListView implements
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 updateSearchY();
-                blur3_InvalidateBlur();
                 if (recyclerListView.scrollingByUser && !ignoreScroll) {
                     AndroidUtilities.hideKeyboard(containerView);
                 }
@@ -811,7 +818,7 @@ public class SelectAudioAlert extends BottomSheetWithRecyclerListView implements
     private final ArrayList<RectF> iBlur3PositionsMerged = new ArrayList<>();
 
     public void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

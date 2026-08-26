@@ -59,7 +59,6 @@ public class BlurredBackgroundDrawableRenderNode extends BlurredBackgroundDrawab
         liquidGlassEffect = new LiquidGlassEffect(renderNodeFill);
     }
 
-
     @Override
     public BlurredBackgroundSource getSource() {
         return source;
@@ -109,26 +108,30 @@ public class BlurredBackgroundDrawableRenderNode extends BlurredBackgroundDrawab
         final float sR = boundProps.boundsWithPadding.right + offsetX;
         final float sB = boundProps.boundsWithPadding.bottom + offsetY;
 
-        c = renderNodeFill.beginRecording();
-        c.save();
-        c.translate(-sL, -sT);
-        if (liquidGlassEffect != null && Build.VERSION.SDK_INT >= 33) {
-            final int thickness = Math.max(Math.min(
-                boundProps.liquidThickness <= 0 ? dp(11) : boundProps.liquidThickness,
-                Math.min(boundProps.boundsWithPadding.width(), boundProps.boundsWithPadding.height()) / 5), 1);
+        if (requiresSourceContent()) {
+            c = renderNodeFill.beginRecording();
+            c.save();
+            c.translate(-sL, -sT);
+            if (liquidGlassEffect != null && Build.VERSION.SDK_INT >= 33) {
+                final int thickness = Math.max(Math.min(
+                    boundProps.liquidThickness <= 0 ? dp(11) : boundProps.liquidThickness,
+                    Math.min(boundProps.boundsWithPadding.width(), boundProps.boundsWithPadding.height()) / 5), 1);
 
-            liquidGlassEffect.update(
-                0, 0, boundProps.boundsWithPadding.width(), boundProps.boundsWithPadding.height(),
-                boundProps.shaderRadii[0], boundProps.shaderRadii[2], boundProps.shaderRadii[4], boundProps.shaderRadii[6],
-                thickness,
-                boundProps.liquidIntensity,
-                boundProps.liquidIndex,
-                backgroundColor
-            );
+                liquidGlassEffect.update(
+                    0, 0, boundProps.boundsWithPadding.width(), boundProps.boundsWithPadding.height(),
+                    boundProps.shaderRadii[0], boundProps.shaderRadii[2], boundProps.shaderRadii[4], boundProps.shaderRadii[6],
+                    thickness,
+                    boundProps.liquidIntensity,
+                    boundProps.liquidIndex,
+                    backgroundColor
+                );
+            }
+            source.draw(c, sL, sT, sR, sB);
+            c.restore();
+            renderNodeFill.endRecording();
+        } else if (renderNodeFill.hasDisplayList()) {
+            renderNodeFill.discardDisplayList();
         }
-        source.draw(c, sL, sT, sR, sB);
-        c.save();
-        renderNodeFill.endRecording();
 
 
         c = renderNode.beginRecording();
@@ -155,18 +158,36 @@ public class BlurredBackgroundDrawableRenderNode extends BlurredBackgroundDrawab
 
     @Override
     public void updateColors() {
+        final boolean sourceWasRequired = requiresSourceContent();
+        final int oldBackgroundColor = backgroundColor;
+        final int oldShadowColor = shadowColor;
+        final int oldStrokeColorTop = strokeColorTop;
+        final int oldStrokeColorBottom = strokeColorBottom;
+
         super.updateColors();
+
+        if (oldBackgroundColor == backgroundColor && oldShadowColor == shadowColor &&
+                oldStrokeColorTop == strokeColorTop && oldStrokeColorBottom == strokeColorBottom) {
+            return;
+        }
 
         paintShadow.setShadowLayer(shadowLayerRadius, shadowLayerDx, shadowLayerDy, shadowColor);
         paintStrokeTop.setColor(strokeColorTop);
         paintStrokeBottom.setColor(strokeColorBottom);
 
         renderNodeInvalidated = true;
+        if (sourceWasRequired != requiresSourceContent()) {
+            source.dispatchOnDrawablesRelativePositionChange();
+        }
+    }
+
+    public boolean requiresSourceContent() {
+        return Color.alpha(backgroundColor) < 255;
     }
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-        if (boundProps.boundsWithPadding.isEmpty()) {
+        if (boundProps.boundsWithPadding.isEmpty() || getAlpha() == 0) {
             return;
         }
 
@@ -178,10 +199,11 @@ public class BlurredBackgroundDrawableRenderNode extends BlurredBackgroundDrawab
         if (!renderNode.hasDisplayList()) {
             source.dispatchOnDrawablesRelativePositionChange();
             updateDisplayList();
+            renderNodeInvalidated = false;
         } else if (renderNodeInvalidated) {
             updateDisplayList();
+            renderNodeInvalidated = false;
         }
-        renderNodeInvalidated = false;
 
         int color = Theme.multAlpha(shadowColor, renderNode.getAlpha() * shadowAlpha);
         if (Color.alpha(color) != 0) {
@@ -202,12 +224,14 @@ public class BlurredBackgroundDrawableRenderNode extends BlurredBackgroundDrawab
     @Override
     public void setAlpha(int alpha) {
         final int oldAlpha = getAlpha();
+        if (oldAlpha == alpha) {
+            return;
+        }
 
         super.setAlpha(alpha);
         renderNode.setAlpha(alpha / 255f);
-        renderNodeInvalidated = true;
 
-        if (oldAlpha == 0 && alpha > 0) {
+        if ((oldAlpha == 0) != (alpha == 0)) {
             source.dispatchOnDrawablesRelativePositionChange();
         }
     }

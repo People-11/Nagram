@@ -465,27 +465,28 @@ public class ContactsActivity extends BaseFragment implements FactorAnimator.Tar
 
                     final int width = getMeasuredWidth();
                     final int height = getMeasuredHeight();
+                    final boolean blurEnabled = SharedConfig.chatBlurEnabled();
+                    final long sourceState = ((long) getThemedColor(Theme.key_windowBackgroundWhite) << 1) | (blurEnabled ? 1 : 0);
                     if (iBlur3SourceGlassFrosted != null && !iBlur3SourceGlassFrosted.inRecording()) {
-                        // if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
-                        final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
-                        c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
-                        if (SharedConfig.chatBlurEnabled()) {
-                            scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
+                        if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height, sourceState)) {
+                            final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
+                            c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                            if (blurEnabled) {
+                                scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
+                            }
+                            iBlur3SourceGlassFrosted.endRecording();
                         }
-                        iBlur3SourceGlassFrosted.endRecording();
-                        // }
                     }
                     if (iBlur3SourceGlass != null && !iBlur3SourceGlass.inRecording()) {
-                        // if (iBlur3SourceGlass.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
-                        final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
-                        c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
-                        if (SharedConfig.chatBlurEnabled()) {
-                            scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+                        if (iBlur3SourceGlass.needUpdateDisplayList(width, height, sourceState)) {
+                            final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
+                            c.drawColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                            if (blurEnabled) {
+                                scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+                            }
+                            iBlur3SourceGlass.endRecording();
                         }
-                        iBlur3SourceGlass.endRecording();
-                        // }
                     }
-                    iBlur3Invalidated = false;
                 }
 
                 super.dispatchDraw(canvas);
@@ -926,7 +927,6 @@ public class ContactsActivity extends BaseFragment implements FactorAnimator.Tar
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
                     scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                    blur3_InvalidateBlur();
                 }
 
                 checkUi_searchFieldY();
@@ -1681,8 +1681,6 @@ public class ContactsActivity extends BaseFragment implements FactorAnimator.Tar
     private final @Nullable BlurredBackgroundSourceRenderNode iBlur3SourceGlass;
 
     private IBlur3Capture iBlur3Capture;
-    private boolean iBlur3Invalidated;
-
     private final ArrayList<RectF> iBlur3Positions = new ArrayList<>();
     private final RectF iBlur3PositionActionBar = new RectF();
     private final RectF iBlur3PositionMainTabs = new RectF(); {
@@ -1691,7 +1689,7 @@ public class ContactsActivity extends BaseFragment implements FactorAnimator.Tar
     }
 
     private void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

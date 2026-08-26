@@ -15,14 +15,15 @@ import xyz.nextalone.nagram.NaConfig;
 @RequiresApi(api = 33)
 public class LiquidGlassEffect {
 
+    private static final String SHADER_CODE = AndroidUtilities.readRes(R.raw.liquid_glass_shader);
+
     private final RenderNode node;
     private final RuntimeShader shader;
     private RenderEffect effect;
 
     public LiquidGlassEffect(RenderNode node) {
         this.node = node;
-        final String code = AndroidUtilities.readRes(R.raw.liquid_glass_shader);
-        shader = new RuntimeShader(code);
+        shader = new RuntimeShader(SHADER_CODE);
         node.setRenderEffect(effect = RenderEffect.createRuntimeShaderEffect(shader, "img"));
     }
 

@@ -133,6 +133,10 @@ public class SizeNotifierFrameLayout extends FrameLayout implements Theme.Colora
         if (!SharedConfig.chatBlurEnabled()) {
             return;
         }
+        if (DRAW_USING_RENDERNODE()) {
+            invalidateBlurredViews();
+            return;
+        }
         invalidateBlur = true;
         if (!blurIsRunning || blurGeneratingTuskIsRunning) {
             return;
@@ -796,7 +800,7 @@ public class SizeNotifierFrameLayout extends FrameLayout implements Theme.Colora
     }
 
     public void updateBlurContent() {
-        if (DRAW_USING_RENDERNODE()) {
+        if (SharedConfig.chatBlurEnabled() && DRAW_USING_RENDERNODE()) {
             invalidateBlurredViews();
         }
     }

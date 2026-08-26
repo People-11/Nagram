@@ -363,13 +363,12 @@ public class GroupCreateActivity extends BaseFragment implements NotificationCen
                     final int width = getMeasuredWidth();
                     final int height = getMeasuredHeight();
                     if (iBlur3SourceGlassFrosted != null && !iBlur3SourceGlassFrosted.inRecording()) {
-                        if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
+                        if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height)) {
                             final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
                             scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
                             iBlur3SourceGlassFrosted.endRecording();
                         }
                     }
-                    iBlur3Invalidated = false;
                 }
 
                 super.dispatchDraw(canvas);
@@ -650,7 +649,6 @@ public class GroupCreateActivity extends BaseFragment implements NotificationCen
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
                     scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                    blur3_InvalidateBlur();
                 }
             }
 
@@ -1896,8 +1894,6 @@ public class GroupCreateActivity extends BaseFragment implements NotificationCen
     private final @Nullable BlurredBackgroundSourceRenderNode iBlur3SourceGlassFrosted;
 
     private IBlur3Capture iBlur3Capture;
-    private boolean iBlur3Invalidated;
-
     private final ArrayList<RectF> iBlur3Positions = new ArrayList<>(2);
     private final RectF iBlur3PositionActionBar = new RectF();
     private final RectF iBlur3PositionBottomBar = new RectF();
@@ -1907,7 +1903,7 @@ public class GroupCreateActivity extends BaseFragment implements NotificationCen
     }
 
     private void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

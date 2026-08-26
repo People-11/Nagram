@@ -292,6 +292,7 @@ import org.telegram.ui.Components.blur3.BlurredBackgroundDrawableViewFactory;
 import org.telegram.ui.Components.blur3.DownscaleScrollableNoiseSuppressor;
 import org.telegram.ui.Components.blur3.ViewGroupPartRenderer;
 import org.telegram.ui.Components.blur3.capture.IBlur3Capture;
+import org.telegram.ui.Components.blur3.capture.IBlur3Hash;
 import org.telegram.ui.Components.blur3.drawable.BlurredBackgroundDrawable;
 import org.telegram.ui.Components.blur3.drawable.color.BlurredBackgroundColorProviderThemed;
 import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceColor;
@@ -1903,6 +1904,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             sharedMediaLayout.drawListForBlur(blurCanvas, views);
             blurCanvas.restore();
         }
+
+        @Override
+        protected boolean invalidateOptimized() {
+            return true;
+        }
     }
 
     private class PagerIndicatorView extends View {
@@ -3417,17 +3423,18 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
                     final int width = getMeasuredWidth();
                     final int height = getMeasuredHeight();
+                    final boolean blurEnabled = SharedConfig.chatBlurEnabled();
+                    final long sourceState = ((long) getThemedColor(Theme.key_windowBackgroundGray) << 1) | (blurEnabled ? 1 : 0);
                     if (iBlur3SourceGlass != null && !iBlur3SourceGlass.inRecording()) {
-                        //if (iBlur3SourceGlass.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
-                        final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
-                        c.drawColor(getThemedColor(Theme.key_windowBackgroundGray));
-                        if (SharedConfig.chatBlurEnabled()) {
-                            scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+                        if (iBlur3SourceGlass.needUpdateDisplayList(width, height, sourceState)) {
+                            final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
+                            c.drawColor(getThemedColor(Theme.key_windowBackgroundGray));
+                            if (blurEnabled) {
+                                scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+                            }
+                            iBlur3SourceGlass.endRecording();
                         }
-                        iBlur3SourceGlass.endRecording();
-                        //}
                     }
-                    iBlur3Invalidated = false;
                 }
 
                 whitePaint.setColor(getThemedColor(Theme.key_windowBackgroundGray));
@@ -6277,10 +6284,21 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         bottomButton2Container.setTranslationY(dp(69));
         contentView.addView(bottomButton2Container, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM | Gravity.FILL_HORIZONTAL));
 
-        iBlur3Capture = (c, p) -> {
-            listViewCapture.capture(c, p);
-            if (sharedMediaLayout.iBlur3Capture != null) {
-                sharedMediaLayout.iBlur3Capture.capture(c, p);
+        iBlur3Capture = new IBlur3Capture() {
+            @Override
+            public void capture(Canvas canvas, RectF position) {
+                listViewCapture.capture(canvas, position);
+                if (sharedMediaLayout.iBlur3Capture != null) {
+                    sharedMediaLayout.iBlur3Capture.capture(canvas, position);
+                }
+            }
+
+            @Override
+            public void captureCalculateHash(IBlur3Hash builder, RectF position) {
+                listViewCapture.captureCalculateHash(builder, position);
+                if (sharedMediaLayout.iBlur3Capture != null) {
+                    sharedMediaLayout.iBlur3Capture.captureCalculateHash(builder, position);
+                }
             }
         };
 
@@ -17674,8 +17692,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private ViewPositionWatcher viewPositionWatcher;
 
     private IBlur3Capture iBlur3Capture;
-    private boolean iBlur3Invalidated;
-
     private final ArrayList<RectF> iBlur3Positions = new ArrayList<>();
     private final RectF iBlur3PositionActionBar = new RectF();
     private final RectF iBlur3PositionMainTabs = new RectF(); {
@@ -17684,7 +17700,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     }
 
     private void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

@@ -737,7 +737,6 @@ public class RichMediaCell extends RichBlockCell
         if (bg == null) return;
         bg.setBounds(b.getLeft(), b.getTop(), b.getRight(), b.getBottom());
         bg.setAlpha((int) (b.getAlpha() * 255));
-        bg.invalidateDisplayList();
         bg.draw(canvas);
     }
 

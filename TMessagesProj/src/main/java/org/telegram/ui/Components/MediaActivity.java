@@ -266,6 +266,11 @@ public class MediaActivity extends BaseFragment implements SharedMediaLayout.Sha
             protected void drawList(Canvas blurCanvas, boolean top, ArrayList<IViewWithInvalidateCallback> views) {
                 sharedMediaLayout.drawListForBlur(blurCanvas, views);
             }
+
+            @Override
+            protected boolean invalidateOptimized() {
+                return true;
+            }
         };
         fragmentView.needBlur = true;
         this.fragmentView = fragmentView;

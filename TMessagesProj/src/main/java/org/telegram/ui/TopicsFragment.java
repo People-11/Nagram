@@ -579,20 +579,19 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
                     final int height = parentDialogsActivity != null ? parentDialogsActivity.fragmentView.getMeasuredHeight() : getMeasuredHeight();
 
                     if (iBlur3SourceGlassFrosted != null && !iBlur3SourceGlassFrosted.inRecording()) {
-                        if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
+                        if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height)) {
                             final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
                             scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
                             iBlur3SourceGlassFrosted.endRecording();
                         }
                     }
                     if (iBlur3SourceGlass != null && !iBlur3SourceGlass.inRecording()) {
-                        if (iBlur3SourceGlass.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
+                        if (iBlur3SourceGlass.needUpdateDisplayList(width, height)) {
                             final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
                             scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
                             iBlur3SourceGlass.endRecording();
                         }
                     }
-                    iBlur3Invalidated = false;
                 }
 
                 super.dispatchDraw(canvas);
@@ -1078,7 +1077,6 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
                 super.onScrolled(recyclerView, dx, dy);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
                     scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                    blur3_InvalidateBlur();
                 }
             }
         });
@@ -4231,8 +4229,6 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
     private final @NonNull BlurredBackgroundDrawableViewFactory iBlur3FactoryLiquidGlass;
 
     private IBlur3Capture iBlur3Capture;
-    private boolean iBlur3Invalidated;
-
     private final ArrayList<RectF> iBlur3Positions = new ArrayList<>();
     private final RectF iBlur3PositionActionBar = new RectF();
     private final RectF iBlur3PositionMainTabs = new RectF(); {
@@ -4241,7 +4237,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
     }
 
     private void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
             return;
         }
 

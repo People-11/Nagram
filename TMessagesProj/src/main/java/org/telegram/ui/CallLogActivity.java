@@ -782,27 +782,28 @@ public class CallLogActivity extends BaseFragment implements NotificationCenter.
 
 					final int width = getMeasuredWidth();
 					final int height = getMeasuredHeight();
+					final boolean blurEnabled = SharedConfig.chatBlurEnabled();
+					final long sourceState = ((long) getThemedColor(Theme.key_windowBackgroundGray) << 1) | (blurEnabled ? 1 : 0);
 					if (iBlur3SourceGlassFrosted != null && !iBlur3SourceGlassFrosted.inRecording()) {
-						//if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
-						final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
-						c.drawColor(getThemedColor(Theme.key_windowBackgroundGray));
-						if (SharedConfig.chatBlurEnabled()) {
-							scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
+						if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height, sourceState)) {
+							final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
+							c.drawColor(getThemedColor(Theme.key_windowBackgroundGray));
+							if (blurEnabled) {
+								scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
+							}
+							iBlur3SourceGlassFrosted.endRecording();
 						}
-						iBlur3SourceGlassFrosted.endRecording();
-						//}
 					}
 					if (iBlur3SourceGlass != null && !iBlur3SourceGlass.inRecording()) {
-						//if (iBlur3SourceGlass.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
-						final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
-						c.drawColor(getThemedColor(Theme.key_windowBackgroundGray));
-						if (SharedConfig.chatBlurEnabled()) {
-							scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+						if (iBlur3SourceGlass.needUpdateDisplayList(width, height, sourceState)) {
+							final Canvas c = iBlur3SourceGlass.beginRecording(width, height);
+							c.drawColor(getThemedColor(Theme.key_windowBackgroundGray));
+							if (blurEnabled) {
+								scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_GLASS);
+							}
+							iBlur3SourceGlass.endRecording();
 						}
-						iBlur3SourceGlass.endRecording();
-						//}
 					}
-					iBlur3Invalidated = false;
 				}
 
 				super.dispatchDraw(canvas);
@@ -881,7 +882,6 @@ public class CallLogActivity extends BaseFragment implements NotificationCenter.
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
 					scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-					blur3_InvalidateBlur();
 				}
 			}
 		});
@@ -2058,8 +2058,6 @@ public class CallLogActivity extends BaseFragment implements NotificationCenter.
 	private final @NonNull BlurredBackgroundDrawableViewFactory iBlur3FactoryLiquidGlass;
 
 	private IBlur3Capture iBlur3Capture;
-	private boolean iBlur3Invalidated;
-
 	private final ArrayList<RectF> iBlur3Positions = new ArrayList<>();
 	private final RectF iBlur3PositionActionBar = new RectF();
 	private final RectF iBlur3PositionMainTabs = new RectF(); {
@@ -2068,7 +2066,7 @@ public class CallLogActivity extends BaseFragment implements NotificationCenter.
 	}
 
 	private void blur3_InvalidateBlur() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null || !SharedConfig.chatBlurEnabled()) {
 			return;
 		}
 

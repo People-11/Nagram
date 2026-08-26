@@ -82,6 +82,16 @@ public class BlurredBackgroundSourceRenderNode implements BlurredBackgroundSourc
         return !renderNode.hasDisplayList() || renderNode.getWidth() != width || renderNode.getHeight() != height;
     }
 
+    private long displayListState = Long.MIN_VALUE;
+
+    public boolean needUpdateDisplayList(int width, int height, long state) {
+        if (displayListState != state) {
+            displayListState = state;
+            return true;
+        }
+        return needUpdateDisplayList(width, height);
+    }
+
     public RecordingCanvas beginRecording(int width, int height) {
         if (inRecording) {
             throw new IllegalStateException();
@@ -149,7 +159,7 @@ public class BlurredBackgroundSourceRenderNode implements BlurredBackgroundSourc
         int count = 0;
 
         for (BlurredBackgroundDrawableRenderNode d : drawables) {
-            if (d.hasDisplayList() && d.getAlpha() > 0 && !d.getPaddedBounds().isEmpty()) {
+            if (d.hasDisplayList() && d.getAlpha() > 0 && d.requiresSourceContent() && !d.getPaddedBounds().isEmpty()) {
                 final RectF rectf;
                 if (index < positions.size()) {
                     rectf = positions.get(index);

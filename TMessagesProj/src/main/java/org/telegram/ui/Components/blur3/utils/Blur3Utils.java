@@ -18,6 +18,7 @@ import androidx.core.graphics.drawable.WrappedDrawable;
 
 import org.jspecify.annotations.Nullable;
 import org.telegram.ui.Components.blur3.capture.IBlur3Capture;
+import org.telegram.ui.Components.blur3.capture.IBlur3Hash;
 import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceBitmap;
 import org.telegram.ui.Components.chat.ViewPositionWatcher;
 
@@ -82,6 +83,32 @@ public class Blur3Utils {
                 canvas.restore();
             }
         }
+    }
+
+    public static void captureCalculateHashRelativeParent(IBlur3Capture capture, IBlur3Hash builder, RectF position, View view, ViewGroup parent) {
+        captureCalculateHashRelativeParent(capture, builder, position, view, parent, 255);
+    }
+
+    public static void captureCalculateHashRelativeParent(IBlur3Capture capture, IBlur3Hash builder, RectF position, View view, ViewGroup parent, int alpha) {
+        builder.add(alpha);
+        if (alpha <= 0) {
+            return;
+        }
+
+        final boolean positionFound = ViewPositionWatcher.computeRectInParent(view, parent, captureTmpChildPos);
+        builder.add(positionFound);
+        if (!positionFound) {
+            return;
+        }
+
+        final float oX = captureTmpChildPos.left;
+        final float oY = captureTmpChildPos.top;
+        builder.addF(oX);
+        builder.addF(oY);
+
+        captureTmpRectF.set(position);
+        captureTmpRectF.offset(-oX, -oY);
+        capture.captureCalculateHash(builder, captureTmpRectF);
     }
 
     public static Drawable wrapCenteredDrawable(Drawable drawable, int w, int h) {

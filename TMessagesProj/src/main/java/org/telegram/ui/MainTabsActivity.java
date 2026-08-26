@@ -804,7 +804,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         makeAccountSelector(this, currentAccount, o);
 
         o.disableHoverRelease();
-        o.setBlur(true);
+        o.setBlur(BlurredBackgroundProviderImpl.checkBlurEnabled(currentAccount, resourceProvider));
         o.translate(0, -dp(4));
         final ShapeDrawable bg = Theme.createRoundRectDrawable(dp(28), getThemedColor(Theme.key_windowBackgroundWhite));
         bg.getPaint().setShadowLayer(dp(6), 0, dp(1), Theme.multAlpha(0xFF000000, 0.15f));
@@ -1416,7 +1416,11 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     }
 
     private void blur3_updateFadeColors() {
-        iBlur3SourceColor.setColor(getEstBackgroundColor());
+        final int color = getEstBackgroundColor();
+        if (iBlur3SourceColor.getColor() == color) {
+            return;
+        }
+        iBlur3SourceColor.setColor(color);
         if (fadeView != null) {
             fadeView.invalidate();
         }

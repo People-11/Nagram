@@ -40,7 +40,6 @@ import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceRenderNode
 import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceWrapped;
 import org.telegram.ui.Components.blur3.utils.NinePatchBuilder;
 
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 import xyz.nextalone.nagram.NaConfig;
@@ -579,7 +578,7 @@ public abstract class BlurredBackgroundDrawable extends Drawable {
     private final Paint backgroundBitmapFill = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Matrix bitmapShaderMatrix = new Matrix();
-    private final WeakReference<Bitmap> bitmapInShader = new WeakReference<>(null);
+    private Bitmap bitmapInShader;
     private @Nullable BitmapShader bitmapShader;
 
     {
@@ -657,9 +656,9 @@ public abstract class BlurredBackgroundDrawable extends Drawable {
 
     private void drawSourceBitmap(Canvas canvas, BlurredBackgroundSourceBitmap source) {
         final Bitmap newBitmap = source.getBitmap();
-        final Bitmap oldBitmap = bitmapInShader.get();
 
-        if (newBitmap != oldBitmap) {
+        if (newBitmap != bitmapInShader) {
+            bitmapInShader = newBitmap;
             if (newBitmap != null && !newBitmap.isRecycled()) {
                 bitmapShader = new BitmapShader(newBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
                 backgroundBitmapPaint.setShader(bitmapShader);

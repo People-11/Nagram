@@ -25,7 +25,6 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -44,7 +43,6 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -79,10 +77,6 @@ import org.telegram.ui.Components.GroupCreateSpan;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.StickerEmptyView;
-import org.telegram.ui.Components.blur3.DownscaleScrollableNoiseSuppressor;
-import org.telegram.ui.Components.blur3.ViewGroupPartRenderer;
-import org.telegram.ui.Components.blur3.capture.IBlur3Capture;
-import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceRenderNode;
 import org.telegram.ui.Components.inset.WindowAnimatedInsetsProvider;
 
 import java.util.ArrayList;
@@ -289,14 +283,6 @@ public class InviteContactsActivity extends BaseFragment implements Notification
 
     public InviteContactsActivity() {
         super();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            scrollableViewNoiseSuppressor = new DownscaleScrollableNoiseSuppressor();
-            iBlur3SourceGlassFrosted = new BlurredBackgroundSourceRenderNode(null);
-        } else {
-            scrollableViewNoiseSuppressor = null;
-            iBlur3SourceGlassFrosted = null;
-        }
     }
 
     @Override
@@ -368,25 +354,6 @@ public class InviteContactsActivity extends BaseFragment implements Notification
 
         FrameLayout contentView;
         fragmentView = contentView = new FrameLayout(context) {
-            @Override
-            protected void dispatchDraw(@NonNull Canvas canvas) {
-                if (Build.VERSION.SDK_INT >= 31 && scrollableViewNoiseSuppressor != null) {
-                    blur3_InvalidateBlur();
-                    final int width = getMeasuredWidth();
-                    final int height = getMeasuredHeight();
-                    if (iBlur3SourceGlassFrosted != null && !iBlur3SourceGlassFrosted.inRecording()) {
-                        if (iBlur3SourceGlassFrosted.needUpdateDisplayList(width, height) || iBlur3Invalidated) {
-                            final Canvas c = iBlur3SourceGlassFrosted.beginRecording(width, height);
-                            scrollableViewNoiseSuppressor.draw(c, DownscaleScrollableNoiseSuppressor.DRAW_FROSTED_GLASS);
-                            iBlur3SourceGlassFrosted.endRecording();
-                        }
-                    }
-                    iBlur3Invalidated = false;
-                }
-
-                super.dispatchDraw(canvas);
-            }
-
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 final int width = MeasureSpec.getSize(widthMeasureSpec);
@@ -525,10 +492,6 @@ public class InviteContactsActivity extends BaseFragment implements Notification
 //                final boolean shadowVisible = !(firstVisibleItem == 0 && firstViewTop >= listView.getPaddingTop());
 //                headerShadowView.setShadowVisible(shadowVisible, true);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && scrollableViewNoiseSuppressor != null) {
-                    scrollableViewNoiseSuppressor.onScrolled(dx, dy);
-                    blur3_InvalidateBlur();
-                }
             }
 
             @Override
@@ -570,10 +533,6 @@ public class InviteContactsActivity extends BaseFragment implements Notification
         });
 
         actionBar.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundGray));
-        iBlur3Capture = new ViewGroupPartRenderer(listView, contentView, listView::drawChild);
-        listView.addEdgeEffectListener(() -> listView.postOnAnimation(() -> {
-            blur3_InvalidateBlur();
-        }));
 
         checkUi_emptyViewVisible();
 
@@ -1129,29 +1088,4 @@ public class InviteContactsActivity extends BaseFragment implements Notification
 
 
 
-    /* Blur */
-
-    private final @Nullable DownscaleScrollableNoiseSuppressor scrollableViewNoiseSuppressor;
-    private final @Nullable BlurredBackgroundSourceRenderNode iBlur3SourceGlassFrosted;
-
-    private IBlur3Capture iBlur3Capture;
-    private boolean iBlur3Invalidated;
-
-    private final ArrayList<RectF> iBlur3Positions = new ArrayList<>();
-    private final RectF iBlur3PositionActionBar = new RectF(); {
-        iBlur3Positions.add(iBlur3PositionActionBar);
-    }
-
-    private void blur3_InvalidateBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || scrollableViewNoiseSuppressor == null) {
-            return;
-        }
-
-        final int additionalList = dp(48);
-        final int additionalSearch = dp(DialogsActivity.SEARCH_FIELD_HEIGHT) + maxSize;
-
-        iBlur3PositionActionBar.set(0, -additionalList, fragmentView.getMeasuredWidth(), actionBar.getMeasuredHeight() + additionalList + additionalSearch );
-        scrollableViewNoiseSuppressor.setupRenderNodes(iBlur3Positions, 1);
-        scrollableViewNoiseSuppressor.invalidateResultRenderNodes(iBlur3Capture, fragmentView.getMeasuredWidth(), fragmentView.getMeasuredHeight());
-    }
 }
